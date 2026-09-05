@@ -58,7 +58,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Destructure props
     const {
-      onPress, disabled, background, kind, radius, style, children, accessibilityLabel,
+      onPress, disabled, selected, background, kind, radius, style, children, accessibilityLabel,
       ...rest
     } = props;
 
@@ -131,7 +131,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // ---- Accessibility ----
     const ariaProps = Parts.A11y.state({
-      disabled: !!disabled
+      disabled: !!disabled,
+      selected: selected !== undefined ? !!selected : undefined
     });
 
 
@@ -176,10 +177,17 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     *********************************************************************/
     resolveStateSuffix: function (props, pressableState) {
 
+      // Disabled takes precedence over all other states
       if (props.disabled) {
         return '_disabled';
       }
 
+      // Selected is a persistent state, checked before transient press/hover
+      if (props.selected) {
+        return '_selected';
+      }
+
+      // Pressed is transient, checked after persistent states
       if (pressableState.pressed) {
         return '_pressed';
       }
