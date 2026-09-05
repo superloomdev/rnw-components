@@ -2,6 +2,11 @@
 // Border/radius/padding/font all come from tokens; focus swaps the border
 // to the primary color (focus ring). Placeholder color uses a derived muted
 // token. Passes accessibilityRole and aria-* for screen readers.
+//
+// The layer prop selects the Carbon field background (field_01, field_02,
+// field_03) for the input's surface. When isInvalid is true, the border
+// uses the support_error color. The typeSet prop applies a full Carbon
+// type style to the input text.
 
 
 // Imports
@@ -35,23 +40,47 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Destructure props
     const {
-      style, accessibilityLabel, isInvalid, isDisabled,
+      style, accessibilityLabel, isInvalid, isDisabled, layer, typeSet,
       onFocus, onBlur, ...rest
     } = props;
 
     const React = Lib.React;
     const [focused, setFocused] = React.useState(false);
 
+    // Resolve field background: layer prop takes precedence, then surface fallback
+    const fieldBgKey = layer ? 'background_' + layer : 'background_surface';
+    const fieldBg = Object.prototype.hasOwnProperty.call(Style.utilities, fieldBgKey)
+      ? Style.utilities[fieldBgKey]
+      : Style.utilities['background_surface'];
+
+    // Resolve type style: typeSet takes precedence, then legacy font_size_md
+    const typeKey = typeSet ? 'type_' + typeSet : 'font_size_md';
+    const typeStyle = Object.prototype.hasOwnProperty.call(Style.utilities, typeKey)
+      ? Style.utilities[typeKey]
+      : Style.utilities['font_size_md'];
+
+    // Resolve border: invalid uses support_error, focused uses primary, else default
+    let borderClass;
+    if (isInvalid) {
+      const invalidBorderKey = 'border_color_support_error';
+      borderClass = Object.prototype.hasOwnProperty.call(Style.utilities, invalidBorderKey)
+        ? Object.assign({}, Style.utilities[invalidBorderKey], { borderWidth: 1 })
+        : Style.utilities['border_default'];
+    } else if (focused) {
+      borderClass = Style.utilities['border_primary'];
+    } else {
+      borderClass = Style.utilities['border_default'];
+    }
+
     // Resolve base styles from tokens
     const base = [
-      Style.utilities['background_surface'],
+      fieldBg,
       Style.utilities['br_md'],
       Style.utilities['p_h_md'],
       Style.utilities['p_v_sm'],
-      Style.utilities['font_size_md'],
+      typeStyle,
       Style.utilities['font_text_primary'],
-      // Focus swaps border to primary; otherwise default border
-      focused ? Style.utilities['border_primary'] : Style.utilities['border_default']
+      borderClass
     ];
 
     // Build aria state props through the a11y translator
