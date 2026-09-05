@@ -41,6 +41,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     const {
       value, defaultValue, onChange, disabled, invalid, placeholder, rows,
+      layer, typeSet,
       style, accessibilityLabel,
       ...rest
     } = props;
@@ -59,19 +60,39 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const isDisabled = !!disabled;
     const isInvalid = !!invalid;
 
+    // Resolve field background: layer prop takes precedence, then disabled, then surface
+    const fieldBgKey = layer ? 'background_' + layer : 'background_surface';
+    const fieldBg = Object.prototype.hasOwnProperty.call(Style.utilities, fieldBgKey)
+      ? Style.utilities[fieldBgKey]
+      : isDisabled
+        ? { backgroundColor: Style.tokens.Color.BACKGROUND_SECONDARY }
+        : Style.utilities['background_surface'];
+
+    // Resolve type style: typeSet takes precedence, then legacy font_size_md
+    const typeKey = typeSet ? 'type_' + typeSet : 'font_size_md';
+    const typeStyle = Object.prototype.hasOwnProperty.call(Style.utilities, typeKey)
+      ? Style.utilities[typeKey]
+      : null;
+
+    // Resolve border: invalid uses support_error when available
+    let borderClass = Style.utilities['border_default'];
+    if (isInvalid) {
+      const invalidBorderKey = 'border_color_support_error';
+      if (Object.prototype.hasOwnProperty.call(Style.utilities, invalidBorderKey)) {
+        borderClass = Object.assign({}, Style.utilities[invalidBorderKey], { borderWidth: 1 });
+      } else {
+        borderClass = { borderColor: Style.tokens.Color.STATUS_DANGER, borderWidth: 1 };
+      }
+    }
+
     // Base styles from tokens
-    const colorMap = Style.tokens.Color;
     const base = [
       Style.utilities['p_h_md'],
       Style.utilities['p_v_sm'],
       Style.utilities['br_md'],
-      Style.utilities['border_default'],
-      isInvalid
-        ? { borderColor: colorMap.STATUS_DANGER }
-        : null,
-      isDisabled
-        ? { backgroundColor: colorMap.BACKGROUND_SECONDARY }
-        : Style.utilities['background_surface'],
+      borderClass,
+      fieldBg,
+      typeStyle,
       {
         minHeight: (rows || 4) * 24,
         textAlignVertical: 'top'
@@ -90,7 +111,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         value: resolvedValue,
         onChangeText: setValue,
         placeholder: placeholder,
-        placeholderTextColor: colorMap.TEXT_MUTED,
+        placeholderTextColor: Style.tokens.Color.TEXT_MUTED,
         editable: !isDisabled,
         multiline: true,
         numberOfLines: rows || 4,
