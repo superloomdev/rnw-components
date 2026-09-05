@@ -95,10 +95,11 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const fillPercent = range > 0 ? ((clampedValue - minVal) / range) * 100 : 0;
 
     // Resolve track and thumb colors
+    // Use Carbon-specific tokens when available, fall back to legacy tokens
     const activeColor = isDisabled
-      ? (colorMap.TEXT_DISABLED)
-      : (colorMap.APP_PRIMARY);
-    const inactiveColor = colorMap.BACKGROUND_SECONDARY;
+      ? (colorMap.icon_disabled || colorMap.TEXT_DISABLED)
+      : (colorMap.interactive || colorMap.APP_PRIMARY);
+    const inactiveColor = colorMap.border_subtle_01 || colorMap.BACKGROUND_SECONDARY;
 
     // Step the value by stepVal on press of left/right track halves
     const onDecrease = function () {
