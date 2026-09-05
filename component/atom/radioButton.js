@@ -68,6 +68,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Resolve the radio circle style,
     const colorMap = Style.tokens.Color;
+
+    // Use Carbon-specific tokens when available, fall back to legacy tokens
+    const interactiveColor = colorMap.interactive || colorMap.APP_PRIMARY;
+    const borderInteractiveColor = colorMap.border_interactive || colorMap.APP_PRIMARY;
+    const iconDisabledColor = colorMap.icon_disabled || colorMap.TEXT_DISABLED;
+    const borderSubtleColor = colorMap.border_subtle_01 || colorMap.BORDER;
+
     const circleBase = {
       width: 20,
       height: 20,
@@ -80,13 +87,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const circleStyle = checked
       ? {
         borderColor: disabled
-          ? (colorMap.TEXT_DISABLED)
-          : (colorMap.APP_PRIMARY)
+          ? (iconDisabledColor)
+          : (borderInteractiveColor)
       }
       : {
         borderColor: disabled
-          ? (colorMap.TEXT_DISABLED)
-          : (colorMap.BORDER)
+          ? (iconDisabledColor)
+          : (borderSubtleColor)
       };
 
     // Inner dot for checked state,
@@ -99,8 +106,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           height: 10,
           borderRadius: 5,
           backgroundColor: disabled
-            ? (colorMap.TEXT_DISABLED)
-            : (colorMap.APP_PRIMARY)
+            ? (iconDisabledColor)
+            : (interactiveColor)
         }
       });
     }
