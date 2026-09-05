@@ -70,18 +70,27 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
   ////////////////////////// Private Functions START ///////////////////////////
   const _Icon = {
 
-    // Resolve a color prop to a hex value: hex -> as-is, token -> palette, default TEXT_PRIMARY
+    // Resolve a color prop to a hex value: hex -> as-is, token -> palette,
+    // default icon_primary (Carbon) or TEXT_PRIMARY (legacy)
     resolveColorToken: function (color, colorMap) {
 
+      // Raw hex value: use as-is
       if (color && color.charAt(0) === '#') {
         return color;
       }
 
+      // Carbon snake_case icon tokens: icon_primary, icon_on_color, etc.
+      if (color && colorMap[color]) {
+        return colorMap[color];
+      }
+
+      // Legacy SCREAMING_SNAKE_CASE tokens: TEXT_PRIMARY, APP_PRIMARY, etc.
       if (color && colorMap[color.toUpperCase()]) {
         return colorMap[color.toUpperCase()];
       }
 
-      return colorMap.TEXT_PRIMARY;
+      // Default: prefer Carbon icon_primary, fall back to TEXT_PRIMARY
+      return colorMap.icon_primary || colorMap.TEXT_PRIMARY;
 
     }
 
