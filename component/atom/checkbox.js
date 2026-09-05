@@ -68,6 +68,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Resolve the checkbox box style based on checked state,
     const colorMap = Style.tokens.Color;
+
+    // Use Carbon-specific tokens when available, fall back to legacy tokens
+    const interactiveColor = colorMap.interactive || colorMap.APP_PRIMARY;
+    const borderInteractiveColor = colorMap.border_interactive || colorMap.APP_PRIMARY;
+    const iconDisabledColor = colorMap.icon_disabled || colorMap.TEXT_DISABLED;
+    const borderSubtleColor = colorMap.border_subtle_01 || colorMap.BORDER;
+
     const boxBase = {
       width: 20,
       height: 20,
@@ -81,20 +88,20 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     if (checked === 'mixed') {
       boxStyle = {
-        backgroundColor: colorMap.APP_PRIMARY,
-        borderColor: colorMap.APP_PRIMARY
+        backgroundColor: interactiveColor,
+        borderColor: borderInteractiveColor
       };
     } else if (checked === true) {
       boxStyle = {
-        backgroundColor: colorMap.APP_PRIMARY,
-        borderColor: colorMap.APP_PRIMARY
+        backgroundColor: interactiveColor,
+        borderColor: borderInteractiveColor
       };
     } else {
       boxStyle = {
         backgroundColor: 'transparent',
         borderColor: disabled
-          ? (colorMap.TEXT_DISABLED)
-          : (colorMap.BORDER)
+          ? (iconDisabledColor)
+          : (borderSubtleColor)
       };
     }
 
