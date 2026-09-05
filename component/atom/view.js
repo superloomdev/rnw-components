@@ -1,6 +1,11 @@
 // Info: View atom [S1 presentational]. The base layout box. Convenience props
 // map to generated utility classes (background / radius / border); anything
 // else falls through `style`.
+//
+// The layer prop accepts a Carbon layer token name (layer_01, layer_02,
+// layer_03, background) and resolves it to the corresponding background
+// utility. This is the layer-aware surface selection point for components
+// that need to paint the correct Carbon layer background.
 
 
 // Imports
@@ -33,20 +38,23 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
   const View = function View (props) {
 
     // Destructure token props from pass-through props
-    const { background, radius, border, style, children, ...rest } = props;
+    const { background, layer, radius, border, style, children, ...rest } = props;
 
     // Resolve token props to utility classes
     const classes = [];
 
 
     // ---- Background ----
-    if (background) {
-      const bgClass = Style.utilities['background_' + background];
+    // The layer prop takes precedence over background for Carbon layer selection
+    const bgToken = layer || background;
+
+    if (bgToken) {
+      const bgClass = Style.utilities['background_' + bgToken];
 
       if (bgClass) {
         classes.push(bgClass);
       } else {
-        Lib.Debug.warn('unknown background token, ignoring', { background: background });
+        Lib.Debug.warn('unknown background token, ignoring', { background: bgToken });
       }
 
     }

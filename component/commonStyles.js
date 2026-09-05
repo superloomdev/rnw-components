@@ -1,11 +1,19 @@
 // Info: The token -> atomic-utility-style generator. Given an assembled theme
-// ({ Color, Dimension, Font, Breakpoint }) and a breakpoint key, it produces a
-// Tailwind-like stylesheet of utility classes that components consume by name.
-// Regenerated whenever the theme changes (the runtime-theming seam).
+// ({ Color, Dimension, Font, Breakpoint, TypeSet, Shadow, Motion, Layer }) and
+// a breakpoint key, it produces a Tailwind-like stylesheet of utility classes
+// that components consume by name. Regenerated whenever the theme changes
+// (the runtime-theming seam).
 //
 // Spacing utilities are LOGICAL (start/end), so layouts mirror correctly under
 // RTL with no per-component work. Each breakpoint generates its own utility set
 // so components can switch sets without regenerating styles on resize.
+//
+// Type set utilities preserve the full Carbon type style (fontSize, lineHeight,
+// letterSpacing, fontWeight, fontFamily) rather than collapsing to a size plus
+// a global lineHeightRatio. Carbon color tokens (layer_01, text_primary,
+// border_subtle_01, icon_primary, etc.) generate utilities by their snake_case
+// names. Border utilities separate width/side from color so a selected top
+// border cannot become an all-side border.
 //
 // Pure function, no side effects. Called by build() once per breakpoint.
 
@@ -148,6 +156,114 @@ export default function generateCommonStyles (theme, breakpoint, Parts) {
   }
 
 
+  // ~~~~~~~~~~ Type sets (full Carbon type styles) ~~~~~~~~~~
+  // Each type set utility carries fontSize, lineHeight, letterSpacing,
+  // fontWeight, and fontFamily - not collapsed to size + global ratio.
+  if (theme.TypeSet && typeof theme.TypeSet === 'object') {
+
+    const typeKeys = Object.keys(theme.TypeSet);
+
+    for (let i = 0; i < typeKeys.length; i++) {
+
+      const key = typeKeys[i];
+      const ts = theme.TypeSet[key];
+
+      if (ts && typeof ts === 'object') {
+
+        const style = {};
+
+        // Font size: round for native rendering
+        if (typeof ts.fontSize === 'number') {
+          style.fontSize = ts.fontSize;
+        } else if (typeof ts.fontSize === 'string') {
+          // Parse rem/em to px
+          const px = parseFloat(ts.fontSize);
+          if (!isNaN(px)) {
+            style.fontSize = Math.round(px * 16);
+          }
+        }
+
+        // Line height: preserve exact value, not a global ratio
+        if (typeof ts.lineHeight === 'number') {
+          style.lineHeight = ts.lineHeight;
+        }
+
+        // Letter spacing: parse to px for native
+        if (typeof ts.letterSpacing === 'number') {
+          style.letterSpacing = ts.letterSpacing;
+        } else if (typeof ts.letterSpacing === 'string') {
+          const lsPx = parseFloat(ts.letterSpacing);
+          if (!isNaN(lsPx)) {
+            style.letterSpacing = lsPx;
+          }
+        }
+
+        // Font weight
+        if (ts.fontWeight !== undefined) {
+          const weightStyle = Parts.Typeface.styleFor(
+            ts.fontFamily || 'primary',
+            ts.fontWeight,
+            Font
+          );
+          Object.assign(style, weightStyle);
+        } else if (ts.fontFamily) {
+          // Family without weight (Carbon leaves weight unset for some styles)
+          const familyName = Font.family[ts.fontFamily] || Font.family.primary;
+          if (familyName) {
+            style.fontFamily = familyName;
+          }
+        }
+
+        styles['type_' + key] = style;
+
+      }
+
+    }
+
+  }
+
+
+  // ~~~~~~~~~~ Carbon color utilities (snake_case token names) ~~~~~~~~~~
+  // Generate font_, background_, and border_color_ utilities for every
+  // Carbon color token in the theme, using their snake_case names.
+  if (Color && typeof Color === 'object') {
+
+    const colorKeys = Object.keys(Color);
+
+    for (let i = 0; i < colorKeys.length; i++) {
+
+      const key = colorKeys[i];
+      const snakeKey = normalizeToken(key);
+      const value = Color[key];
+
+      if (typeof value !== 'string') {
+        continue;
+      }
+
+      // Text color utilities: font_text_primary, font_icon_primary, etc.
+      if (snakeKey.indexOf('text_') === 0 || snakeKey.indexOf('icon_') === 0 ||
+          snakeKey.indexOf('interactive') === 0 || snakeKey.indexOf('focus') === 0 ||
+          snakeKey.indexOf('highlight') === 0 || snakeKey.indexOf('support_') === 0) {
+        styles['font_' + snakeKey] = { color: value };
+      }
+
+      // Background color utilities: background_layer_01, background_background, etc.
+      if (snakeKey.indexOf('layer_') === 0 || snakeKey.indexOf('background') === 0 ||
+          snakeKey.indexOf('field_') === 0 || snakeKey.indexOf('overlay') === 0 ||
+          snakeKey.indexOf('skeleton_') === 0 || snakeKey.indexOf('ai_') === 0) {
+        styles['background_' + snakeKey] = { backgroundColor: value };
+      }
+
+      // Border color utilities (separated from width/side): border_color_subtle_01, etc.
+      if (snakeKey.indexOf('border_') === 0) {
+        styles['border_color_' + snakeKey] = { borderColor: value };
+      }
+
+    }
+
+  }
+
+
   // ~~~~~~~~~~ Backgrounds ~~~~~~~~~~
   for (let i = 0; i < BACKGROUND_COLOR_TOKENS.length; i++) {
     const token = BACKGROUND_COLOR_TOKENS[i];
@@ -172,6 +288,70 @@ export default function generateCommonStyles (theme, breakpoint, Parts) {
   // Focus ring border for the focused interaction state
   if (Color.APP_PRIMARY !== undefined) {
     styles['border_focused'] = { borderWidth: 2, borderColor: Color.APP_PRIMARY };
+  }
+
+
+  // ~~~~~~~~~~ Separated border width/side utilities ~~~~~~~~~~
+  // Border width is separated from border color so a selected top border
+  // cannot become an all-side border. Components combine width + side +
+  // color utilities.
+  const BORDER_WIDTHS = [0, 1, 2, 4];
+  const BORDER_SIDES = ['a', 't', 'b', 's', 'e', 'r', 'l'];
+
+  for (let w = 0; w < BORDER_WIDTHS.length; w++) {
+
+    const width = BORDER_WIDTHS[w];
+
+    // All-sides width
+    styles['border_w_' + width] = { borderWidth: width };
+
+    // Per-side width
+    for (let s = 0; s < BORDER_SIDES.length; s++) {
+
+      const side = BORDER_SIDES[s];
+
+      if (side === 't') {
+        styles['border_w_t_' + width] = { borderTopWidth: width };
+      } else if (side === 'b') {
+        styles['border_w_b_' + width] = { borderBottomWidth: width };
+      } else if (side === 's') {
+        styles['border_w_s_' + width] = { borderStartWidth: width };
+      } else if (side === 'e') {
+        styles['border_w_e_' + width] = { borderEndWidth: width };
+      } else if (side === 'r') {
+        styles['border_w_r_' + width] = { borderRightWidth: width };
+      } else if (side === 'l') {
+        styles['border_w_l_' + width] = { borderLeftWidth: width };
+      }
+
+    }
+
+  }
+
+
+  // ~~~~~~~~~~ Shadow utilities ~~~~~~~~~~
+  // Shadow utilities from the Shadow group. On native, these use
+  // shadowColor/shadowOffset/shadowRadius/shadowOpacity/elevation.
+  // On web, they use boxShadow.
+  if (theme.Shadow && typeof theme.Shadow === 'object') {
+
+    const shadowKeys = Object.keys(theme.Shadow);
+
+    for (let i = 0; i < shadowKeys.length; i++) {
+
+      const key = shadowKeys[i];
+      const shadow = theme.Shadow[key];
+
+      if (typeof shadow === 'string') {
+        // CSS box-shadow string (used in box_shadow mode)
+        styles['shadow_' + key] = { boxShadow: shadow };
+      } else if (shadow && typeof shadow === 'object') {
+        // Native shadow object
+        styles['shadow_' + key] = shadow;
+      }
+
+    }
+
   }
 
 

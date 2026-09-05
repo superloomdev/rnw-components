@@ -1,8 +1,12 @@
 // Info: Heading atom [S1 presentational]. A text element with role="header"
 // and a level prop. Uses the A11y mechanism for aria-* level.
 //   level       -> 1-6 (default 1, maps to aria-level)
+//   typeSet     -> Carbon type set name (heading_01, heading_02, etc.)
 //   children    -> heading text content
 //   style       -> custom style overrides
+//
+// When typeSet is provided, the full Carbon type style is used. Otherwise,
+// the legacy size map is used as a fallback.
 
 
 // Imports
@@ -22,7 +26,7 @@ Build the Heading atom.
 
 @return {Function} - The Heading component
 *********************************************************************/
-export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) { // eslint-disable-line no-unused-vars
+export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
   /////////////////////////// Static Constants START ////////////////////////////
   // None.
@@ -34,14 +38,18 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) { // eslin
   const Heading = function Heading (props) {
 
     const {
-      level, children, style,
+      level, typeSet, children, style,
       ...rest
     } = props;
 
     const React = Lib.React;
     const lvl = Lib.Utils.isNumber(level) ? level : 1;
 
-    // Map level to font size token
+    // Map level to Carbon type set name (heading_01 through heading_06)
+    const typeSetMap = { 1: 'heading_01', 2: 'heading_02', 3: 'heading_03', 4: 'heading_04', 5: 'heading_05', 6: 'heading_06' };
+    const resolvedTypeSet = typeSet || typeSetMap[lvl] || 'heading_01';
+
+    // Legacy size map as fallback when type set utility is not available
     const sizeMap = { 1: 'xxl', 2: 'xl', 3: 'lg', 4: 'md', 5: 'sm', 6: 'xs' };
     const sizeToken = sizeMap[lvl] || 'xl';
 
@@ -50,15 +58,19 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) { // eslin
       level: lvl
     });
 
+    // Check if the type set utility exists; if not, fall back to legacy size
+    const typeKey = 'type_' + resolvedTypeSet;
+    const hasTypeSet = Object.prototype.hasOwnProperty.call(Style.utilities, typeKey);
+    const textProps = hasTypeSet
+      ? { typeSet: resolvedTypeSet, color: 'text_primary' }
+      : { size: sizeToken, color: 'text_primary', weight: 'semibold' };
+
     return React.createElement(
       Registry.Text,
       Object.assign({
-        size: sizeToken,
-        color: 'text_primary',
-        weight: 'semibold',
         accessibilityRole: 'header',
         style: [style]
-      }, ariaProps, rest),
+      }, textProps, ariaProps, rest),
       children
     );
 

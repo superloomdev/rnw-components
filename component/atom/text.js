@@ -1,8 +1,13 @@
 // Info: Text atom [S1 presentational]. Maps typography props to generated
 // utility classes:
-//   size  -> font_size_<size>     (xs|sm|md|lg|xl|xxl)
-//   color -> font_<color>         (text_primary|text_secondary|app_primary|...)
-//   weight-> font_weight_<weight> (regular|medium|semibold|bold)
+//   typeSet -> type_<typeSet>     (body_01|heading_01|caption_01|...)
+//   size    -> font_size_<size>   (xs|sm|md|lg|xl|xxl) [legacy, no type set]
+//   color   -> font_<color>       (text_primary|text_secondary|app_primary|...)
+//   weight  -> font_weight_<weight> (regular|medium|semibold|bold)
+//
+// When typeSet is provided, the full Carbon type style is applied (fontSize,
+// lineHeight, letterSpacing, fontWeight, fontFamily) instead of collapsing
+// to a size plus a global lineHeightRatio.
 
 
 // Imports
@@ -41,22 +46,40 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
   const Text = function Text (props) {
 
     // Destructure token props from pass-through props
-    const { size, color, weight, align, style, children, ...rest } = props;
+    const { typeSet, size, color, weight, align, style, children, ...rest } = props;
 
     // Resolve token props to utility classes, falling back to defaults
     const classes = [];
 
 
-    // ---- Font size ----
-    const sizeKey = 'font_size_' + (size || CONFIG.DEFAULT_FONT_SIZE);
-    let sizeStyle = Style.utilities[sizeKey];
+    // ---- Type set (full Carbon type style) ----
+    if (typeSet) {
 
-    if (!sizeStyle) {
-      Lib.Debug.warn('unknown font size token, using default', { size: size });
-      sizeStyle = Style.utilities['font_size_' + CONFIG.DEFAULT_FONT_SIZE];
+      const typeKey = 'type_' + typeSet;
+      const typeStyle = Style.utilities[typeKey];
+
+      if (typeStyle) {
+        classes.push(typeStyle);
+      } else {
+        Lib.Debug.warn('unknown type set token, falling back to size', { typeSet: typeSet });
+      }
+
     }
 
-    classes.push(sizeStyle);
+
+    // ---- Font size (legacy, when no type set is specified) ----
+    if (!typeSet) {
+      const sizeKey = 'font_size_' + (size || CONFIG.DEFAULT_FONT_SIZE);
+      let sizeStyle = Style.utilities[sizeKey];
+
+      if (!sizeStyle) {
+        Lib.Debug.warn('unknown font size token, using default', { size: size });
+        sizeStyle = Style.utilities['font_size_' + CONFIG.DEFAULT_FONT_SIZE];
+      }
+
+      classes.push(sizeStyle);
+
+    }
 
 
     // ---- Font color ----
