@@ -64,16 +64,16 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     // Resolve colors from tokens
     const colorMap = Style.tokens.Color;
 
-    // Track color when on: app primary; when off: a muted surface
-    const trackOnColor = colorMap.APP_PRIMARY;
-    const trackOffColor = colorMap.BACKGROUND_SECONDARY;
+    // Use Carbon-specific tokens when available, fall back to legacy tokens
+    const trackOnColor = colorMap.interactive || colorMap.APP_PRIMARY;
+    const trackOffColor = colorMap.border_subtle_01 || colorMap.BACKGROUND_SECONDARY;
 
     // Thumb color: white or surface
-    const thumbColor = colorMap.BACKGROUND_PRIMARY;
+    const thumbColor = colorMap.background || colorMap.BACKGROUND_PRIMARY;
 
     // Disabled colors are dimmed
-    const disabledTrackColor = colorMap.BACKGROUND_SECONDARY;
-    const disabledThumbColor = colorMap.TEXT_DISABLED;
+    const disabledTrackColor = colorMap.border_subtle_01 || colorMap.BACKGROUND_SECONDARY;
+    const disabledThumbColor = colorMap.icon_disabled || colorMap.TEXT_DISABLED;
 
     // Build aria state props through the a11y translator
     const ariaProps = Parts.A11y.state({
