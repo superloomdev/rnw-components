@@ -431,6 +431,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 |---|---|---|---|
 | `onPress` | Function | - | - |
 | `disabled` | Boolean | - | - |
+| `selected` | Boolean | - | - |
 | `background` | - | - | - |
 | `kind` | String | - | 'primary' | 'secondary' | 'danger' | 'ghost' (maps to button token family background and label color) |
 | `radius` | - | - | - |
@@ -1168,6 +1169,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `level` | - | - | 1-6 (default 1, maps to aria-level) |
+| `typeSet` | - | typeSetMap[lvl] || 'heading_01' | Carbon type set name (heading_01, heading_02, etc.) |
 | `children` | Node | - | heading text content |
 | `style` | Object|Array | - | custom style overrides |
 
@@ -2520,9 +2522,10 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
-| `size` | - | - | font_size_<size>     (xs|sm|md|lg|xl|xxl) |
-| `color` | - | - | font_<color>         (text_primary|text_secondary|app_primary|...) |
-| `weight` | - | - | - |
+| `typeSet` | - | - | type_<typeSet>     (body_01|heading_01|caption_01|...) |
+| `size` | - | - | font_size_<size>   (xs|sm|md|lg|xl|xxl) [legacy, no type set] |
+| `color` | - | - | font_<color>       (text_primary|text_secondary|app_primary|...) |
+| `weight` | - | - | font_weight_<weight> (regular|medium|semibold|bold) |
 | `align` | - | - | - |
 | `style` | Object|Array | - | - |
 | `children` | Node | - | - |
@@ -2540,6 +2543,8 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | `invalid` | Boolean | - | boolean |
 | `placeholder` | - | - | string |
 | `rows` | Number | - | number (visual height in lines, default 4) |
+| `layer` | - | - | - |
+| `typeSet` | - | - | - |
 | `style` | Object|Array | - | - |
 | `accessibilityLabel` | - | - | - |
 
@@ -2553,6 +2558,8 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | `accessibilityLabel` | - | - | - |
 | `isInvalid` | Boolean | - | - |
 | `isDisabled` | Boolean | - | - |
+| `layer` | - | - | - |
+| `typeSet` | - | - | - |
 | `onFocus` | Function | - | - |
 | `onBlur` | Function | - | - |
 
@@ -2843,6 +2850,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `background` | - | - | - |
+| `layer` | - | background | - |
 | `radius` | - | - | - |
 | `border` | - | - | - |
 | `style` | Object|Array | - | - |

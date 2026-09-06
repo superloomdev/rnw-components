@@ -68,7 +68,7 @@ export default function buildThemeContract (themer_output) {
       Color: {},
       Dimension: {},
       Font: { family: {}, weight: {} },
-      Breakpoint: DEFAULT_BREAKPOINTS,
+      Breakpoint: { ...DEFAULT_BREAKPOINTS },
       TypeSet: {},
       Shadow: {},
       Motion: {},
@@ -84,6 +84,7 @@ export default function buildThemeContract (themer_output) {
   const Shadow = {};
   const Motion = {};
   const Layer = {};
+  const containers = new WeakSet([Font.family, Font.weight]);
 
   // Walk the flat token map and partition by prefix
   const flatKeys = Object.keys(flat);
@@ -103,57 +104,51 @@ export default function buildThemeContract (themer_output) {
 
     // Color tokens: color.APP_PRIMARY -> Color.APP_PRIMARY
     if (parts[0] === 'color') {
-      Color[parts[1]] = value;
+      assignToken(Color, parts.slice(1), value, containers);
 
     // Dimension tokens: dimension.font_size.xs -> Dimension.fontSize.xs
     } else if (parts[0] === 'dimension') {
 
-      if (parts.length === 3) {
+      if (parts.length >= 3) {
         // Convert snake_case sub-group to camelCase: font_size -> fontSize
         const scaleName = toCamelCase(parts[1]);
 
-        if (!Dimension[scaleName]) {
-          Dimension[scaleName] = {};
-        }
-
         // Round font sizes to integers for clean native rendering
-        Dimension[scaleName][parts[2]] = (scaleName === 'fontSize') ? Math.round(value) : value;
+        const emittedValue = (scaleName === 'fontSize') ? Math.round(value) : value;
+        assignToken(Dimension, [scaleName, ...parts.slice(2)], emittedValue, containers);
 
       } else {
         // Scalar dimension: dimension.line_height_ratio -> Dimension.lineHeightRatio
-        Dimension[toCamelCase(parts[1])] = value;
+        assignToken(Dimension, parts.slice(1).map(toCamelCase), value, containers);
 
       }
 
     // Font tokens: font.family.primary -> Font.family.primary
     } else if (parts[0] === 'font') {
 
-      if (!Font[parts[1]]) {
-        Font[parts[1]] = {};
-      }
-      Font[parts[1]][parts[2]] = value;
+      assignToken(Font, parts.slice(1), value, containers);
 
     // Type set tokens: type.body_01 -> TypeSet.body01
     } else if (parts[0] === 'type') {
 
       // Convert snake_case key to camelCase: body_01 -> body01
-      const typeKey = toCamelCase(parts[1]);
-      TypeSet[typeKey] = value;
+      const typeKey = parts.slice(1).map(toCamelCase);
+      assignToken(TypeSet, typeKey, value, containers);
 
     // Shadow tokens: shadow.card -> Shadow.card
     } else if (parts[0] === 'shadow') {
 
-      Shadow[parts[1]] = value;
+      assignToken(Shadow, parts.slice(1), value, containers);
 
     // Motion tokens: motion.duration_fast_01 -> Motion.durationFast01
     } else if (parts[0] === 'motion') {
 
-      Motion[toCamelCase(parts[1])] = value;
+      assignToken(Motion, parts.slice(1).map(toCamelCase), value, containers);
 
     // Layer tokens: layer.background -> Layer.background
     } else if (parts[0] === 'layer') {
 
-      Layer[parts[1]] = value;
+      assignToken(Layer, parts.slice(1), value, containers);
 
     }
 
@@ -164,11 +159,40 @@ export default function buildThemeContract (themer_output) {
     Color: Color,
     Dimension: Dimension,
     Font: Font,
-    Breakpoint: DEFAULT_BREAKPOINTS,
+    Breakpoint: { ...DEFAULT_BREAKPOINTS },
     TypeSet: TypeSet,
     Shadow: Shadow,
     Motion: Motion,
     Layer: Layer
   };
+
+}
+
+
+function assignToken (group, path, value, containers) {
+
+  if (!path.length || path.some(function (part) {
+    return !part || ['__proto__', 'constructor', 'prototype'].includes(part);
+  })) {
+    throw new TypeError('rnw-components-carbon: invalid token path ' + path.join('.'));
+  }
+
+  let target = group;
+  for (let i = 0; i < path.length - 1; i++) {
+    const part = path[i];
+    if (!Object.prototype.hasOwnProperty.call(target, part)) {
+      target[part] = {};
+      containers.add(target[part]);
+    } else if (!containers.has(target[part])) {
+      throw new TypeError('rnw-components-carbon: colliding token path ' + path.join('.'));
+    }
+    target = target[part];
+  }
+
+  const leaf = path[path.length - 1];
+  if (Object.prototype.hasOwnProperty.call(target, leaf)) {
+    throw new TypeError('rnw-components-carbon: colliding token path ' + path.join('.'));
+  }
+  target[leaf] = value;
 
 }

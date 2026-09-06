@@ -50,6 +50,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Resolve token props to utility classes, falling back to defaults
     const classes = [];
+    let hasTypeStyle = false;
 
 
     // ---- Type set (full Carbon type style) ----
@@ -60,6 +61,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
       if (typeStyle) {
         classes.push(typeStyle);
+        hasTypeStyle = true;
       } else {
         Lib.Debug.warn('unknown type set token, falling back to size', { typeSet: typeSet });
       }
@@ -68,7 +70,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
 
     // ---- Font size (legacy, when no type set is specified) ----
-    if (!typeSet) {
+    if (!hasTypeStyle) {
       const sizeKey = 'font_size_' + (size || CONFIG.DEFAULT_FONT_SIZE);
       let sizeStyle = Style.utilities[sizeKey];
 
@@ -95,15 +97,17 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
 
     // ---- Font weight ----
-    const weightKey = 'font_weight_' + (weight || CONFIG.DEFAULT_FONT_WEIGHT);
-    let weightStyle = Style.utilities[weightKey];
+    if (!hasTypeStyle || weight) {
+      const weightKey = 'font_weight_' + (weight || CONFIG.DEFAULT_FONT_WEIGHT);
+      let weightStyle = Style.utilities[weightKey];
 
-    if (!weightStyle) {
-      Lib.Debug.warn('unknown font weight token, using default', { weight: weight });
-      weightStyle = Style.utilities['font_weight_' + CONFIG.DEFAULT_FONT_WEIGHT];
+      if (!weightStyle) {
+        Lib.Debug.warn('unknown font weight token, using default', { weight: weight });
+        weightStyle = Style.utilities['font_weight_' + CONFIG.DEFAULT_FONT_WEIGHT];
+      }
+
+      classes.push(weightStyle);
     }
-
-    classes.push(weightStyle);
 
 
     // ---- Alignment ----

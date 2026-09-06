@@ -11,7 +11,8 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createSystem } from 'rnw-components-carbon';
+import { createSystem, buildThemeContract, Text } from 'rnw-components-carbon';
+import { Text as RNText, StyleSheet } from 'react-native';
 import { COMPONENTS } from 'rnw-components-carbon/all';
 
 import {
@@ -22,6 +23,91 @@ import {
 
 import { sharedLibs, React, TestRenderer, TOKENS } from './loader.js';
 
+
+describe('bridge path preservation', function () {
+
+  it('should preserve siblings in every dotted token group', function () {
+    const flat = {};
+    const groups = { color: 'Color', dimension: 'Dimension', font: 'Font', type: 'TypeSet', shadow: 'Shadow', motion: 'Motion', layer: 'Layer' };
+    for (const prefix of Object.keys(groups)) {
+      flat[prefix + '.roles.primary'] = 1;
+      flat[prefix + '.roles.secondary'] = 2;
+    }
+    const result = buildThemeContract(flat);
+    for (const group of Object.values(groups)) {
+      assert.deepEqual(result[group].roles, { primary: 1, secondary: 2 });
+    }
+  });
+
+  it('should reject scalar and nested path collisions in either order', function () {
+    for (const flat of [
+      { 'color.roles': 'scalar', 'color.roles.primary': 'child' },
+      { 'color.roles.primary': 'child', 'color.roles': 'scalar' }
+    ]) {
+      assert.throws(function () { buildThemeContract(flat); }, /colliding token path/);
+    }
+  });
+
+  it('should reject unsafe and empty path segments', function () {
+    for (const key of ['color.__proto__.value', 'font.constructor.prototype.value', 'color..value']) {
+      assert.throws(function () { buildThemeContract({ [key]: 1 }); }, /invalid token path/);
+    }
+    assert.equal(Object.prototype.value, undefined);
+  });
+
+  it('should not mutate composite input tokens or share default breakpoints', function () {
+    const type = Object.freeze({ fontSize: 14, lineHeight: 20 });
+    const flat = { 'type.body01': type };
+    const result = buildThemeContract(flat);
+    assert.deepEqual(result.TypeSet.body01, type);
+    assert.throws(function () {
+      buildThemeContract({ ...flat, 'type.body01.fontWeight': 600 });
+    }, /colliding token path/);
+    result.Breakpoint.base = 10;
+    assert.equal(buildThemeContract(null).Breakpoint.base, 0);
+  });
+
+});
+
+describe('type-set rendering and strict lookup', function () {
+
+  it('should preserve the complete type set unless weight is explicitly overridden', function () {
+    const theme = createCarbonTheme();
+    theme.Font.family.primary = 'System';
+    theme.TypeSet = { body01: { fontSize: 14, lineHeight: 20, letterSpacing: 0.16, fontWeight: 600, fontFamily: 'primary' } };
+    const system = createSystem(sharedLibs, { STRICT_TOKENS: true }, theme, 'base');
+    system.addComponents({ Text });
+    for (const [props, expected] of [[{}, 600], [{ weight: 'bold' }, '700']]) {
+      const renderer = TestRenderer.create(React.createElement(system.Component.Text, { typeSet: 'body01', ...props }, 'Sample'));
+      const style = StyleSheet.flatten(renderer.root.findByType(RNText).props.style);
+      assert.equal(style.fontWeight, expected);
+      assert.equal(style.fontSize, 14);
+      assert.equal(style.lineHeight, 20);
+      assert.equal(style.letterSpacing, 0.16);
+      renderer.unmount();
+    }
+  });
+
+  it('should reject unknown dynamic size and color tokens in strict mode', function () {
+    const system = createSystem(sharedLibs, { STRICT_TOKENS: true }, createCarbonTheme(), 'base');
+    system.addComponents({ Text });
+    for (const props of [{ size: 'missing' }, { color: 'missing' }, { weight: 'missing' }, { typeSet: 'missing' }]) {
+      assert.throws(function () {
+        TestRenderer.create(React.createElement(system.Component.Text, props, 'Sample'));
+      }, /unknown utility/);
+    }
+  });
+
+  it('should use legacy metrics for an unknown type set only in lenient mode', function () {
+    const system = createSystem(sharedLibs, {}, createCarbonTheme(), 'base');
+    system.addComponents({ Text });
+    const renderer = TestRenderer.create(React.createElement(system.Component.Text, { typeSet: 'missing' }, 'Sample'));
+    const style = StyleSheet.flatten(renderer.root.findByType(RNText).props.style);
+    assert.equal(style.fontSize, system.Style.utilities.font_size_md.fontSize);
+    renderer.unmount();
+  });
+
+});
 
 // ========================= HELPERS ======================================== //
 
