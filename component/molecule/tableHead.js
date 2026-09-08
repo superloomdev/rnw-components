@@ -48,7 +48,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityRole: 'rowgroup',
         style: [
           Style.utilities['flex_col'],
-          Style.utilities['background_background_secondary'],
+          Style.utilities['background_layer_01'],
           style
         ]
       }, rest),

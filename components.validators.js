@@ -5,26 +5,8 @@
 // Boot-time validation throws TypeError; render-time validation is
 // handled inside component factories via Lib.Debug.warn + fallback.
 
-// Color tokens the component set cannot render without. The list is the union
-// of the tokens components read directly and the tokens commonStyles.js turns
-// into utility classes. A theme missing any of them produces either a crash or
-// a silently broken utility class, so absence fails at boot instead.
-const REQUIRED_COLOR_TOKENS = Object.freeze([
-  'APP_PRIMARY', 'APP_PRIMARY_HOVERED', 'APP_PRIMARY_PRESSED',
-  'APP_PRIMARY_DISABLED', 'APP_PRIMARY_SUBTLE',
-  'TEXT_PRIMARY', 'TEXT_SECONDARY', 'TEXT_MUTED', 'TEXT_DISABLED',
-  'TEXT_ON_PRIMARY',
-  'BACKGROUND_PRIMARY', 'BACKGROUND_SECONDARY', 'SURFACE', 'BORDER',
-  'STATUS_SUCCESS', 'STATUS_SUCCESS_SUBTLE',
-  'STATUS_DANGER', 'STATUS_DANGER_SUBTLE',
-  'STATUS_WARNING', 'STATUS_WARNING_SUBTLE',
-  'STATUS_INFO', 'STATUS_INFO_SUBTLE',
-  'BUTTON_PRIMARY', 'BUTTON_PRIMARY_HOVER', 'BUTTON_PRIMARY_ACTIVE',
-  'BUTTON_SECONDARY', 'BUTTON_SECONDARY_HOVER', 'BUTTON_SECONDARY_ACTIVE',
-  'BUTTON_TERTIARY', 'BUTTON_TERTIARY_HOVER', 'BUTTON_TERTIARY_ACTIVE',
-  'BUTTON_DANGER_PRIMARY', 'BUTTON_DANGER_HOVER', 'BUTTON_DANGER_ACTIVE',
-  'BUTTON_DANGER_SECONDARY', 'BUTTON_DISABLED', 'BUTTON_SEPARATOR'
-]);
+// Unit-suffix pattern for rejecting web projection leaks into native props
+const UNIT_PATTERN = /(?:rem|em|%|vh|vw|px|pt)$/;
 
 
 export default function (Lib, ERRORS) {
@@ -41,9 +23,9 @@ export default function (Lib, ERRORS) {
     *********************************************************************/
     validateConfig: function (CONFIG) {
 
-      // DEFAULT_FONT_SIZE must be a non-empty string
-      if (!Lib.Utils.isString(CONFIG.DEFAULT_FONT_SIZE)) {
-        throw new TypeError('rnw-components: DEFAULT_FONT_SIZE must be a string');
+      // DEFAULT_TYPE_SET must be a non-empty string
+      if (!Lib.Utils.isString(CONFIG.DEFAULT_TYPE_SET)) {
+        throw new TypeError('rnw-components: DEFAULT_TYPE_SET must be a string');
       }
 
       // DEFAULT_FONT_COLOR must be a non-empty string
@@ -51,9 +33,9 @@ export default function (Lib, ERRORS) {
         throw new TypeError('rnw-components: DEFAULT_FONT_COLOR must be a string');
       }
 
-      // DEFAULT_FONT_WEIGHT must be a non-empty string
-      if (!Lib.Utils.isString(CONFIG.DEFAULT_FONT_WEIGHT)) {
-        throw new TypeError('rnw-components: DEFAULT_FONT_WEIGHT must be a string');
+      // DEFAULT_FONT_FAMILY must be a non-empty string
+      if (!Lib.Utils.isString(CONFIG.DEFAULT_FONT_FAMILY)) {
+        throw new TypeError('rnw-components: DEFAULT_FONT_FAMILY must be a string');
       }
 
       // MIN_HIT_TARGET must be a positive number
@@ -80,7 +62,7 @@ export default function (Lib, ERRORS) {
 
       // React is required - two copies break hooks
       if (Lib.Utils.isNullOrUndefined(shared_libs.React)) {
-        throw new TypeError('rnw-components: shared_libs.React is required (the react module)');
+        throw new TypeError(ERRORS.REACT_NOT_INJECTED.message);
       }
 
       // Utils is required
@@ -95,155 +77,117 @@ export default function (Lib, ERRORS) {
 
       // Device is required for viewport and breakpoint resolution
       if (Lib.Utils.isNullOrUndefined(shared_libs.Device)) {
-        throw new TypeError('rnw-components: shared_libs.Device is required (js-rnw-helper-device)');
+        throw new TypeError(ERRORS.DEVICE_NOT_INJECTED.message);
+      }
+
+      // Themer is required for contract validation and theme building
+      if (Lib.Utils.isNullOrUndefined(shared_libs.Themer)) {
+        throw new TypeError(ERRORS.THEMER_UNAVAILABLE.message);
       }
 
     },
 
 
     /********************************************************************
-    Validate a theme contract at build time. Throws TypeError when the
-    theme is malformed or missing a required token group. This is a
+    Validate a built theme at build time. Throws TypeError when the
+    built object is malformed or missing required tokens. This is a
     boot-time check, so it throws normally.
 
-    @param {Object} theme - The theme contract { Color, Dimension, Font, Breakpoint }
+    @param {Object} built - The Themer.buildTheme() result with a flat
+                            tokens map
+    @param {Object} Themer - The Themer engine (for validateContract)
+    @param {Object} contractInfo - { REQUIRED_TOKENS, SUPPORTED_TOKENS }
     @return {void}
     *********************************************************************/
-    validateTheme: function (theme) {
+    validateBuilt: function (built, Themer, contractInfo) {
 
-      // Theme must be an object
-      if (!Lib.Utils.isObject(theme)) {
-        throw new TypeError('rnw-components: theme must be an object');
+      // The built result must be an object
+      if (!Lib.Utils.isObject(built)) {
+        throw new TypeError('rnw-components: built theme must be an object');
       }
 
-      // Color group is required
-      if (!Lib.Utils.isObject(theme.Color)) {
-        throw new TypeError('rnw-components: theme.Color must be an object');
+      // The tokens map must be a plain object
+      if (!Lib.Utils.isObject(built.tokens)) {
+        throw new TypeError(ERRORS.THEME_MISSING_TOKENS.message);
       }
 
-      // Every required Color token must be a non-empty string. Collect the
-      // whole missing set before throwing so one boot reports every gap
-      // rather than one per run.
-      const missingColors = [];
+      // Validate the contract through the Themer engine
+      const result = Themer.validateContract(built, {
+        required: contractInfo.REQUIRED_TOKENS,
+        supported: contractInfo.SUPPORTED_TOKENS
+      });
 
-      for (let c = 0; c < REQUIRED_COLOR_TOKENS.length; c++) {
-        const colorKey = REQUIRED_COLOR_TOKENS[c];
+      // Filter to structural errors only (missing/unknown tokens).
+      // CONTRACT_INVALID_VALUE is skipped because validateContract checks
+      // raw contract values, but built.tokens contains platform-projected
+      // values (e.g. type sets emitted as {fontSize,lineHeight,...} instead
+      // of {type_set:true,font_size,...}). Value validation already ran
+      // inside buildTheme before projection.
+      const structuralErrors = [];
+      if (!Lib.Utils.isEmptyArray(result.errors)) {
+        for (let i = 0; i < result.errors.length; i++) {
+          if (result.errors[i].code !== 'CONTRACT_INVALID_VALUE') {
+            structuralErrors.push(result.errors[i]);
+          }
+        }
+      }
 
-        if (!Lib.Utils.isString(theme.Color[colorKey]) || Lib.Utils.isEmptyString(theme.Color[colorKey])) {
-          missingColors.push(colorKey);
+      // Collect all structural errors and throw once with the full list
+      if (!Lib.Utils.isEmptyArray(structuralErrors)) {
+
+        // Group error tokens by their error code
+        const byCode = {};
+        for (let i = 0; i < structuralErrors.length; i++) {
+          const err = structuralErrors[i];
+          if (!byCode[err.code]) {
+            byCode[err.code] = [];
+          }
+          byCode[err.code].push(err.token);
         }
 
-      }
+        // Build the message listing every token grouped by code
+        const parts = [];
+        const codes = Object.keys(byCode);
+        for (let c = 0; c < codes.length; c++) {
+          parts.push(codes[c] + ': ' + byCode[codes[c]].join(', '));
+        }
 
-      // Report the complete missing set in one throw
-      if (!Lib.Utils.isEmptyArray(missingColors)) {
         throw new TypeError(
-          'rnw-components: theme.Color is missing required token(s): ' +
-          missingColors.join(', ') + '. ' + ERRORS.THEME_MISSING_COLOR_TOKEN.type
+          ERRORS.THEME_MISSING_TOKENS.message + ': ' + parts.join('; ')
         );
       }
 
-      // Dimension group is required
-      if (!Lib.Utils.isObject(theme.Dimension)) {
-        throw new TypeError('rnw-components: theme.Dimension must be an object');
+      // Warn once for unsupported tokens (not errors, just warnings)
+      if (!Lib.Utils.isEmptyArray(result.warnings)) {
+        const tokens = result.warnings.map(function (w) {
+          return w.token;
+        });
+        Lib.Debug.warn('rnw-components: unsupported tokens ignored', { tokens: tokens });
       }
 
-      // Dimension.fontSize is required
-      if (!Lib.Utils.isObject(theme.Dimension.fontSize)) {
-        throw new TypeError('rnw-components: theme.Dimension.fontSize must be an object');
-      }
+      // Defense in depth: reject unit-suffixed strings in number-typed groups.
+      // The Themer contract already enforces this, but this catches a
+      // third-party theme that bypasses the engine.
+      const tokenNames = Object.keys(built.tokens);
+      for (let t = 0; t < tokenNames.length; t++) {
+        const name = tokenNames[t];
+        const value = built.tokens[name];
 
-      // Dimension.space is required
-      if (!Lib.Utils.isObject(theme.Dimension.space)) {
-        throw new TypeError('rnw-components: theme.Dimension.space must be an object');
-      }
-
-      // Dimension.radius is required
-      if (!Lib.Utils.isObject(theme.Dimension.radius)) {
-        throw new TypeError('rnw-components: theme.Dimension.radius must be an object');
-      }
-
-      // Font group is required
-      if (!Lib.Utils.isObject(theme.Font)) {
-        throw new TypeError('rnw-components: theme.Font must be an object');
-      }
-
-      // Font.family is required
-      if (!Lib.Utils.isObject(theme.Font.family)) {
-        throw new TypeError('rnw-components: theme.Font.family must be an object');
-      }
-
-      // Font.weight is required
-      if (!Lib.Utils.isObject(theme.Font.weight)) {
-        throw new TypeError('rnw-components: theme.Font.weight must be an object');
-      }
-
-      // Breakpoint group is required
-      if (!Lib.Utils.isObject(theme.Breakpoint)) {
-        throw new TypeError('rnw-components: theme.Breakpoint must be an object');
-      }
-
-      // TypeSet group is optional but must be an object when present
-      if (theme.TypeSet !== undefined && !Lib.Utils.isObject(theme.TypeSet)) {
-        throw new TypeError('rnw-components: theme.TypeSet must be an object');
-      }
-
-      // Shadow group is optional but must be an object when present
-      if (theme.Shadow !== undefined && !Lib.Utils.isObject(theme.Shadow)) {
-        throw new TypeError('rnw-components: theme.Shadow must be an object');
-      }
-
-      // Motion group is optional but must be an object when present
-      if (theme.Motion !== undefined && !Lib.Utils.isObject(theme.Motion)) {
-        throw new TypeError('rnw-components: theme.Motion must be an object');
-      }
-
-      // Layer group is optional but must be an object when present
-      if (theme.Layer !== undefined && !Lib.Utils.isObject(theme.Layer)) {
-        throw new TypeError('rnw-components: theme.Layer must be an object');
-      }
-
-      // Value-level validation: dimension values must be finite numbers
-      // Catches the web projection (rem/em strings) being fed to RNW components
-      const UNIT_PATTERN = /(?:rem|em|%|vh|vw|px|pt)$/;
-      const dimensionGroups = ['fontSize', 'space', 'radius'];
-
-      // Iterate each dimension group to validate its token values
-      for (let g = 0; g < dimensionGroups.length; g++) {
-        const groupName = dimensionGroups[g];
-        const group = theme.Dimension[groupName];
-
-        if (!Lib.Utils.isObject(group)) {
-          continue;
-        }
-
-        const keys = Object.keys(group);
-
-        for (let k = 0; k < keys.length; k++) {
-          const tokenKey = keys[k];
-          const value = group[tokenKey];
+        // Only check number-typed groups: spacing, shape, border, focus, size
+        if (name.indexOf('spacing.') === 0 ||
+            name.indexOf('shape.') === 0 ||
+            name.indexOf('border.') === 0 ||
+            name.indexOf('focus.') === 0 ||
+            name.indexOf('size.') === 0) {
 
           // Reject unit-suffixed strings (web projection leak)
           if (Lib.Utils.isString(value) && UNIT_PATTERN.test(value)) {
             throw new TypeError(
-              'rnw-components: theme.Dimension.' + groupName + '.' + tokenKey +
-              ' is "' + value + '" (unit-suffixed string). ' +
-              'Pass the native projection, not the web projection. ' +
-              ERRORS.THEME_VALUE_UNIT_STRING.type
+              'rnw-components: token "' + name + '" is "' + value +
+              '" (unit-suffixed string). ' + ERRORS.THEME_VALUE_UNIT_STRING.message
             );
           }
-
-          // Reject NaN and non-finite numbers
-          if (!Lib.Utils.isNumber(value)) {
-            throw new TypeError(
-              'rnw-components: theme.Dimension.' + groupName + '.' + tokenKey +
-              ' must be a finite number, got ' + typeof value + '. ' +
-              ERRORS.THEME_VALUE_NOT_FINITE.type
-            );
-          }
-
         }
-
       }
 
     }

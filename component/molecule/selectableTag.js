@@ -43,7 +43,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     // Handle toggle
     const handlePress = function () {
@@ -73,24 +72,24 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
-          Style.utilities['p_h_sm'],
-          Style.utilities['p_v_xs'],
-          Style.utilities['br_pill'],
+          Style.utilities['p_h_spacing_03'],
+          Style.utilities['p_v_spacing_01'],
+          Style.utilities['br_radius_max'],
           {
             borderWidth: 1,
             borderColor: selected
-              ? (colorMap.APP_PRIMARY)
-              : (colorMap.BORDER),
+              ? (Style.tokens.Color.interactive)
+              : (Style.tokens.Color.border_subtle_01),
             backgroundColor: selected
-              ? (colorMap.APP_PRIMARY_SUBTLE)
+              ? (Style.tokens.Color.background)
               : 'transparent'
           },
           style
         ]
       }, ariaProps, pressKeysProps, rest),
       React.createElement(Registry.Text, {
-        size: 'sm',
-        color: selected ? 'app_primary' : 'text_primary'
+        typeSet: 'label01',
+        color: selected ? 'interactive' : 'text_primary'
       }, text)
     );
   };////////////////////////// Public Functions END ////////////////////////////

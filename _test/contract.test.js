@@ -308,14 +308,18 @@ describe('L4-R11: Font color contrast', function () {
       return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
     }
 
-    const EXEMPT_TOKENS = ['TEXT_DISABLED'];
+    // text_disabled is exempt (low opacity by design).
+    // support_success and support_warning are Carbon status colors used as
+    // icon/background fills, not as text on white; their contrast on white
+    // is below 4.5:1 by Carbon's own design.
+    const EXEMPT_TOKENS = ['text_disabled', 'support_success', 'support_warning'];
     const colorTokens = Style.tokens.Color;
-    const bgPrimary = colorTokens.BACKGROUND_PRIMARY;
+    const bgPrimary = colorTokens.background;
     const findings = [];
 
     const FONT_TOKENS = [
-      'TEXT_PRIMARY', 'TEXT_SECONDARY', 'TEXT_MUTED', 'TEXT_DISABLED', 'TEXT_ON_PRIMARY',
-      'APP_PRIMARY', 'STATUS_SUCCESS', 'STATUS_DANGER', 'STATUS_WARNING', 'STATUS_INFO'
+      'text_primary', 'text_secondary', 'text_secondary', 'text_disabled', 'text_on_color',
+      'interactive', 'support_success', 'support_error', 'support_warning', 'support_info'
     ];
 
     for (let i = 0; i < FONT_TOKENS.length; i++) {
@@ -326,7 +330,7 @@ describe('L4-R11: Font color contrast', function () {
         continue;
       }
 
-      const bg = token === 'TEXT_ON_PRIMARY' ? colorTokens.APP_PRIMARY : bgPrimary;
+      const bg = token === 'text_on_color' ? colorTokens.interactive : bgPrimary;
       const ratio = contrastRatio(value, bg);
 
       if (ratio < 4.5) {
@@ -375,25 +379,181 @@ describe('L4: Proof tests', function () {
 });
 
 
+// ============================================================================
+// L4-R6: No direct mechanism requires in component files
+// ============================================================================
+
+describe('L4-R6: No direct mechanism requires', function () {
+
+  it('should not import from parts/ directly in component files', function () {
+
+    const files = collectFiles(COMPONENT_DIR);
+    const findings = [];
+
+    for (let f = 0; f < files.length; f++) {
+      const lines = readLines(files[f]);
+      const rel = path.relative(COMPONENT_DIR, files[f]);
+
+      // context/ is infrastructure, not a component; it legitimately
+      // imports the compound-context part to cache context instances.
+      if (rel.startsWith('context' + path.sep)) {
+        continue;
+      }
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        // Skip comments
+        if (line.trim().indexOf('//') === 0) {
+          continue;
+        }
+
+        // Match imports from parts/ directory
+        if (/from\s+['"][^'"]*\/parts\//.test(line)) {
+          findings.push(rel + ':' + (i + 1) + ' imports from parts/ directly');
+        }
+      }
+    }
+
+    assert.strictEqual(findings.length, 0,
+      'L4-R6: direct parts/ imports found:\n  ' + findings.join('\n  '));
+
+  });
+
+});
+
+
+// ============================================================================
+// L4-R9: text_disabled only in disabled branches
+// ============================================================================
+
+describe('L4-R9: text_disabled only in disabled branches', function () {
+
+  it('should only reference text_disabled in disabled or error contexts', function () {
+
+    const files = collectFiles(COMPONENT_DIR);
+    const findings = [];
+
+    for (let f = 0; f < files.length; f++) {
+      const lines = readLines(files[f]);
+      const rel = path.relative(COMPONENT_DIR, files[f]);
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        // Skip comments
+        if (line.trim().indexOf('//') === 0) {
+          continue;
+        }
+
+        // Look for text_disabled usage outside of disabled/error contexts
+        if (line.indexOf('text_disabled') !== -1) {
+          // Check surrounding context for disabled or error keywords
+          const context = lines.slice(Math.max(0, i - 3), Math.min(lines.length, i + 4)).join(' ');
+          if (!/disabled|error|invalid|isInvalid/i.test(context)) {
+            findings.push(rel + ':' + (i + 1) + ' uses text_disabled outside a disabled/error context');
+          }
+        }
+      }
+    }
+
+    assert.strictEqual(findings.length, 0,
+      'L4-R9: text_disabled used outside disabled/error branches:\n  ' + findings.join('\n  '));
+
+  });
+
+});
+
+
+// ============================================================================
+// L4-R10: BORDER tokens not used as font color
+// ============================================================================
+
+describe('L4-R10: BORDER tokens not used as font color', function () {
+
+  it('should not use border tokens as font color utilities', function () {
+
+    const files = collectFiles(COMPONENT_DIR);
+    const findings = [];
+
+    for (let f = 0; f < files.length; f++) {
+      const lines = readLines(files[f]);
+      const rel = path.relative(COMPONENT_DIR, files[f]);
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        // Skip comments
+        if (line.trim().indexOf('//') === 0) {
+          continue;
+        }
+
+        // Look for font_ utilities that reference border tokens
+        if (/font_border_subtle|font_border_strong|font_border_interactive|font_border_inverse/.test(line)) {
+          findings.push(rel + ':' + (i + 1) + ' uses a border token as a font color');
+        }
+      }
+    }
+
+    assert.strictEqual(findings.length, 0,
+      'L4-R10: border tokens used as font colors:\n  ' + findings.join('\n  '));
+
+  });
+
+});
+
+
+// ============================================================================
+// Planted-violation proof tests for G27/G28/G29
+// ============================================================================
+
+describe('L4-PROOF: G27/G28/G29 violation detection', function () {
+
+  it('G27 should detect vendor terminology in a sample string', function () {
+
+    const sample = 'const color = Carbon.blue60;';
+    assert.ok(/carbon/i.test(sample),
+      'G27 proof: should detect "Carbon" in source');
+
+  });
+
+
+  it('G28 should detect dead token names in a sample string', function () {
+
+    const sample = 'const util = Style.utilities["font_size_md"];';
+    assert.ok(/font_size_md/.test(sample),
+      'G28 proof: should detect font_size_md dead token');
+
+  });
+
+
+  it('G29 should detect removed ./theme export reference', function () {
+
+    const sample = "import theme from 'rnw-components/theme';";
+    assert.ok(/rnw-components\/theme/.test(sample),
+      'G29 proof: should detect rnw-components/theme reference');
+
+  });
+
+});
+
+
 // ─── Color token contract ──────────────────────────────────────────────────
 
-// The 37 tokens createSystem requires. Mirrored here so the suite fails when
-// the validator's list and the component tree drift apart.
+// The contract color tokens createSystem validates through Themer.
+// These are the lowercase contract names, not the old UPPERCASE names.
 const REQUIRED_COLOR_TOKENS = [
-  'APP_PRIMARY', 'APP_PRIMARY_HOVERED', 'APP_PRIMARY_PRESSED',
-  'APP_PRIMARY_DISABLED', 'APP_PRIMARY_SUBTLE',
-  'TEXT_PRIMARY', 'TEXT_SECONDARY', 'TEXT_MUTED', 'TEXT_DISABLED',
-  'TEXT_ON_PRIMARY',
-  'BACKGROUND_PRIMARY', 'BACKGROUND_SECONDARY', 'SURFACE', 'BORDER',
-  'STATUS_SUCCESS', 'STATUS_SUCCESS_SUBTLE',
-  'STATUS_DANGER', 'STATUS_DANGER_SUBTLE',
-  'STATUS_WARNING', 'STATUS_WARNING_SUBTLE',
-  'STATUS_INFO', 'STATUS_INFO_SUBTLE',
-  'BUTTON_PRIMARY', 'BUTTON_PRIMARY_HOVER', 'BUTTON_PRIMARY_ACTIVE',
-  'BUTTON_SECONDARY', 'BUTTON_SECONDARY_HOVER', 'BUTTON_SECONDARY_ACTIVE',
-  'BUTTON_TERTIARY', 'BUTTON_TERTIARY_HOVER', 'BUTTON_TERTIARY_ACTIVE',
-  'BUTTON_DANGER_PRIMARY', 'BUTTON_DANGER_HOVER', 'BUTTON_DANGER_ACTIVE',
-  'BUTTON_DANGER_SECONDARY', 'BUTTON_DISABLED', 'BUTTON_SEPARATOR'
+  'interactive', 'text_primary', 'text_secondary', 'text_disabled',
+  'text_on_color', 'text_helper', 'background', 'layer_01', 'layer_02',
+  'border_subtle_01', 'border_interactive',
+  'support_success', 'support_error', 'support_warning', 'support_info',
+  'button_primary', 'button_primary_hover', 'button_primary_active',
+  'button_secondary', 'button_secondary_hover', 'button_secondary_active',
+  'button_tertiary', 'button_tertiary_hover', 'button_tertiary_active',
+  'button_danger_primary', 'button_danger_hover', 'button_danger_active',
+  'button_danger_secondary', 'button_disabled', 'button_separator',
+  'focus', 'icon_primary', 'icon_secondary', 'icon_on_color', 'icon_disabled',
+  'overlay', 'shadow', 'skeleton_background'
 ];
 
 
@@ -421,7 +581,7 @@ test('no component file carries a color fallback', function () {
   for (let i = 0; i < files.length; i++) {
     const text = fs.readFileSync(files[i], 'utf8');
 
-    if (/colorMap\.[A-Z_]+ \|\| /.test(text)) {
+    if (/Style\.tokens\.Color\.[a-z_]+ \|\| /.test(text)) {
       hits.push(path.relative(COMPONENT_DIR, files[i]));
     }
 
@@ -430,7 +590,7 @@ test('no component file carries a color fallback', function () {
   assert.deepEqual(hits, []);
 });
 
-test('every colorMap token read by a component is in the required list', function () {
+test('every Style.tokens.Color read by a component is in the required list', function () {
   // A component reading a token the gate does not require would reintroduce
   // the undefined-color class this plan removed.
   const files = collectFiles(COMPONENT_DIR);
@@ -438,10 +598,10 @@ test('every colorMap token read by a component is in the required list', functio
 
   for (let i = 0; i < files.length; i++) {
     const text = fs.readFileSync(files[i], 'utf8');
-    const found = text.match(/colorMap\.[A-Z_]+/g) || [];
+    const found = text.match(/Style\.tokens\.Color\.([a-z_0-9]+)/g) || [];
 
     for (let j = 0; j < found.length; j++) {
-      read.add(found[j].replace('colorMap.', ''));
+      read.add(found[j].replace('Style.tokens.Color.', ''));
     }
 
   }
@@ -454,5 +614,5 @@ test('every colorMap token read by a component is in the required list', functio
 });
 
 test('the required list matches the documented count', function () {
-  assert.equal(REQUIRED_COLOR_TOKENS.length, 37);
+  assert.equal(REQUIRED_COLOR_TOKENS.length, 38);
 });

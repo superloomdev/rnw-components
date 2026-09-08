@@ -10,21 +10,25 @@
 
 ```javascript
 import { createSystem, View, Text, Button } from 'rnw-components';
+import Themer from 'helper-themer';
+
+const built = Themer.buildTheme(template, layers, 'native');
 
 const system = createSystem({
   Utils: Utils,
   Debug: Debug,
   React: React,
   Device: Device,
-  Icons: Icons           // optional; Icon atom returns null without it
-}, {}, theme, 'base');
+  Themer: Themer,         // required; contract validation and theme building
+  Icons: Icons            // optional; Icon atom returns null without it
+}, {}, built, 'sm');
 
 system.addComponents({ View, Text, Button });
 
 const C = system.Component;
 ```
 
-Each call returns an independent system with its own registry. No component exists until it is registered, so a bundler drops every factory that was never imported. `React` is injected (not imported) to prevent two-copy hook errors. `Device` is `js-rnw-helper-device`.
+Each call returns an independent system with its own registry. No component exists until it is registered, so a bundler drops every factory that was never imported. `React` is injected (not imported) to prevent two-copy hook errors. `Device` is `js-rnw-helper-device`. `Themer` is the `helper-themer` engine; the host calls `Themer.buildTheme(...)` and passes the result as `built`.
 
 To register the whole roster, import the barrel:
 
@@ -32,7 +36,7 @@ To register the whole roster, import the barrel:
 import { createSystem } from 'rnw-components';
 import { COMPONENTS, VARIANTS, FREEFORMS, PROVIDERS } from 'rnw-components/all';
 
-const system = createSystem(shared_libs, {}, theme, 'base');
+const system = createSystem(shared_libs, {}, built, 'sm');
 
 system.addComponents(COMPONENTS);
 system.addVariants(VARIANTS);
@@ -59,11 +63,12 @@ Importing the barrel pulls in every component. A consumer that wants a subset im
 
 | Key | Type | Default | Constraint |
 |---|---|---|---|
-| `DEFAULT_FONT_SIZE` | String | `'md'` | non-empty string |
+| `DEFAULT_TYPE_SET` | String | `'body01'` | non-empty string |
 | `DEFAULT_FONT_COLOR` | String | `'text_primary'` | non-empty string |
-| `DEFAULT_FONT_WEIGHT` | String | `'regular'` | non-empty string |
+| `DEFAULT_FONT_FAMILY` | String | `'sans'` | non-empty string |
 | `MIN_HIT_TARGET` | Number | `44` | positive number |
-| `BREAKPOINT_ORDER` | Array | `['base','sm','md','lg','xl']` | non-empty array of strings |
+| `BREAKPOINT_ORDER` | Array | `['sm','md','lg','xlg','max']` | non-empty array of strings |
+| `STRICT_TOKENS` | Boolean | `false` | throw on unknown utility lookup |
 
 Validated at load. Bad config throws immediately.
 
@@ -72,9 +77,8 @@ Validated at load. Bad config throws immediately.
 Module exports:
 
 ```javascript
-createSystem(shared_libs, config, theme, breakpoint?) -> system
-buildThemeContract(themer_output)  -> { Color, Dimension, Font, Breakpoint }
-TOKENS                        -> { fontSize, fontColor, fontWeight, space, radius }  // frozen
+createSystem(shared_libs, config, built, breakpoint?) -> system
+TOKENS                        -> { fontColor, fontWeight, fontFamily, typeSet, radius, spacing, borderWidth, background }  // frozen
 [ComponentName]               -> component factory   // 245 named exports
 ```
 
@@ -103,30 +107,47 @@ system.Parts                       -> the 12 mechanism parts
 system.Lib | system.CONFIG | system.ERRORS | system.breakpoint
 ```
 
-`theme` is `{ Color, Dimension, Font, Breakpoint }`. **`theme.Color` must carry all 22
-required tokens**; `createSystem` throws a `TypeError` naming every absent one. The library
+`built` is the result of `Themer.buildTheme(...)`; it carries a flat `.tokens` map of dotted
+token names (`color.interactive`, `spacing.spacing_05`, `type.body01`, etc.). `createSystem`
+reshapes it internally into `system.Style.tokens` groups. **The built theme must carry all 38
+required color tokens**; `createSystem` throws a `TypeError` naming every absent one. The library
 holds no color of its own, so a missing token has no value to fall back to:
 
 ```
-APP_PRIMARY  APP_PRIMARY_HOVERED  APP_PRIMARY_PRESSED  APP_PRIMARY_DISABLED
-APP_PRIMARY_SUBTLE  TEXT_PRIMARY  TEXT_SECONDARY  TEXT_MUTED  TEXT_DISABLED
-TEXT_ON_PRIMARY  BACKGROUND_PRIMARY  BACKGROUND_SECONDARY  SURFACE  BORDER
-STATUS_SUCCESS  STATUS_SUCCESS_SUBTLE  STATUS_DANGER  STATUS_DANGER_SUBTLE
-STATUS_WARNING  STATUS_WARNING_SUBTLE  STATUS_INFO  STATUS_INFO_SUBTLE
+interactive  text_primary  text_secondary  text_disabled  text_on_color  text_helper
+background  layer_01  layer_02  border_subtle_01  border_interactive
+support_success  support_error  support_warning  support_info
+button_primary  button_primary_hover  button_primary_active
+button_secondary  button_secondary_hover  button_secondary_active
+button_tertiary  button_tertiary_hover  button_tertiary_active
+button_danger_primary  button_danger_hover  button_danger_active
+button_danger_secondary  button_disabled  button_separator
+focus  icon_primary  icon_secondary  icon_on_color  icon_disabled
+overlay  shadow  skeleton_background
 ```
 
-Extra tokens beyond these are allowed and ignored. `themer_output` is the result from `Lib.Themer.buildTheme()` or a flat token map.
+Extra tokens beyond the required set are allowed and ignored. The full contract is published by `Themer.getContract()`.
 
 Re-theming builds a new system. A system is never mutated in place.
 
 ## Theme Contract
 
-| Group | Required Keys |
+`system.Style.tokens` exposes the reshaped groups:
+
+| Group | Keys |
 |---|---|
-| `Color` | `APP_PRIMARY`, `TEXT_PRIMARY`, `TEXT_MUTED`, `TEXT_ON_PRIMARY`, `SURFACE`, `BORDER` |
-| `Dimension` | `fontSize{}`, `space{}`, `radius{}`, `lineHeightRatio` |
-| `Font` | `family{primary}`, `weight{regular}` |
-| `Breakpoint` | `base`, `sm`, `md`, `lg`, `xl` (numeric min-widths) |
+| `Color` | `interactive`, `text_primary`, `text_secondary`, `text_disabled`, `text_on_color`, `text_helper`, `background`, `layer_01`, `layer_02`, `border_subtle_01`, `border_interactive`, `support_success`, `support_error`, `support_warning`, `support_info`, `button_primary`, `button_primary_hover`, `button_primary_active`, `button_secondary`, `button_secondary_hover`, `button_secondary_active`, `button_tertiary`, `button_tertiary_hover`, `button_tertiary_active`, `button_danger_primary`, `button_danger_hover`, `button_danger_active`, `button_danger_secondary`, `button_disabled`, `button_separator`, `focus`, `icon_primary`, `icon_secondary`, `icon_on_color`, `icon_disabled`, `overlay`, `shadow`, `skeleton_background` |
+| `Spacing` | `spacing_01` through `spacing_13` |
+| `Shape` | `radius_00`, `radius_02`, `radius_04`, `radius_08`, `radius_16`, `radius_24`, `radius_max` |
+| `TypeSet` | `body01`, `body02`, `heading01`-`heading07`, `caption01`, `caption02`, `label01`, `label02`, `display01`-`display04`, etc. |
+| `Font` | `family{sans,serif,mono}`, `weight{thin,extralight,light,regular,medium,semibold,bold,extrabold,black}` |
+| `Border` | `width_01`, `width_02`, `width_03` |
+| `Focus` | `width`, `offset` |
+| `Motion` | `duration_fast_01`-`duration_slow_02`, `easing_*` |
+| `Feedback` | `press` |
+| `Shadow` | `level_01`, `level_02`, `level_03` |
+| `Size` | `container_01`-`container_05`, `size_xsmall`-`size_2xlarge`, `icon_01`-`icon_02`, `layout_01`-`layout_07` |
+| `Breakpoint` | `sm`, `md`, `lg`, `xlg`, `max` (numeric min-widths) |
 
 ## Component Registry
 
@@ -417,10 +438,10 @@ Eight shared mechanisms in `component/`, used across all components:
 
 | Surface | Case |
 |---|---|
-| Theme token keys | `SCREAMING_SNAKE_CASE` (`APP_PRIMARY`, `TEXT_MUTED`) |
-| Utility class names | `lowercase_with_underscores` (`font_size_md`, `background_surface`) |
-| Component prop tokens | `lowercase` (`size: 'md'`, `color: 'text_primary'`) |
-| Breakpoint keys | `lowercase` (`base`, `sm`, `md`, `lg`, `xl`) |
+| Contract token names | `lowercase_with_underscores` (`color.interactive`, `spacing.spacing_05`) |
+| Utility class names | `lowercase_with_underscores` (`type_body01`, `background_interactive`) |
+| Component prop tokens | `lowercase` (`typeSet: 'body01'`, `color: 'text_primary'`) |
+| Breakpoint keys | `lowercase` (`sm`, `md`, `lg`, `xlg`, `max`) |
 
 ## Testing
 
@@ -439,4 +460,5 @@ Pure Node. No container, no emulator, no network. Uses `react-test-renderer` wit
 - **Re-theming builds a new system.** Call `createSystem` again and re-register; callers swap the reference
 - **A provider factory takes arguments positionally** from `addProviders`, in the order `Lib, CONFIG, ERRORS, Parts, Registry, Style`. A provider may declare a shorter list, but it must be a **prefix** of that order. Gate G22 enforces this
 - **`checkRegistry` reports missing siblings.** A component that renders a sibling reads it from the registry at render time, so call this after registering and fail at boot instead of at render
-- **`buildThemeContract` adds `Breakpoint`.** The themer does not own breakpoints; they are layout boundaries, not design tokens
+- **`Themer` is a required injection.** `shared_libs.Themer` must be the `helper-themer` engine; `createSystem` calls `Themer.getContract()` for validation and the host calls `Themer.buildTheme(...)` to produce the `built` argument
+- **Breakpoints live in the contract.** The Themer contract owns `breakpoint.sm` through `breakpoint.max`; they are layout boundaries, not design tokens. The default breakpoint is `'sm'`

@@ -91,12 +91,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           disabled: isDisabled,
           accessibilityRole: 'button',
           accessibilityLabel: 'Open date picker',
-          style: Style.utilities['m_s_xs']
+          style: Style.utilities['m_s_spacing_01']
         },
         React.createElement(Registry.Icon, {
           name: 'calendar',
-          size: 'sm',
-          color: 'TEXT_SECONDARY'
+          typeSet: 'label01',
+          color: 'text_secondary'
         })
       ),
       // DatePicker overlay

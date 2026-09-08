@@ -63,8 +63,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           ref: focusTrap.containerRef,
           accessibilityRole: 'dialog',
           style: [
-            Style.utilities['background_surface'],
-            Style.utilities['br_lg'],
+            Style.utilities['background_layer_02'],
+            Style.utilities['br_radius_12'],
             { margin: 24, maxWidth: 600, alignSelf: 'center' },
             style
           ]
@@ -116,7 +116,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     if (overlay.layerIndex < 0 && isOpen) {
       return React.createElement(
         RNView,
-        { style: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, alignItems: 'center', justifyContent: 'center' } },
+        { style: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: Parts.Stacking.modal, alignItems: 'center', justifyContent: 'center' } },
         renderBackdrop(),
         renderContent()
       );

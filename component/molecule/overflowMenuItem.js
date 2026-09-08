@@ -67,13 +67,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
-          Style.utilities['p_h_md'],
-          Style.utilities['p_v_sm'],
+          Style.utilities['p_h_spacing_05'],
+          Style.utilities['p_v_spacing_03'],
           style
         ]
       }, rest),
       React.createElement(Registry.Text, {
-        size: 'md',
+        typeSet: 'body01',
         color: disabled ? 'text_disabled' : 'text_primary',
         style: { flex: 1 }
       }, text)

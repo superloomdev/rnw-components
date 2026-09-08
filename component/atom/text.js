@@ -1,13 +1,13 @@
 // Info: Text atom [S1 presentational]. Maps typography props to generated
 // utility classes:
-//   typeSet -> type_<typeSet>     (body_01|heading_01|caption_01|...)
-//   size    -> font_size_<size>   (xs|sm|md|lg|xl|xxl) [legacy, no type set]
-//   color   -> font_<color>       (text_primary|text_secondary|app_primary|...)
+//   typeSet -> type_<typeSet>     (body01|heading01|caption01|...)
+//   color   -> font_<color>       (text_primary|text_secondary|interactive|...)
 //   weight  -> font_weight_<weight> (regular|medium|semibold|bold)
+//   family  -> font_family_<family> (sans|serif|mono)
 //
-// When typeSet is provided, the full Carbon type style is applied (fontSize,
+// When typeSet is provided, the full type style is applied (fontSize,
 // lineHeight, letterSpacing, fontWeight, fontFamily) instead of collapsing
-// to a size plus a global lineHeightRatio.
+// to a size plus a global ratio.
 
 
 // Imports
@@ -46,41 +46,22 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
   const Text = function Text (props) {
 
     // Destructure token props from pass-through props
-    const { typeSet, size, color, weight, align, style, children, ...rest } = props;
+    const { typeSet, color, weight, family, align, style, children, ...rest } = props;
 
     // Resolve token props to utility classes, falling back to defaults
     const classes = [];
-    let hasTypeStyle = false;
 
 
-    // ---- Type set (full Carbon type style) ----
-    if (typeSet) {
+    // ---- Type set (full type style: fontSize, lineHeight, letterSpacing,
+    //      fontWeight, fontFamily) ----
+    const effectiveTypeSet = typeSet || CONFIG.DEFAULT_TYPE_SET;
+    const typeKey = 'type_' + effectiveTypeSet;
+    const typeStyle = Style.utilities[typeKey];
 
-      const typeKey = 'type_' + typeSet;
-      const typeStyle = Style.utilities[typeKey];
-
-      if (typeStyle) {
-        classes.push(typeStyle);
-        hasTypeStyle = true;
-      } else {
-        Lib.Debug.warn('unknown type set token, falling back to size', { typeSet: typeSet });
-      }
-
-    }
-
-
-    // ---- Font size (legacy, when no type set is specified) ----
-    if (!hasTypeStyle) {
-      const sizeKey = 'font_size_' + (size || CONFIG.DEFAULT_FONT_SIZE);
-      let sizeStyle = Style.utilities[sizeKey];
-
-      if (!sizeStyle) {
-        Lib.Debug.warn('unknown font size token, using default', { size: size });
-        sizeStyle = Style.utilities['font_size_' + CONFIG.DEFAULT_FONT_SIZE];
-      }
-
-      classes.push(sizeStyle);
-
+    if (typeStyle) {
+      classes.push(typeStyle);
+    } else {
+      Lib.Debug.warn('unknown type set token', { typeSet: effectiveTypeSet });
     }
 
 
@@ -96,17 +77,29 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     classes.push(colorStyle);
 
 
-    // ---- Font weight ----
-    if (!hasTypeStyle || weight) {
-      const weightKey = 'font_weight_' + (weight || CONFIG.DEFAULT_FONT_WEIGHT);
-      let weightStyle = Style.utilities[weightKey];
+    // ---- Font weight (override on top of the type set) ----
+    if (weight) {
+      const weightKey = 'font_weight_' + weight;
+      const weightStyle = Style.utilities[weightKey];
 
-      if (!weightStyle) {
-        Lib.Debug.warn('unknown font weight token, using default', { weight: weight });
-        weightStyle = Style.utilities['font_weight_' + CONFIG.DEFAULT_FONT_WEIGHT];
+      if (weightStyle) {
+        classes.push(weightStyle);
+      } else {
+        Lib.Debug.warn('unknown font weight token', { weight: weight });
       }
+    }
 
-      classes.push(weightStyle);
+
+    // ---- Font family (override on top of the type set) ----
+    if (family) {
+      const familyKey = 'font_family_' + family;
+      const familyStyle = Style.utilities[familyKey];
+
+      if (familyStyle) {
+        classes.push(familyStyle);
+      } else {
+        Lib.Debug.warn('unknown font family token', { family: family });
+      }
     }
 
 

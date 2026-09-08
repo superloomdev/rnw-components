@@ -56,9 +56,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       icon
         ? Lib.React.createElement(Registry.Icon, {
           name: icon,
-          size: 'md',
-          color: 'TEXT_SECONDARY',
-          style: Style.utilities['m_e_md']
+          typeSet: 'body01',
+          color: 'text_secondary',
+          style: Style.utilities['m_e_spacing_05']
         })
         : null,
       // Title and subtitle column
@@ -66,15 +66,15 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         Registry.View,
         { style: Style.utilities['flex_1'] },
         Lib.React.createElement(Registry.Text, {
-          size: 'md',
+          typeSet: 'body01',
           color: 'text_primary',
           weight: 'medium'
         }, title),
         subtitle
           ? Lib.React.createElement(Registry.Text, {
-            size: 'sm',
-            color: 'text_muted',
-            style: Style.utilities['m_t_xs']
+            typeSet: 'label01',
+            color: 'text_secondary',
+            style: Style.utilities['m_t_spacing_01']
           }, subtitle)
           : null
       ),
@@ -84,11 +84,11 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Container styles
     const containerStyle = [
-      Style.utilities['p_h_md'],
-      Style.utilities['p_v_md'],
+      Style.utilities['p_h_spacing_05'],
+      Style.utilities['p_v_spacing_05'],
       Style.utilities['flex_row'],
       Style.utilities['align_center'],
-      pressed ? Style.utilities['background_background_secondary'] : null,
+      pressed ? Style.utilities['background_layer_01'] : null,
       style
     ];
 

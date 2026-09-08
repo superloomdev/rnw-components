@@ -45,7 +45,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     const currentPage = Lib.Utils.isNumber(page) ? page : 1;
     const totalPages = Lib.Utils.isNumber(totalPage) ? totalPage : 1;
@@ -112,19 +111,19 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           accessibilityRole: 'button',
           accessibilityLabel: 'Previous page',
           style: [
-            Style.utilities['br_sm'],
-            Style.utilities['p_h_sm'],
-            Style.utilities['p_v_sm'],
-            Style.utilities['m_r_sm'],
+            Style.utilities['br_radius_04'],
+            Style.utilities['p_h_spacing_03'],
+            Style.utilities['p_v_spacing_03'],
+            Style.utilities['m_r_spacing_03'],
             {
               backgroundColor: prevDisabled
-                ? (colorMap.BACKGROUND_SECONDARY)
+                ? (Style.tokens.Color.layer_01)
                 : 'transparent'
             }
           ]
         }, prevAriaProps, prevPressKeys),
         React.createElement(Registry.Text, {
-          size: 'md',
+          typeSet: 'body01',
           color: prevDisabled ? 'text_disabled' : 'text_primary'
         }, '\u2039')
       ),
@@ -145,19 +144,19 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           accessibilityRole: 'button',
           accessibilityLabel: 'Next page',
           style: [
-            Style.utilities['br_sm'],
-            Style.utilities['p_h_sm'],
-            Style.utilities['p_v_sm'],
-            Style.utilities['m_l_sm'],
+            Style.utilities['br_radius_04'],
+            Style.utilities['p_h_spacing_03'],
+            Style.utilities['p_v_spacing_03'],
+            Style.utilities['m_l_spacing_03'],
             {
               backgroundColor: nextDisabled
-                ? (colorMap.BACKGROUND_SECONDARY)
+                ? (Style.tokens.Color.layer_01)
                 : 'transparent'
             }
           ]
         }, nextAriaProps, nextPressKeys),
         React.createElement(Registry.Text, {
-          size: 'md',
+          typeSet: 'body01',
           color: nextDisabled ? 'text_disabled' : 'text_primary'
         }, '\u203A')
       )

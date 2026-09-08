@@ -126,24 +126,24 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityRole: 'button',
         accessibilityLabel: accessibilityLabel || triggerLabel,
         style: [
-          Style.utilities['p_h_md'],
-          Style.utilities['p_v_sm'],
-          Style.utilities['br_md'],
-          Style.utilities['border_default'],
-          Style.utilities['background_surface'],
+          Style.utilities['p_h_spacing_05'],
+          Style.utilities['p_v_spacing_03'],
+          Style.utilities['br_radius_08'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+          Style.utilities['background_layer_02'],
           Style.utilities['flex_row'],
           Style.utilities['align_center']
         ]
       }, triggerAriaProps),
       React.createElement(Registry.Text, {
-        size: 'md',
+        typeSet: 'body01',
         color: 'text_primary'
       }, triggerLabel),
       React.createElement(Registry.Icon, {
         name: isOpen ? 'chevron-up' : 'chevron-down',
-        size: 'sm',
-        color: 'TEXT_SECONDARY',
-        style: Style.utilities['m_s_xs']
+        typeSet: 'label01',
+        color: 'text_secondary',
+        style: Style.utilities['m_s_spacing_01']
       })
     );
 
@@ -164,12 +164,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           accessibilityRole: 'menuitem',
           accessibilityLabel: item.label,
           style: [
-            Style.utilities['p_h_md'],
-            Style.utilities['p_v_sm']
+            Style.utilities['p_h_spacing_05'],
+            Style.utilities['p_v_spacing_03']
           ]
         },
         React.createElement(Registry.Text, {
-          size: 'md',
+          typeSet: 'body01',
           color: 'text_primary'
         }, item.label)
       );
@@ -197,10 +197,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         Object.assign({
           ref: containerRef,
           style: [
-            Style.utilities['background_surface'],
-            Style.utilities['br_md'],
-            Style.utilities['border_default'],
-            Style.utilities['p_v_xs'],
+            Style.utilities['background_layer_02'],
+            Style.utilities['br_radius_08'],
+            Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+            Style.utilities['p_v_spacing_01'],
             panelStyle,
             zIndex ? { zIndex: zIndex } : {},
             style

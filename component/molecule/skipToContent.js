@@ -80,15 +80,15 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         href: resolvedHref
       }, ariaProps, pressKeysProps, {
         style: [
-          Style.utilities['p_h_md'],
-          Style.utilities['p_v_sm'],
-          Style.utilities['background_surface'],
+          Style.utilities['p_h_spacing_05'],
+          Style.utilities['p_v_spacing_03'],
+          Style.utilities['background_layer_02'],
           style
         ]
       }, rest),
       React.createElement(Registry.Text, {
-        size: 'md',
-        color: 'app_primary',
+        typeSet: 'body01',
+        color: 'interactive',
         weight: 'medium'
       }, 'Skip to content')
     );

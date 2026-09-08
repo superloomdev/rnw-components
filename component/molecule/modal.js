@@ -90,10 +90,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         Object.assign({
           ref: containerRef,
           style: [
-            Style.utilities['background_surface'],
-            Style.utilities['br_lg'],
-            Style.utilities['p_a_lg'],
-            Style.utilities['border_default'],
+            Style.utilities['background_layer_02'],
+            Style.utilities['br_radius_12'],
+            Style.utilities['p_a_spacing_06'],
+            Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
             {
               margin: 24,
               maxWidth: 600,
@@ -155,7 +155,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           style: {
             position: 'fixed',
             top: 0, left: 0, right: 0, bottom: 0,
-            zIndex: 1000,
+            zIndex: Parts.Stacking.modal,
             alignItems: 'center',
             justifyContent: 'center'
           }

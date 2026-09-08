@@ -2,7 +2,7 @@
 // (Lib.Icons.Glyph).
 //   name  -> glyph name (vendor-specific, set by the host adapter)
 //   size  -> dimension token (xs..xxl) OR a raw number
-//   color -> color token (e.g. 'TEXT_PRIMARY' / 'text_primary') OR a raw hex
+//   color -> color token (e.g. 'text_primary' / 'icon_primary') OR a raw hex
 // The icon source is injected as shared_libs.Icons (capability-named, never
 // vendor-named) so the library does not couple to a specific icon set.
 
@@ -45,18 +45,28 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     }
 
     // Resolve size: token -> px, number -> px, default md
-    const fontSizeMap = Style.tokens.Dimension.fontSize;
-    let px = fontSizeMap.md;
+    // Map legacy size names to type sets for the pixel value
+    const SIZE_TO_TYPE_SET = {
+      xs: 'caption01',
+      sm: 'label02',
+      md: 'body02',
+      lg: 'body02',
+      xl: 'heading03',
+      xxl: 'expressive_paragraph_01'
+    };
+    let px = Style.utilities['type_' + (SIZE_TO_TYPE_SET.md || 'body01')].fontSize;
 
     if (Lib.Utils.isNumber(size)) {
       px = size;
-    } else if (size && fontSizeMap[size]) {
-      px = fontSizeMap[size];
+    } else if (size) {
+      const typeSetName = SIZE_TO_TYPE_SET[size];
+      if (typeSetName && Style.utilities['type_' + typeSetName]) {
+        px = Style.utilities['type_' + typeSetName].fontSize;
+      }
     }
 
-    // Resolve color: hex -> as-is, token -> palette, default TEXT_PRIMARY
-    const colorMap = Style.tokens.Color;
-    const hex = _Icon.resolveColorToken(color, colorMap);
+    // Resolve color: hex -> as-is, token -> palette, default text_primary
+    const hex = _Icon.resolveColorToken(color, Style.tokens.Color);
 
     return Lib.React.createElement(
       Lib.Icons.Glyph,
@@ -71,26 +81,21 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
   const _Icon = {
 
     // Resolve a color prop to a hex value: hex -> as-is, token -> palette,
-    // default icon_primary (Carbon) or TEXT_PRIMARY (legacy)
-    resolveColorToken: function (color, colorMap) {
+    // default icon_primary
+    resolveColorToken: function (color, Color) {
 
       // Raw hex value: use as-is
       if (color && color.charAt(0) === '#') {
         return color;
       }
 
-      // Carbon snake_case icon tokens: icon_primary, icon_on_color, etc.
-      if (color && colorMap[color]) {
-        return colorMap[color];
+      // Contract color tokens: icon_primary, icon_on_color, etc.
+      if (color && Color[color]) {
+        return Color[color];
       }
 
-      // Legacy SCREAMING_SNAKE_CASE tokens: TEXT_PRIMARY, APP_PRIMARY, etc.
-      if (color && colorMap[color.toUpperCase()]) {
-        return colorMap[color.toUpperCase()];
-      }
-
-      // Default: prefer Carbon icon_primary, fall back to TEXT_PRIMARY
-      return colorMap.icon_primary || colorMap.TEXT_PRIMARY;
+      // Default: icon_primary
+      return Color.icon_primary;
 
     }
 

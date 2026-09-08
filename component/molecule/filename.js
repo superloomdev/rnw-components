@@ -65,13 +65,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       statusIcon
         ? React.createElement(Registry.Icon, {
           name: statusIcon,
-          size: 'sm',
-          color: 'TEXT_SECONDARY',
-          style: Style.utilities['m_e_xs']
+          typeSet: 'label01',
+          color: 'text_secondary',
+          style: Style.utilities['m_e_spacing_01']
         })
         : null,
       React.createElement(Registry.Text, {
-        size: 'md',
+        typeSet: 'body01',
         color: 'text_primary'
       }, name || '')
     );

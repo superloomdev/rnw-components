@@ -63,7 +63,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const [isOpen, setIsOpen] = React.useState(false);
     const isDisabled = !!disabled;
     const isInvalid = !!invalid;
-    const colorMap = Style.tokens.Color;
     const optionList = options || [];
 
     // Find the selected option label
@@ -129,28 +128,28 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             Style.utilities['flex_row'],
             Style.utilities['align_center'],
             Style.utilities['justify_between'],
-            Style.utilities['br_md'],
-            Style.utilities['border_default'],
-            Style.utilities['p_h_md'],
-            Style.utilities['p_v_sm'],
-            Style.utilities['background_surface'],
+            Style.utilities['br_radius_08'],
+            Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+            Style.utilities['p_h_spacing_05'],
+            Style.utilities['p_v_spacing_03'],
+            Style.utilities['background_layer_02'],
             isInvalid
-              ? { borderColor: colorMap.STATUS_DANGER }
+              ? { borderColor: Style.tokens.Color.support_error }
               : null,
             isDisabled
-              ? { backgroundColor: colorMap.BACKGROUND_SECONDARY }
+              ? { backgroundColor: Style.tokens.Color.layer_01 }
               : null,
             style
           ]
         }, ariaStateProps, pressKeysProps, rest),
         React.createElement(Registry.Text, {
-          size: 'md',
-          color: selectedOption ? 'text_primary' : 'text_muted'
+          typeSet: 'body01',
+          color: selectedOption ? 'text_primary' : 'text_secondary'
         }, displayLabel),
         React.createElement(Registry.Icon, {
           name: isOpen ? 'chevron_up' : 'chevron_down',
-          size: 'sm',
-          color: 'TEXT_MUTED'
+          typeSet: 'label01',
+          color: 'text_secondary'
         })
       );
     };
@@ -163,10 +162,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         RNView,
         {
           style: [
-            Style.utilities['background_surface'],
-            Style.utilities['br_md'],
-            Style.utilities['border_default'],
-            Style.utilities['p_v_xs'],
+            Style.utilities['background_layer_02'],
+            Style.utilities['br_radius_08'],
+            Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+            Style.utilities['p_v_spacing_01'],
             { position: 'absolute', top: pos.top, left: pos.left, minWidth: 200, zIndex: zIndex || 1000 }
           ]
         },
@@ -182,16 +181,16 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
               accessibilityRole: 'option',
               accessibilityLabel: opt.label,
               style: [
-                Style.utilities['p_h_md'],
-                Style.utilities['p_v_xs'],
+                Style.utilities['p_h_spacing_05'],
+                Style.utilities['p_v_spacing_01'],
                 isSelected
-                  ? { backgroundColor: colorMap.APP_PRIMARY_SUBTLE }
+                  ? { backgroundColor: Style.tokens.Color.background }
                   : null
               ]
             }, Parts.A11y.state({ selected: isSelected })),
             React.createElement(Registry.Text, {
-              size: 'md',
-              color: isSelected ? 'app_primary' : 'text_primary'
+              typeSet: 'body01',
+              color: isSelected ? 'interactive' : 'text_primary'
             }, opt.label)
           );
         })

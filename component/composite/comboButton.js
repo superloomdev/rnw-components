@@ -90,12 +90,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           },
           accessibilityRole: 'button',
           accessibilityLabel: 'More options',
-          style: [Style.utilities['p_h_sm'], Style.utilities['p_v_sm'], Style.utilities['border_default']]
+          style: [Style.utilities['p_h_spacing_03'], Style.utilities['p_v_spacing_03'], Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01']]
         }, ariaProps),
         React.createElement(Registry.Icon, {
           name: 'chevron-down',
-          size: 'sm',
-          color: 'TEXT_PRIMARY'
+          typeSet: 'label01',
+          color: 'text_primary'
         })
       ),
       React.createElement(Menu, { isOpen: isOpen, onClose: handleClose }, menuItems)

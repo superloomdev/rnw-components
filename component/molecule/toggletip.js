@@ -79,21 +79,21 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         {
           id: tipId,
           style: [
-            Style.utilities['background_surface'],
-            Style.utilities['br_md'],
-            Style.utilities['p_a_sm'],
+            Style.utilities['background_layer_02'],
+            Style.utilities['br_radius_08'],
+            Style.utilities['p_a_spacing_03'],
             {
               position: 'absolute',
               top: pos.top,
               left: pos.left,
               maxWidth: 300,
-              zIndex: 1000
+              zIndex: Parts.Stacking.floating
             },
             style
           ]
         },
         React.createElement(Registry.Text, {
-          size: 'sm',
+          typeSet: 'label01',
           color: 'text_primary'
         }, content)
       );

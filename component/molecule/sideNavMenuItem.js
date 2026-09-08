@@ -61,13 +61,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityLabel: text
       }, ariaProps, pressKeysProps, {
         style: [
-          Style.utilities['p_h_lg'],
-          Style.utilities['p_v_sm'],
+          Style.utilities['p_h_spacing_06'],
+          Style.utilities['p_v_spacing_03'],
           style
         ]
       }, rest),
       React.createElement(Registry.Text, {
-        size: 'md',
+        typeSet: 'body01',
         color: 'text_secondary'
       }, text || '')
     );

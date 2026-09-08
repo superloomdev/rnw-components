@@ -63,7 +63,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const [isOpen, setIsOpen] = React.useState(false);
     const isDisabled = !!disabled;
     const isInvalid = !!invalid;
-    const colorMap = Style.tokens.Color;
     const optionList = options || [];
 
     // Filter options based on the current input text
@@ -122,7 +121,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             placeholder: placeholder || 'Search',
             style: [
               isInvalid
-                ? { borderColor: colorMap.STATUS_DANGER }
+                ? { borderColor: Style.tokens.Color.support_error }
                 : null,
               style
             ]
@@ -139,18 +138,18 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         RNView,
         {
           style: [
-            Style.utilities['background_surface'],
-            Style.utilities['br_md'],
-            Style.utilities['border_default'],
-            Style.utilities['p_v_xs'],
+            Style.utilities['background_layer_02'],
+            Style.utilities['br_radius_08'],
+            Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+            Style.utilities['p_v_spacing_01'],
             { position: 'absolute', top: pos.top, left: pos.left, minWidth: 200, zIndex: zIndex || 1000 }
           ]
         },
         Lib.Utils.isEmptyArray(filteredOptions)
           ? React.createElement(Registry.Text, {
-            size: 'sm',
-            color: 'text_muted',
-            style: [Style.utilities['p_h_md'], Style.utilities['p_v_xs']]
+            typeSet: 'label01',
+            color: 'text_secondary',
+            style: [Style.utilities['p_h_spacing_05'], Style.utilities['p_v_spacing_01']]
           }, 'No results found')
           : filteredOptions.map(function (opt) {
             return React.createElement(
@@ -163,12 +162,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
                 accessibilityRole: 'option',
                 accessibilityLabel: opt.label,
                 style: [
-                  Style.utilities['p_h_md'],
-                  Style.utilities['p_v_xs']
+                  Style.utilities['p_h_spacing_05'],
+                  Style.utilities['p_v_spacing_01']
                 ]
               },
               React.createElement(Registry.Text, {
-                size: 'md',
+                typeSet: 'body01',
                 color: 'text_primary'
               }, opt.label)
             );

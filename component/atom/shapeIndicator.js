@@ -2,7 +2,7 @@
 // (circle, square, triangle) for status display. Uses A11y for aria-*.
 // Uses shared_libs.Svg as an optional injection; degrades to colored View.
 //   shape       -> 'circle' | 'square' | 'triangle' (default 'circle')
-//   color       -> string (color token or hex, default 'app_primary')
+//   color       -> string (color token or hex, default 'interactive')
 //   size        -> number (pixels, default 16)
 //   label       -> string (accessibility label)
 //   style       -> custom style overrides
@@ -43,12 +43,11 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
     const s = Lib.Utils.isNumber(size) ? size : 16;
     const sh = shape || 'circle';
 
     // Resolve color from token or raw hex
-    const resolvedColor = (colorMap[color] || color || colorMap.APP_PRIMARY);
+    const resolvedColor = (Style.tokens.Color[color] || color || Style.tokens.Color.interactive);
 
     // Base style for all shapes
     const baseStyle = {

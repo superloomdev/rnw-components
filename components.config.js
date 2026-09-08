@@ -4,20 +4,20 @@
 
 export default {
 
-  // Default font size token when a component receives no size prop
-  DEFAULT_FONT_SIZE: 'md',
+  // Default type set when a component receives no typeSet prop
+  DEFAULT_TYPE_SET: 'body01',
 
   // Default font color token when a component receives no color prop
   DEFAULT_FONT_COLOR: 'text_primary',
 
-  // Default font weight token when a component receives no weight prop
-  DEFAULT_FONT_WEIGHT: 'regular',
+  // Default font family role when a component receives no family prop
+  DEFAULT_FONT_FAMILY: 'sans',
 
   // Minimum accessible hit target in points (iOS HIG 44, Android Material 48)
   MIN_HIT_TARGET: 44,
 
-  // Breakpoint keys in ascending order, matching the theme contract
-  BREAKPOINT_ORDER: ['base', 'sm', 'md', 'lg', 'xl'],
+  // Breakpoint keys in ascending order, matching the contract v2 names
+  BREAKPOINT_ORDER: ['sm', 'md', 'lg', 'xlg', 'max'],
 
   // Throw on a utility lookup that names a key the theme did not produce.
   // Off by default so a server-driven theme degrades rather than crashing;

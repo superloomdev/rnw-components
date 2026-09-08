@@ -56,16 +56,16 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     return React.createElement(
       Registry.Text,
       Object.assign({
-        size: 'sm',
+        typeSet: 'label01',
         color: isDisabled ? 'text_disabled' : 'text_primary',
         weight: 'medium',
-        style: [Style.utilities['m_b_xs'], style]
+        style: [Style.utilities['m_b_spacing_01'], style]
       }, webProps, rest),
       children,
       required
         ? React.createElement(Registry.Text, {
-          size: 'sm',
-          color: 'status_danger',
+          typeSet: 'label01',
+          color: 'support_error',
           weight: 'medium'
         }, ' *')
         : null

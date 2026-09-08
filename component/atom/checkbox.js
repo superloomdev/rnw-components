@@ -67,13 +67,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     });
 
     // Resolve the checkbox box style based on checked state,
-    const colorMap = Style.tokens.Color;
-
-    // Use Carbon-specific tokens when available, fall back to legacy tokens
-    const interactiveColor = colorMap.interactive || colorMap.APP_PRIMARY;
-    const borderInteractiveColor = colorMap.border_interactive || colorMap.APP_PRIMARY;
-    const iconDisabledColor = colorMap.icon_disabled || colorMap.TEXT_DISABLED;
-    const borderSubtleColor = colorMap.border_subtle_01 || colorMap.BORDER;
+    const interactiveColor = Style.tokens.Color.interactive;
+    const borderInteractiveColor = Style.tokens.Color.border_interactive;
+    const iconDisabledColor = Style.tokens.Color.icon_disabled;
+    const borderSubtleColor = Style.tokens.Color.border_subtle_01;
 
     const boxBase = {
       width: 20,
@@ -110,8 +107,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     if (checked === true) {
       checkmark = React.createElement(Registry.Text, {
-        size: 'sm',
-        color: 'text_on_primary',
+        typeSet: 'label01',
+        color: 'text_on_color',
         weight: 'bold'
       }, '\u2713');
     } else if (checked === 'mixed') {
@@ -119,7 +116,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: {
           width: 10,
           height: 2,
-          backgroundColor: colorMap.TEXT_ON_PRIMARY
+          backgroundColor: Style.tokens.Color.text_on_color
         }
       });
     }
@@ -133,9 +130,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityLabel: accessibilityLabel || label,
         style: [Style.utilities['flex_row'], Style.utilities['align_center'], style]
       }, ariaProps, pressKeysProps, rest),
-      React.createElement(RNView, { style: [boxBase, boxStyle, Style.utilities['m_e_xs']] }, checkmark),
+      React.createElement(RNView, { style: [boxBase, boxStyle, Style.utilities['m_e_spacing_01']] }, checkmark),
       label ? React.createElement(Registry.Text, {
-        size: 'md',
+        typeSet: 'body01',
         color: disabled ? 'text_disabled' : 'text_primary'
       }, label) : null
     );

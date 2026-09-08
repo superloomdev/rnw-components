@@ -54,8 +54,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityRole: 'link',
         accessibilityLabel: title,
         style: [
-          Style.utilities['p_h_md'],
-          Style.utilities['p_v_md'],
+          Style.utilities['p_h_spacing_05'],
+          Style.utilities['p_v_spacing_05'],
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
           style
@@ -65,14 +65,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       icon
         ? React.createElement(Registry.Icon, {
           name: icon,
-          size: 'md',
-          color: 'TEXT_SECONDARY',
-          style: Style.utilities['m_e_sm']
+          typeSet: 'body01',
+          color: 'text_secondary',
+          style: Style.utilities['m_e_spacing_03']
         })
         : null,
       // Title
       React.createElement(Registry.Text, {
-        size: 'md',
+        typeSet: 'body01',
         color: 'text_primary',
         weight: 'regular'
       }, title)

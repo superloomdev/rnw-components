@@ -60,14 +60,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityLabel: 'Dismiss notification'
       }, ariaProps, pressKeysProps, {
         style: [
-          Style.utilities['p_a_xs'],
+          Style.utilities['p_a_spacing_01'],
           style
         ]
       }, rest),
       React.createElement(Registry.Icon, {
         name: 'close',
-        size: 'sm',
-        color: 'TEXT_SECONDARY'
+        typeSet: 'label01',
+        color: 'text_secondary'
       })
     );
   };////////////////////////// Public Functions END ////////////////////////////

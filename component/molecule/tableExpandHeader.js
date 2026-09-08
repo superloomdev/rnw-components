@@ -54,14 +54,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityRole: 'button',
         accessibilityLabel: isExpanded ? 'Collapse row' : 'Expand row',
         style: [
-          Style.utilities['p_h_sm'],
-          Style.utilities['p_v_xs']
+          Style.utilities['p_h_spacing_03'],
+          Style.utilities['p_v_spacing_01']
         ]
       },
       React.createElement(Registry.Icon, {
         name: isExpanded ? 'chevron-up' : 'chevron-down',
-        size: 'sm',
-        color: 'TEXT_SECONDARY'
+        typeSet: 'label01',
+        color: 'text_secondary'
       })
     );
 
@@ -70,8 +70,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       Object.assign({
         accessibilityRole: 'columnheader',
         style: [
-          Style.utilities['p_h_sm'],
-          Style.utilities['p_v_sm'],
+          Style.utilities['p_h_spacing_03'],
+          Style.utilities['p_v_spacing_03'],
           style
         ]
       }, ariaProps, rest),

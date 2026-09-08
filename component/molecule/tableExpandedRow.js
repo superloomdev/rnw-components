@@ -47,9 +47,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       Object.assign({
         accessibilityRole: 'row',
         style: [
-          Style.utilities['background_background_secondary'],
-          Style.utilities['p_h_md'],
-          Style.utilities['p_v_sm'],
+          Style.utilities['background_layer_01'],
+          Style.utilities['p_h_spacing_05'],
+          Style.utilities['p_v_spacing_03'],
           style
         ]
       }, rest),

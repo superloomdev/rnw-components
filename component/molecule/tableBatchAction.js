@@ -64,14 +64,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityRole: 'button',
         accessibilityLabel: label,
         style: [
-          Style.utilities['p_h_sm'],
-          Style.utilities['p_v_xs'],
-          Style.utilities['br_md'],
+          Style.utilities['p_h_spacing_03'],
+          Style.utilities['p_v_spacing_01'],
+          Style.utilities['br_radius_08'],
           style
         ]
       }, ariaProps, pressKeysProps, rest),
       React.createElement(Registry.Text, {
-        size: 'sm',
+        typeSet: 'label01',
         color: 'text_primary',
         weight: 'medium'
       }, label)

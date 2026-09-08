@@ -44,10 +44,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Container base styles
     const containerBase = [
-      Style.utilities['br_md'],
-      Style.utilities['p_h_lg'],
-      Style.utilities['p_v_md'],
-      Style.utilities['border_primary'],
+      Style.utilities['br_radius_08'],
+      Style.utilities['p_h_spacing_06'],
+      Style.utilities['p_v_spacing_05'],
+      Style.utilities['border_w_width_01'], Style.utilities['border_color_interactive'],
       Style.utilities['flex_center'],
       fullWidth ? Style.utilities['flex_stretch'] : null
     ];
@@ -60,10 +60,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       }
 
       if (pressed || hovered) {
-        return Style.utilities['background_app_primary_subtle'];
+        return Style.utilities['background_background'];
       }
 
-      return Style.utilities['background_surface'];
+      return Style.utilities['background_layer_02'];
 
     };
 
@@ -91,11 +91,11 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       }, ariaProps, rest),
       icon
         ? Lib.React.createElement(Registry.Icon, {
-          name: icon, size: 'md', color: 'APP_PRIMARY', style: Style.utilities['m_e_sm']
+          name: icon, typeSet: 'body01', color: 'interactive', style: Style.utilities['m_e_spacing_03']
         })
         : null,
       Lib.React.createElement(Registry.Text, {
-        color: 'app_primary', weight: 'semibold', size: 'md'
+        color: 'interactive', weight: 'semibold', typeSet: 'body01'
       }, title)
     );
   };////////////////////////// Public Functions END ////////////////////////////

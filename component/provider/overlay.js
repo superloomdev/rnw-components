@@ -78,7 +78,7 @@ export default function (Lib, CONFIG, ERRORS, Parts) {
           style: {
             position: RNPlatform.OS === 'web' ? 'fixed' : 'absolute',
             top: 0, left: 0, right: 0, bottom: 0,
-            zIndex: 9999
+            zIndex: Parts.Stacking.overlay
           }
         },
         stack.map(function (layer) {
@@ -90,7 +90,7 @@ export default function (Lib, CONFIG, ERRORS, Parts) {
               style: {
                 position: 'absolute',
                 top: 0, left: 0, right: 0, bottom: 0,
-                zIndex: 1000 + layer.id
+                zIndex: Parts.Stacking.modal + layer.id
               }
             },
             layer.render()

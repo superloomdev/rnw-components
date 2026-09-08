@@ -1,4 +1,4 @@
-// Info: Carbon-informed component library for the RNW pipeline.
+// Info: Superloom standard component system for React Native Web.
 //
 // Class I standalone module. Atoms and molecules over the themer, with
 // theme-driven responsiveness and a real accessibility contract. React
@@ -7,8 +7,7 @@
 // Platform is a constant read from react-native; viewport is a live
 // subscription from the injected Lib.Device (js-rnw-helper-device).
 //
-// Provides: createSystem, buildThemeContract, TOKENS, and 245 named component
-// factories.
+// Provides: createSystem, TOKENS, and 245 named component factories.
 //
 // createSystem is the only entry point. It builds the shared infrastructure -
 // validated container, mechanism parts, per-breakpoint utility styles, and an
@@ -27,6 +26,7 @@ import ERRORS from './components.errors.js';
 import createValidators from './components.validators.js';
 import STYLE_CONTRACT from './data/style-contract.js';
 import COMPONENT_DEPS from './data/component-deps.js';
+import buildTokenContract from './data/token-contract.js';
 
 // Parts
 import partsA11y from './parts/a11y.js';
@@ -41,6 +41,11 @@ import partsUnits from './parts/units.js';
 import partsTypeface from './parts/typeface.js';
 import partsDirection from './parts/direction.js';
 import partsFilter from './parts/filter.js';
+import partsMotion from './parts/motion.js';
+import partsTokens from './parts/tokens.js';
+
+// Data
+import STACKING from './data/stacking.js';
 
 // Utilities
 import generateStyles from './component/commonStyles.js';
@@ -64,16 +69,18 @@ the whole roster from '@superloomdev/rnw-components/all'.
 Re-theming builds a new system; a system is never mutated in place.
 
 @param {Object} shared_libs - Lib container; requires React, Utils,
-                              Debug, Device; optional Icons, Font
+                              Debug, Device, Themer; optional Icons, Font
 @param {Object} config      - Overrides merged over defaults
-@param {Object} theme       - Theme contract { Color, Dimension, Font, Breakpoint }
-@param {String} breakpoint  - Active breakpoint key (default 'base')
+@param {Object} built       - Themer.buildTheme() result with a flat
+                              tokens map, or any object with a flat
+                              tokens map
+@param {String} breakpoint  - Active breakpoint key (default 'sm')
 
 @return {Object} - { addComponents, addVariants, addFreeforms, addProviders,
                      checkRegistry, useBreakpoint, make, Component, Style,
                      Parts, Lib, CONFIG, ERRORS, breakpoint }
 *********************************************************************/
-export function createSystem (shared_libs, config, theme, breakpoint) {
+export function createSystem (shared_libs, config, built, breakpoint) {
 
   // Build the validated Lib, CONFIG, and Validators set for this system
   const context = buildContext(shared_libs, config);
@@ -84,7 +91,7 @@ export function createSystem (shared_libs, config, theme, breakpoint) {
     context.CONFIG,
     ERRORS,
     context.Validators,
-    theme,
+    built,
     breakpoint
   );
 
@@ -387,36 +394,62 @@ export function createSystem (shared_libs, config, theme, breakpoint) {
 
 
 
-/////////////////////////// Theme Contract START ///////////////////////////////
-
-// Reshape the themer's flat emitted token map into the nested
-// { Color, Dimension, Font, Breakpoint } structure the components consume.
-// Pure function; re-exported so a caller bridges a theme without a system.
-export { default as buildThemeContract } from './components.theme-contract.js';
-
-/////////////////////////// Theme Contract END /////////////////////////////////
-
-
-
 /////////////////////////// Token Constants START //////////////////////////////
 
 // The valid token sets, so an application references a constant instead of a
 // string literal. This shrinks the error surface for render-time prop
 // validation.
 export const TOKENS = Object.freeze({
-  fontSize: Object.freeze(['xs', 'sm', 'md', 'lg', 'xl', 'xxl']),
-  fontColor: Object.freeze(['text_primary', 'text_secondary', 'text_muted', 'text_disabled',
-    'text_on_primary', 'app_primary', 'status_success', 'status_danger', 'status_warning',
-    'status_info']),
-  fontWeight: Object.freeze(['regular', 'medium', 'semibold', 'bold']),
-  space: Object.freeze(['xs', 'sm', 'md', 'lg', 'xl', 'xxl']),
-  radius: Object.freeze(['sm', 'md', 'lg', 'xl', 'pill']),
+  fontColor: Object.freeze([
+    'text_primary', 'text_secondary', 'text_muted', 'text_disabled',
+    'text_on_color', 'text_placeholder', 'text_helper',
+    'interactive', 'button_primary', 'button_primary_hover', 'button_primary_active',
+    'button_secondary', 'button_secondary_hover', 'button_secondary_active',
+    'button_tertiary', 'button_tertiary_hover', 'button_tertiary_active',
+    'button_danger_primary', 'button_danger_hover', 'button_danger_active',
+    'button_danger_secondary', 'button_disabled', 'button_separator',
+    'support_success', 'support_error', 'support_warning', 'support_info',
+    'link_primary', 'link_primary_hover', 'link_secondary', 'link_visited',
+    'background', 'layer_01', 'layer_02', 'layer_03', 'layer_hover_01',
+    'layer_hover_02', 'layer_active_01', 'layer_active_02',
+    'layer_selected_01', 'field_01', 'field_02', 'skeleton_background',
+    'border_subtle_01', 'border_subtle_02', 'border_strong_01', 'border_strong_02',
+    'border_toggle', 'focus', 'overlay', 'shadow',
+    'notification_background_success', 'notification_background_error',
+    'notification_background_warning', 'notification_background_info',
+    'highlight', 'text_on_color_disabled', 'text_on_primary',
+    'button_primary_active', 'icon_primary', 'icon_secondary', 'icon_on_color',
+    'tag_bg_primary', 'tag_text_primary', 'tag_bg_secondary', 'tag_text_secondary'
+  ]),
+  fontWeight: Object.freeze([
+    'thin', 'extralight', 'light', 'regular', 'medium', 'semibold', 'bold', 'extrabold', 'black'
+  ]),
+  fontFamily: Object.freeze(['sans', 'serif', 'mono']),
+  typeSet: Object.freeze([
+    'body01', 'body02', 'heading01', 'heading02', 'heading03',
+    'display01', 'display02', 'display03', 'caption01', 'label01', 'overline01'
+  ]),
+  radius: Object.freeze([
+    'radius_00', 'radius_01', 'radius_02', 'radius_03', 'radius_04',
+    'radius_06', 'radius_08', 'radius_12', 'radius_28', 'radius_max'
+  ]),
+  spacing: Object.freeze([
+    'spacing_00', 'spacing_01', 'spacing_02', 'spacing_03', 'spacing_04',
+    'spacing_05', 'spacing_06', 'spacing_07', 'spacing_08', 'spacing_09',
+    'spacing_10', 'spacing_11', 'spacing_12', 'spacing_13'
+  ]),
+  borderWidth: Object.freeze(['width_00', 'width_01', 'width_02', 'width_03', 'width_04']),
   background: Object.freeze([
+    'background', 'layer_01', 'layer_02', 'layer_03', 'layer_hover_01',
+    'layer_hover_02', 'layer_active_01', 'layer_active_02', 'layer_selected_01',
+    'field_01', 'field_02', 'skeleton_background', 'overlay',
     'button_primary', 'button_primary_hover', 'button_primary_active',
     'button_secondary', 'button_secondary_hover', 'button_secondary_active',
     'button_tertiary', 'button_tertiary_hover', 'button_tertiary_active',
     'button_danger_primary', 'button_danger_hover', 'button_danger_active',
-    'button_danger_secondary', 'button_disabled', 'button_separator'
+    'button_danger_secondary', 'button_disabled', 'button_separator',
+    'notification_background_success', 'notification_background_error',
+    'notification_background_warning', 'notification_background_info'
   ])
 });
 
@@ -705,6 +738,7 @@ const buildContext = function (shared_libs, config) {
     Debug: shared_libs.Debug,
     React: shared_libs.React,
     Device: shared_libs.Device,
+    Themer: shared_libs.Themer,
     Icons: shared_libs.Icons,
     Font: shared_libs.Font || null
   };
@@ -745,21 +779,27 @@ system needs before a single component is registered.
 
 @return {Object} - { make, Component, Style, Parts, breakpoint }
 *********************************************************************/
-const buildInfrastructure = function (Lib, CONFIG, ERRORS, Validators, theme, breakpoint) {
+const buildInfrastructure = function (Lib, CONFIG, ERRORS, Validators, built, breakpoint) {
 
-  // Validate the theme contract at boot time - throws on malformed theme
-  Validators.validateTheme(theme);
+  // Compute the required and supported token lists from the Themer contract
+  const contract = Lib.Themer.getContract();
+  const contractInfo = buildTokenContract(contract);
 
-  // Resolve the active breakpoint, defaulting to 'base'
-  const activeBreakpoint = breakpoint || 'base';
+  // Validate the built theme at boot time - throws on malformed theme
+  Validators.validateBuilt(built, Lib.Themer, contractInfo);
+
+  // Reshape the flat token map into the internal groups the components consume
+  const partsConfig = Object.assign({}, CONFIG, { STYLE_CONTRACT: STYLE_CONTRACT });
+  const TokensPart = partsTokens(Lib, partsConfig, ERRORS);
+  const theme = TokensPart.reshape(built.tokens);
+
+  // Resolve the active breakpoint, defaulting to 'sm'
+  const activeBreakpoint = breakpoint || 'sm';
 
   // Mechanism parts - built once per instance, injected into every component
   // factory. Parts are internal; they are never exported through the public
   // interface. See module-structure.md, Parts Pattern.
-  const partsConfig = Object.assign({}, CONFIG, { STYLE_CONTRACT: STYLE_CONTRACT });
-
-  // Instantiate each mechanism part with the shared injection set
-  const Parts = {
+  const Parts = Object.assign({
     A11y:             partsA11y(Lib, partsConfig, ERRORS),
     PressKeys:        partsPressKeys(Lib, partsConfig, ERRORS),
     RovingTabIndex:   partsRovingTabIndex(Lib, partsConfig, ERRORS),
@@ -771,12 +811,14 @@ const buildInfrastructure = function (Lib, CONFIG, ERRORS, Validators, theme, br
     Units:            partsUnits(Lib, partsConfig, ERRORS),
     Typeface:         partsTypeface(Lib, partsConfig, ERRORS),
     Direction:        partsDirection(Lib, partsConfig, ERRORS),
-    Filter:           partsFilter(Lib, partsConfig, ERRORS)
-  };
+    Filter:           partsFilter(Lib, partsConfig, ERRORS),
+    Motion:           partsMotion(Lib, partsConfig, ERRORS),
+    Stacking:         STACKING
+  });
 
   // Generate utility styles for every breakpoint, memoized by key
   const allStyles = {};
-  const breakpointKeys = Object.keys(theme.Breakpoint);
+  const breakpointKeys = Object.keys(theme.Breakpoint || {});
 
   // Generate the utility set for each breakpoint
   for (let i = 0; i < breakpointKeys.length; i++) {
@@ -795,7 +837,7 @@ const buildInfrastructure = function (Lib, CONFIG, ERRORS, Validators, theme, br
   // Resolve the active breakpoint's utility set, wrapping it in strict mode so
   // a component naming an undeclared utility fails loudly instead of rendering
   // unstyled. Lenient mode returns the plain object, so there is no Proxy cost.
-  const activeStyles = allStyles[activeBreakpoint] || allStyles['base'];
+  const activeStyles = allStyles[activeBreakpoint] || allStyles['sm'] || allStyles[Object.keys(allStyles)[0]];
   const utilities = CONFIG.STRICT_TOKENS
     ? new Proxy(activeStyles, {
       get: function (target, key) {

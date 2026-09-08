@@ -43,7 +43,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     // Handle toggle
     const handlePress = function () {
@@ -76,15 +75,15 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityRole: 'checkbox',
         accessibilityLabel: title,
         style: [
-          Style.utilities['br_md'],
-          Style.utilities['p_a_md'],
+          Style.utilities['br_radius_08'],
+          Style.utilities['p_a_spacing_05'],
           {
             borderWidth: 2,
             borderColor: selected
-              ? (colorMap.APP_PRIMARY)
-              : (colorMap.BORDER),
+              ? (Style.tokens.Color.interactive)
+              : (Style.tokens.Color.border_subtle_01),
             backgroundColor: selected
-              ? (colorMap.BACKGROUND_SECONDARY)
+              ? (Style.tokens.Color.layer_01)
               : 'transparent'
           },
           style
@@ -92,7 +91,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       }, ariaProps, pressKeysProps, rest),
       title
         ? React.createElement(Registry.Text, {
-          size: 'md',
+          typeSet: 'body01',
           color: 'text_primary',
           weight: 'medium'
         }, title)

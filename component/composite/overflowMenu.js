@@ -84,12 +84,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           onPress: handleTrigger,
           accessibilityRole: 'button',
           accessibilityLabel: triggerLabel || 'Options',
-          style: [Style.utilities['p_h_sm'], Style.utilities['p_v_sm'], style]
+          style: [Style.utilities['p_h_spacing_03'], Style.utilities['p_v_spacing_03'], style]
         }, ariaProps, rest),
         React.createElement(Registry.Icon, {
           name: 'overflow',
-          size: 'md',
-          color: 'TEXT_PRIMARY'
+          typeSet: 'body01',
+          color: 'text_primary'
         })
       ),
       React.createElement(Menu, { isOpen: isOpen, onClose: handleClose }, menuItems)

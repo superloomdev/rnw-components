@@ -59,7 +59,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) { // eslin
         style: [style]
       }, ariaProps, rest),
       React.createElement(Registry.Text, {
-        size: 'md',
+        typeSet: 'body01',
         color: 'text_primary',
         numberOfLines: expanded ? null : (maxLines || 2)
       }, children)

@@ -71,8 +71,11 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const maxVal = Lib.Utils.isNumber(max) ? max : 100;
     const stepVal = Lib.Utils.isNumber(step) ? step : 1;
 
-    // Resolve colors from tokens
-    const colorMap = Style.tokens.Color;
+    // Resolve track and thumb colors
+    const activeColor = isDisabled
+      ? Style.tokens.Color.icon_disabled
+      : Style.tokens.Color.interactive;
+    const inactiveColor = Style.tokens.Color.border_subtle_01;
 
     // Build aria state and value props through the a11y translator
     const ariaStateProps = Parts.A11y.state({
@@ -93,13 +96,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     // Calculate the fill percentage
     const range = maxVal - minVal;
     const fillPercent = range > 0 ? ((clampedValue - minVal) / range) * 100 : 0;
-
-    // Resolve track and thumb colors
-    // Use Carbon-specific tokens when available, fall back to legacy tokens
-    const activeColor = isDisabled
-      ? (colorMap.icon_disabled || colorMap.TEXT_DISABLED)
-      : (colorMap.interactive || colorMap.APP_PRIMARY);
-    const inactiveColor = colorMap.border_subtle_01 || colorMap.BACKGROUND_SECONDARY;
 
     // Step the value by stepVal on press of left/right track halves
     const onDecrease = function () {

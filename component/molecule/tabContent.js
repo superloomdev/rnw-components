@@ -46,7 +46,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       Object.assign({
         accessibilityRole: 'tabpanel',
         style: [
-          Style.utilities['p_a_md'],
+          Style.utilities['p_a_spacing_05'],
           style
         ]
       }, rest),

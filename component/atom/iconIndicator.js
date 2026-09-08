@@ -3,7 +3,7 @@
 // Uses shared_libs.Svg as an optional injection; degrades to colored View.
 //   iconName    -> string (name of the icon to render)
 //   color       -> string (background color token or hex)
-//   iconColor   -> string (icon color token or hex, default 'text_on_primary')
+//   iconColor   -> string (icon color token or hex, default 'text_on_color')
 //   size        -> number (pixels, default 24)
 //   label       -> string (accessibility label)
 //   style       -> custom style overrides
@@ -44,12 +44,11 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
     const s = Lib.Utils.isNumber(size) ? size : 24;
 
     // Resolve colors from token or raw hex
-    const resolvedBg = (colorMap[color] || color || colorMap.APP_PRIMARY);
-    const resolvedIcon = (colorMap[iconColor] || iconColor || colorMap.TEXT_ON_PRIMARY);
+    const resolvedBg = (Style.tokens.Color[color] || color || Style.tokens.Color.interactive);
+    const resolvedIcon = (Style.tokens.Color[iconColor] || iconColor || Style.tokens.Color.text_on_color);
 
     return React.createElement(
       RNView,
@@ -70,7 +69,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       Registry.Icon
         ? React.createElement(Registry.Icon, {
           name: iconName || 'info',
-          size: 'sm',
+          typeSet: 'label01',
           color: resolvedIcon
         })
         : null

@@ -50,12 +50,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       }, rest),
       label
         ? React.createElement(Registry.Text, {
-          size: 'sm',
+          typeSet: 'label01',
           color: 'text_secondary',
           weight: 'medium',
           style: [
-            Style.utilities['p_h_md'],
-            Style.utilities['p_v_xs']
+            Style.utilities['p_h_spacing_05'],
+            Style.utilities['p_v_spacing_01']
           ]
         }, label)
         : null,

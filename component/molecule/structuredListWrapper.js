@@ -48,8 +48,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityRole: 'table',
         style: [
           Style.utilities['flex_col'],
-          Style.utilities['border_default'],
-          Style.utilities['br_md'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+          Style.utilities['br_radius_08'],
           { overflow: 'hidden' },
           style
         ]

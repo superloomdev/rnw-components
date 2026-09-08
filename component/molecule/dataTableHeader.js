@@ -55,7 +55,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         kind: action.kind || 'secondary',
         onPress: action.onPress,
         accessibilityLabel: action.label,
-        style: Style.utilities['m_s_xs']
+        style: Style.utilities['m_s_spacing_01']
       }, action.label);
 
     };
@@ -76,9 +76,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
           Style.utilities['justify_between'],
-          Style.utilities['p_h_md'],
-          Style.utilities['p_v_sm'],
-          Style.utilities['border_default'],
+          Style.utilities['p_h_spacing_05'],
+          Style.utilities['p_v_spacing_03'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
           style
         ]
       }, rest),

@@ -42,7 +42,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     return React.createElement(
       RNView,
@@ -50,11 +49,11 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityRole: 'navigation',
         style: [
           Style.utilities['flex_col'],
-          Style.utilities['background_surface'],
+          Style.utilities['background_layer_02'],
           {
             width: expanded === false ? 0 : 256,
             borderRightWidth: 1,
-            borderRightColor: colorMap.BORDER
+            borderRightColor: Style.tokens.Color.border_subtle_01
           },
           style
         ]

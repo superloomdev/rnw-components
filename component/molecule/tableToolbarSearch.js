@@ -50,18 +50,18 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
-          Style.utilities['br_md'],
-          Style.utilities['border_default'],
-          Style.utilities['background_surface'],
-          Style.utilities['p_h_sm'],
+          Style.utilities['br_radius_08'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+          Style.utilities['background_layer_02'],
+          Style.utilities['p_h_spacing_03'],
           style
         ]
       },
       React.createElement(Registry.Icon, {
         name: 'search',
-        size: 'sm',
-        color: 'TEXT_SECONDARY',
-        style: Style.utilities['m_e_xs']
+        typeSet: 'label01',
+        color: 'text_secondary',
+        style: Style.utilities['m_e_spacing_01']
       }),
       React.createElement(
         Registry.TextInput,

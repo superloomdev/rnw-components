@@ -63,7 +63,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     const isDisabled = !!disabled;
     const isInvalid = !!invalid;
-    const colorMap = Style.tokens.Color;
 
     return React.createElement(
       RNView,
@@ -71,14 +70,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
-          Style.utilities['br_md'],
-          Style.utilities['border_default'],
+          Style.utilities['br_radius_08'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
           isInvalid
-            ? { borderColor: colorMap.STATUS_DANGER }
+            ? { borderColor: Style.tokens.Color.support_error }
             : null,
           isDisabled
-            ? { backgroundColor: colorMap.BACKGROUND_SECONDARY }
-            : Style.utilities['background_surface'],
+            ? { backgroundColor: Style.tokens.Color.layer_01 }
+            : Style.utilities['background_layer_02'],
           style
         ]
       },
@@ -107,12 +106,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           disabled: isDisabled,
           accessibilityRole: 'button',
           accessibilityLabel: showPassword ? 'Hide password' : 'Show password',
-          style: Style.utilities['m_s_xs']
+          style: Style.utilities['m_s_spacing_01']
         },
         React.createElement(Registry.Icon, {
           name: showPassword ? 'eye-off' : 'eye',
-          size: 'sm',
-          color: 'TEXT_SECONDARY'
+          typeSet: 'label01',
+          color: 'text_secondary'
         })
       )
     );

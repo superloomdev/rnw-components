@@ -61,36 +61,36 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const isInvalid = !!invalid;
 
     // Resolve field background: layer prop takes precedence, then disabled, then surface
-    const fieldBgKey = layer ? 'background_' + layer : 'background_surface';
+    const fieldBgKey = layer ? 'background_' + layer : 'background_background';
     const fieldBg = Object.prototype.hasOwnProperty.call(Style.utilities, fieldBgKey)
       ? Style.utilities[fieldBgKey]
       : isDisabled
-        ? { backgroundColor: Style.tokens.Color.BACKGROUND_SECONDARY }
-        : Style.utilities['background_surface'];
+        ? { backgroundColor: Style.tokens.Color.layer_01 }
+        : Style.utilities['background_layer_02'];
 
-    // Resolve type style: typeSet takes precedence, then legacy font_size_md
-    const typeKey = typeSet ? 'type_' + typeSet : 'font_size_md';
+    // Resolve type style: typeSet takes precedence, then default type_body01
+    const typeKey = typeSet ? 'type_' + typeSet : 'type_body01';
     const typeStyle = Object.prototype.hasOwnProperty.call(Style.utilities, typeKey)
       ? Style.utilities[typeKey]
       : null;
 
     // Resolve border: invalid uses support_error when available
-    let borderClass = Style.utilities['border_default'];
+    let borderClasses = [Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01']];
     if (isInvalid) {
       const invalidBorderKey = 'border_color_support_error';
       if (Object.prototype.hasOwnProperty.call(Style.utilities, invalidBorderKey)) {
-        borderClass = Object.assign({}, Style.utilities[invalidBorderKey], { borderWidth: 1 });
+        borderClasses = [Object.assign({}, Style.utilities[invalidBorderKey], { borderWidth: 1 })];
       } else {
-        borderClass = { borderColor: Style.tokens.Color.STATUS_DANGER, borderWidth: 1 };
+        borderClasses = [{ borderColor: Style.tokens.Color.support_error, borderWidth: 1 }];
       }
     }
 
     // Base styles from tokens
     const base = [
-      Style.utilities['p_h_md'],
-      Style.utilities['p_v_sm'],
-      Style.utilities['br_md'],
-      borderClass,
+      Style.utilities['p_h_spacing_05'],
+      Style.utilities['p_v_spacing_03'],
+      Style.utilities['br_radius_08'],
+      ...borderClasses,
       fieldBg,
       typeStyle,
       {
@@ -111,7 +111,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         value: resolvedValue,
         onChangeText: setValue,
         placeholder: placeholder,
-        placeholderTextColor: Style.tokens.Color.TEXT_MUTED,
+        placeholderTextColor: Style.tokens.Color.text_secondary,
         editable: !isDisabled,
         multiline: true,
         numberOfLines: rows || 4,

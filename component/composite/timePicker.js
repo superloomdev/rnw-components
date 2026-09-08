@@ -61,7 +61,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const [isOpen, setIsOpen] = React.useState(false);
     const isDisabled = !!disabled;
     const isInvalid = !!invalid;
-    const colorMap = Style.tokens.Color;
 
     // Parse hours and minutes from the current value
     let currentHour = 9;
@@ -146,28 +145,28 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             Style.utilities['flex_row'],
             Style.utilities['align_center'],
             Style.utilities['justify_between'],
-            Style.utilities['br_md'],
-            Style.utilities['border_default'],
-            Style.utilities['p_h_md'],
-            Style.utilities['p_v_sm'],
-            Style.utilities['background_surface'],
+            Style.utilities['br_radius_08'],
+            Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+            Style.utilities['p_h_spacing_05'],
+            Style.utilities['p_v_spacing_03'],
+            Style.utilities['background_layer_02'],
             isInvalid
-              ? { borderColor: colorMap.STATUS_DANGER }
+              ? { borderColor: Style.tokens.Color.support_error }
               : null,
             isDisabled
-              ? { backgroundColor: colorMap.BACKGROUND_SECONDARY }
+              ? { backgroundColor: Style.tokens.Color.layer_01 }
               : null,
             style
           ]
         }, ariaStateProps, pressKeysProps, rest),
         React.createElement(Registry.Text, {
-          size: 'md',
-          color: resolvedValue ? 'text_primary' : 'text_muted'
+          typeSet: 'body01',
+          color: resolvedValue ? 'text_primary' : 'text_secondary'
         }, resolvedValue || 'HH:MM'),
         React.createElement(Registry.Icon, {
           name: 'time',
-          size: 'sm',
-          color: 'TEXT_MUTED'
+          typeSet: 'label01',
+          color: 'text_secondary'
         })
       );
     };
@@ -191,13 +190,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             style: [
               { paddingVertical: 4, paddingHorizontal: 8, borderRadius: 4 },
               h === selectedHour
-                ? { backgroundColor: colorMap.APP_PRIMARY }
+                ? { backgroundColor: Style.tokens.Color.interactive }
                 : null
             ]
           },
           React.createElement(Registry.Text, {
-            size: 'sm',
-            color: h === selectedHour ? 'text_on_primary' : 'text_primary'
+            typeSet: 'label01',
+            color: h === selectedHour ? 'text_on_color' : 'text_primary'
           }, String(h).padStart(2, '0'))
         ));
       }
@@ -216,13 +215,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             style: [
               { paddingVertical: 4, paddingHorizontal: 8, borderRadius: 4 },
               m === selectedMinute
-                ? { backgroundColor: colorMap.APP_PRIMARY }
+                ? { backgroundColor: Style.tokens.Color.interactive }
                 : null
             ]
           },
           React.createElement(Registry.Text, {
-            size: 'sm',
-            color: m === selectedMinute ? 'text_on_primary' : 'text_primary'
+            typeSet: 'label01',
+            color: m === selectedMinute ? 'text_on_color' : 'text_primary'
           }, String(m).padStart(2, '0'))
         );
       });
@@ -231,18 +230,18 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         RNView,
         {
           style: [
-            Style.utilities['background_surface'],
-            Style.utilities['br_md'],
-            Style.utilities['border_default'],
-            Style.utilities['p_a_sm'],
+            Style.utilities['background_layer_02'],
+            Style.utilities['br_radius_08'],
+            Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+            Style.utilities['p_a_spacing_03'],
             { position: 'absolute', top: pos.top, left: pos.left, width: 200, zIndex: zIndex || 1000 }
           ]
         },
         React.createElement(
           RNView,
-          { style: [Style.utilities['flex_row'], Style.utilities['align_center'], Style.utilities['justify_center'], Style.utilities['m_b_xs']] },
+          { style: [Style.utilities['flex_row'], Style.utilities['align_center'], Style.utilities['justify_center'], Style.utilities['m_b_spacing_01']] },
           React.createElement(Registry.Text, {
-            size: 'lg',
+            typeSet: 'body02',
             color: 'text_primary',
             weight: 'semibold'
           }, String(selectedHour).padStart(2, '0') + ':' + String(selectedMinute).padStart(2, '0'))
@@ -253,7 +252,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           // Hour column
           React.createElement(
             RNView,
-            { style: [Style.utilities['flex_1'], { borderRightWidth: 1, borderRightColor: colorMap.BORDER }] },
+            { style: [Style.utilities['flex_1'], { borderRightWidth: 1, borderRightColor: Style.tokens.Color.border_subtle_01 }] },
             hourOptions
           ),
           // Minute column
@@ -271,14 +270,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             accessibilityRole: 'button',
             accessibilityLabel: 'Confirm time',
             style: [
-              Style.utilities['br_md'],
-              Style.utilities['p_v_xs'],
-              { backgroundColor: colorMap.APP_PRIMARY, alignItems: 'center', marginTop: 8 }
+              Style.utilities['br_radius_08'],
+              Style.utilities['p_v_spacing_01'],
+              { backgroundColor: Style.tokens.Color.interactive, alignItems: 'center', marginTop: 8 }
             ]
           },
           React.createElement(Registry.Text, {
-            size: 'sm',
-            color: 'text_on_primary',
+            typeSet: 'label01',
+            color: 'text_on_color',
             weight: 'medium'
           }, 'OK')
         )

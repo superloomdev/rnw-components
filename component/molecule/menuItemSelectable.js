@@ -44,7 +44,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     // Handle toggle
     const handlePress = function () {
@@ -79,8 +78,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
-          Style.utilities['p_h_md'],
-          Style.utilities['p_v_sm'],
+          Style.utilities['p_h_spacing_05'],
+          Style.utilities['p_v_spacing_03'],
           style
         ]
       }, ariaProps, pressKeysProps, rest),
@@ -94,10 +93,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             borderWidth: 2,
             borderRadius: 2,
             borderColor: checked
-              ? (colorMap.APP_PRIMARY)
-              : (colorMap.BORDER),
+              ? (Style.tokens.Color.interactive)
+              : (Style.tokens.Color.border_subtle_01),
             backgroundColor: checked
-              ? (colorMap.APP_PRIMARY)
+              ? (Style.tokens.Color.interactive)
               : 'transparent',
             justifyContent: 'center',
             alignItems: 'center'
@@ -105,14 +104,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         ]
       }, checked
         ? React.createElement(Registry.Text, {
-          size: 'xs',
-          color: 'text_on_primary',
+          typeSet: 'caption01',
+          color: 'text_on_color',
           weight: 'bold'
         }, '\u2713')
         : null
       ),
       React.createElement(Registry.Text, {
-        size: 'md',
+        typeSet: 'body01',
         color: disabled ? 'text_disabled' : 'text_primary',
         style: { flex: 1 }
       }, label)

@@ -54,7 +54,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         kind: action.kind || 'secondary',
         onPress: action.onPress,
         accessibilityLabel: action.label,
-        style: Style.utilities['m_s_xs']
+        style: Style.utilities['m_s_spacing_01']
       }, action.label);
     });
 
@@ -65,10 +65,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           onPress: onCancel,
           accessibilityRole: 'button',
           accessibilityLabel: 'Cancel',
-          style: Style.utilities['m_s_xs']
+          style: Style.utilities['m_s_spacing_01']
         },
         React.createElement(Registry.Text, {
-          size: 'sm',
+          typeSet: 'label01',
           color: 'text_primary'
         }, 'Cancel')
       )
@@ -82,9 +82,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
           Style.utilities['justify_between'],
-          Style.utilities['background_background_secondary'],
-          Style.utilities['p_h_md'],
-          Style.utilities['p_v_sm'],
+          Style.utilities['background_layer_01'],
+          Style.utilities['p_h_spacing_05'],
+          Style.utilities['p_v_spacing_03'],
           style
         ]
       }, rest),
@@ -92,7 +92,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         RNView,
         { style: Style.utilities['flex_row'] },
         React.createElement(Registry.Text, {
-          size: 'sm',
+          typeSet: 'label01',
           color: 'text_primary',
           weight: 'medium'
         }, countText),

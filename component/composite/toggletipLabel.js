@@ -61,10 +61,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       // Label text
       label
         ? React.createElement(Registry.Text, {
-          size: 'sm',
+          typeSet: 'label01',
           color: 'text_secondary',
           weight: 'medium',
-          style: Style.utilities['m_e_xs']
+          style: Style.utilities['m_e_spacing_01']
         }, label)
         : null,
       // Toggletip with content; pass an info icon as the trigger child
@@ -72,8 +72,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         content: toggletipContent
       }, React.createElement(Registry.Icon, {
         name: 'information',
-        size: 'sm',
-        color: 'TEXT_SECONDARY'
+        typeSet: 'label01',
+        color: 'text_secondary'
       })),
       // Additional children
       children || null

@@ -48,9 +48,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
-          Style.utilities['p_h_md'],
-          Style.utilities['p_v_md'],
-          Style.utilities['background_background_primary'] || Style.utilities['background_surface'],
+          Style.utilities['p_h_spacing_05'],
+          Style.utilities['p_v_spacing_05'],
+          Style.utilities['background_background'] || Style.utilities['background_layer_02'],
           style
         ]
       }, rest),

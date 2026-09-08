@@ -41,7 +41,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     return React.createElement(
       RNView,
       Object.assign({
-        style: [Style.utilities['p_h_lg'], Style.utilities['p_v_md'], style]
+        style: [Style.utilities['p_h_spacing_06'], Style.utilities['p_v_spacing_05'], style]
       }, rest),
       children
     );

@@ -58,8 +58,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       Object.assign({
         accessibilityRole: 'columnheader',
         style: [
-          Style.utilities['p_h_sm'],
-          Style.utilities['p_v_sm'],
+          Style.utilities['p_h_spacing_03'],
+          Style.utilities['p_v_spacing_03'],
           style
         ]
       }, rest),

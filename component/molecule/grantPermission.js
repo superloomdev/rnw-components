@@ -53,10 +53,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       Object.assign({
         accessibilityRole: 'alertdialog',
         style: [
-          Style.utilities['background_surface'],
-          Style.utilities['br_md'],
-          Style.utilities['border_default'],
-          Style.utilities['p_a_md'],
+          Style.utilities['background_layer_02'],
+          Style.utilities['br_radius_08'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+          Style.utilities['p_a_spacing_05'],
           Style.utilities['flex_col'],
           style
         ]
@@ -65,15 +65,15 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       icon
         ? React.createElement(Registry.Icon, {
           name: iconName,
-          size: 'lg',
-          color: 'TEXT_SECONDARY',
-          style: Style.utilities['m_b_sm']
+          typeSet: 'body02',
+          color: 'text_secondary',
+          style: Style.utilities['m_b_spacing_03']
         })
         : null,
       // Title
       title
         ? React.createElement(Registry.Text, {
-          size: 'md',
+          typeSet: 'body01',
           color: 'text_primary',
           weight: 'medium'
         }, title)
@@ -81,9 +81,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       // Subtitle
       subtitle
         ? React.createElement(Registry.Text, {
-          size: 'sm',
+          typeSet: 'label01',
           color: 'text_secondary',
-          style: Style.utilities['m_t_xs']
+          style: Style.utilities['m_t_spacing_01']
         }, subtitle)
         : null,
       // Button row
@@ -93,7 +93,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           style: [
             Style.utilities['flex_row'],
             Style.utilities['justify_end'],
-            Style.utilities['m_t_md']
+            Style.utilities['m_t_spacing_05']
           ]
         },
         // Deny button
@@ -102,7 +102,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             kind: 'ghost',
             title: 'Deny',
             onPress: onDeny,
-            style: Style.utilities['m_e_sm']
+            style: Style.utilities['m_e_spacing_03']
           })
           : null,
         // Grant button

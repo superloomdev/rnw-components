@@ -62,19 +62,19 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityLabel: label || icon
       }, ariaProps, pressKeysProps, {
         style: [
-          Style.utilities['p_a_sm'],
-          Style.utilities['br_sm'],
+          Style.utilities['p_a_spacing_03'],
+          Style.utilities['br_radius_04'],
           style
         ]
       }, rest),
       icon
         ? React.createElement(Registry.Icon, {
           name: icon,
-          size: 'md',
-          color: 'TEXT_PRIMARY'
+          typeSet: 'body01',
+          color: 'text_primary'
         })
         : React.createElement(Registry.Text, {
-          size: 'md',
+          typeSet: 'body01',
           color: 'text_primary'
         }, label || '')
     );

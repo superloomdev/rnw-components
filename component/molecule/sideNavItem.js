@@ -43,7 +43,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
     const isActive = !!active;
 
     // Build aria state props through the a11y translator
@@ -68,19 +67,19 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
-          Style.utilities['p_h_md'],
-          Style.utilities['p_v_sm'],
+          Style.utilities['p_h_spacing_05'],
+          Style.utilities['p_v_spacing_03'],
           {
             backgroundColor: isActive
-              ? (colorMap.APP_PRIMARY_SUBTLE)
+              ? (Style.tokens.Color.background)
               : 'transparent'
           },
           style
         ]
       }, rest),
       React.createElement(Registry.Text, {
-        size: 'md',
-        color: isActive ? 'app_primary' : 'text_primary',
+        typeSet: 'body01',
+        color: isActive ? 'interactive' : 'text_primary',
         weight: isActive ? 'medium' : 'regular'
       }, text || '')
     );

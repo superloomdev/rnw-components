@@ -50,14 +50,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
           Style.utilities['justify_center'],
-          Style.utilities['p_a_sm'],
+          Style.utilities['p_a_spacing_03'],
           style
         ]
       }, rest),
       React.createElement(Registry.Icon, {
         name: name,
-        size: 'md',
-        color: 'TEXT_SECONDARY'
+        typeSet: 'body01',
+        color: 'text_secondary'
       })
     );
   };////////////////////////// Public Functions END ////////////////////////////

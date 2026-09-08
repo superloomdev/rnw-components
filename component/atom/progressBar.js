@@ -4,8 +4,8 @@
 // Uses aria-valuenow / aria-valuemin / aria-valuemax for screen reader
 // state announcement.
 //   value       -> 0 to 1 for determinate, null for indeterminate
-//   color       -> background color token for the fill (default app_primary)
-//   trackColor  -> background color token for the track (default surface)
+//   color       -> background color token for the fill (default interactive)
+//   trackColor  -> background color token for the track (default layer_02)
 //   height      -> bar height in pixels (default 4)
 
 
@@ -42,9 +42,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const { value, color, trackColor, height, style, ...rest } = props;
 
     // Resolve colors from tokens
-    const colorMap = Style.tokens.Color;
-    const fillColor = _ProgressBar.resolveColorToken(color, colorMap, colorMap.APP_PRIMARY);
-    const trackFillColor = _ProgressBar.resolveColorToken(trackColor, colorMap, colorMap.SURFACE);
+    const fillColor = _ProgressBar.resolveColorToken(color, Style.tokens.Color, Style.tokens.Color.interactive);
+    const trackFillColor = _ProgressBar.resolveColorToken(trackColor, Style.tokens.Color, Style.tokens.Color.layer_02);
 
     // Resolve height
     const barHeight = Lib.Utils.isNumber(height) ? height : 4;
@@ -144,11 +143,11 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
   ////////////////////////// Private Functions START ///////////////////////////
   const _ProgressBar = {
 
-    // Resolve a color token with a fallback: token -> palette, else fallback
-    resolveColorToken: function (color, colorMap, fallback) {
+    // Resolve a color token name from the Color group, else fallback
+    resolveColorToken: function (color, Color, fallback) {
 
-      if (color && colorMap[color.toUpperCase()]) {
-        return colorMap[color.toUpperCase()];
+      if (color && Color[color]) {
+        return Color[color];
       }
 
       return fallback;

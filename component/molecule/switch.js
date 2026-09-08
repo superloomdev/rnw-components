@@ -51,7 +51,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     // Read ContentSwitcher context if available
     const ctxValue = React.useContext(contentSwitcherCtx.Context);
@@ -98,21 +97,21 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityLabel: label,
         focusable: focusable,
         style: [
-          Style.utilities['p_h_md'],
-          Style.utilities['p_v_sm'],
-          Style.utilities['m_r_sm'],
-          Style.utilities['br_sm'],
+          Style.utilities['p_h_spacing_05'],
+          Style.utilities['p_v_spacing_03'],
+          Style.utilities['m_r_spacing_03'],
+          Style.utilities['br_radius_04'],
           {
             backgroundColor: isSelected
-              ? (colorMap.APP_PRIMARY)
-              : (colorMap.BACKGROUND_SECONDARY)
+              ? (Style.tokens.Color.interactive)
+              : (Style.tokens.Color.layer_01)
           },
           style
         ]
       }, ariaProps, pressKeysProps, rest),
       React.createElement(Registry.Text, {
-        size: 'sm',
-        color: isSelected ? 'text_on_primary' : 'text_secondary',
+        typeSet: 'label01',
+        color: isSelected ? 'text_on_color' : 'text_secondary',
         weight: 'medium'
       }, label)
     );

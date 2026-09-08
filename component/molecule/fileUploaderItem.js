@@ -77,20 +77,20 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
-          Style.utilities['p_h_md'],
-          Style.utilities['p_v_sm'],
-          Style.utilities['border_default'],
+          Style.utilities['p_h_spacing_05'],
+          Style.utilities['p_v_spacing_03'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
           style
         ]
       }, rest),
       React.createElement(Registry.Icon, {
         name: statusIcon,
-        size: 'sm',
-        color: 'TEXT_SECONDARY',
-        style: Style.utilities['m_e_sm']
+        typeSet: 'label01',
+        color: 'text_secondary',
+        style: Style.utilities['m_e_spacing_03']
       }),
       React.createElement(Registry.Text, {
-        size: 'md',
+        typeSet: 'body01',
         color: 'text_primary',
         style: { flex: 1 }
       }, filename || ''),
@@ -101,12 +101,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           accessibilityRole: 'button',
           accessibilityLabel: 'Remove ' + (filename || 'file')
         }, ariaProps, pressKeysProps, {
-          style: Style.utilities['p_a_xs']
+          style: Style.utilities['p_a_spacing_01']
         }),
         React.createElement(Registry.Icon, {
           name: 'close',
-          size: 'sm',
-          color: 'TEXT_SECONDARY'
+          typeSet: 'label01',
+          color: 'text_secondary'
         })
       )
     );

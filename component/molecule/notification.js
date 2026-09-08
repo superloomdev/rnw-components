@@ -30,10 +30,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
   /////////////////////////// Static Constants START ////////////////////////////
   const STATUS_BG = {
-    success: 'background_status_success',
-    error: 'background_status_danger',
-    warning: 'background_status_warning',
-    info: 'background_status_info'
+    success: 'background_support_success',
+    error: 'background_support_error',
+    warning: 'background_support_warning',
+    info: 'background_support_info'
   };
 
   const STATUS_ICON = {
@@ -73,12 +73,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           onActivate: onClose,
           disabled: false
         }), {
-          style: Style.utilities['p_a_xs']
+          style: Style.utilities['p_a_spacing_01']
         }),
         React.createElement(Registry.Icon, {
           name: 'close',
-          size: 'sm',
-          color: 'TEXT_SECONDARY'
+          typeSet: 'label01',
+          color: 'text_secondary'
         })
       )
       : null;
@@ -88,10 +88,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       Object.assign({
         accessibilityRole: 'alert',
         style: [
-          Style.utilities[bgKey] || Style.utilities['background_surface'],
-          Style.utilities['br_md'],
-          Style.utilities['border_default'],
-          Style.utilities['p_a_md'],
+          Style.utilities[bgKey] || Style.utilities['background_layer_02'],
+          Style.utilities['br_radius_08'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+          Style.utilities['p_a_spacing_05'],
           Style.utilities['flex_row'],
           Style.utilities['align_start'],
           style
@@ -100,9 +100,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       // Status icon
       React.createElement(Registry.Icon, {
         name: iconName,
-        size: 'md',
-        color: 'TEXT_SECONDARY',
-        style: Style.utilities['m_e_sm']
+        typeSet: 'body01',
+        color: 'text_secondary',
+        style: Style.utilities['m_e_spacing_03']
       }),
       // Title and subtitle column
       React.createElement(
@@ -110,16 +110,16 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         { style: Style.utilities['flex_1'] },
         title
           ? React.createElement(Registry.Text, {
-            size: 'md',
+            typeSet: 'body01',
             color: 'text_primary',
             weight: 'medium'
           }, title)
           : null,
         subtitle
           ? React.createElement(Registry.Text, {
-            size: 'sm',
+            typeSet: 'label01',
             color: 'text_secondary',
-            style: Style.utilities['m_t_xs']
+            style: Style.utilities['m_t_spacing_01']
           }, subtitle)
           : null,
         children || null

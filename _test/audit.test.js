@@ -14,8 +14,8 @@ import { readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { Style, theme, buildFullSystem } from './loader.js';
-import { createRealFamilyTheme } from './harness/themes.js';
+import { Style, theme, buildFullSystem, Themer } from './loader.js';
+import carbonV11Profile from 'helper-themer-template-carbon';
 
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -85,27 +85,38 @@ describe('L1: Static Utility Audit', function () {
 
     const errors = [];
 
-    const fontSizeKeys = Object.keys(theme.Dimension.fontSize);
-    for (let i = 0; i < fontSizeKeys.length; i++) {
-      const value = theme.Dimension.fontSize[fontSizeKeys[i]];
-      if (!Number.isFinite(value)) {
-        errors.push('fontSize.' + fontSizeKeys[i] + ' = ' + value);
+    // TypeSet entries carry fontSize, lineHeight, and letterSpacing as numbers
+    const typeSetKeys = Object.keys(Style.tokens.TypeSet);
+    for (let i = 0; i < typeSetKeys.length; i++) {
+      const ts = Style.tokens.TypeSet[typeSetKeys[i]];
+      const numericFields = ['fontSize', 'lineHeight', 'letterSpacing'];
+      for (let f = 0; f < numericFields.length; f++) {
+        const field = numericFields[f];
+        const value = ts[field];
+        if (value !== undefined && !Number.isFinite(value)) {
+          errors.push('TypeSet.' + typeSetKeys[i] + '.' + field + ' = ' + value);
+        }
       }
     }
 
-    const spaceKeys = Object.keys(theme.Dimension.space);
-    for (let i = 0; i < spaceKeys.length; i++) {
-      const value = theme.Dimension.space[spaceKeys[i]];
-      if (!Number.isFinite(value)) {
-        errors.push('space.' + spaceKeys[i] + ' = ' + value);
+    // Spacing tokens are plain numbers; fluid tokens are viewport-scaled
+    // objects ({ viewport: true, vw: N }) and are skipped here.
+    const spacingKeys = Object.keys(Style.tokens.Spacing);
+    for (let i = 0; i < spacingKeys.length; i++) {
+      const value = Style.tokens.Spacing[spacingKeys[i]];
+      if (typeof value === 'number' && !Number.isFinite(value)) {
+        errors.push('Spacing.' + spacingKeys[i] + ' = ' + value);
+      } else if (typeof value === 'string' && UNIT_PATTERN.test(value)) {
+        errors.push('Spacing.' + spacingKeys[i] + ' = ' + value);
       }
     }
 
-    const radiusKeys = Object.keys(theme.Dimension.radius);
-    for (let i = 0; i < radiusKeys.length; i++) {
-      const value = theme.Dimension.radius[radiusKeys[i]];
+    // Shape tokens (radii) are plain numbers
+    const shapeKeys = Object.keys(Style.tokens.Shape);
+    for (let i = 0; i < shapeKeys.length; i++) {
+      const value = Style.tokens.Shape[shapeKeys[i]];
       if (!Number.isFinite(value)) {
-        errors.push('radius.' + radiusKeys[i] + ' = ' + value);
+        errors.push('Shape.' + shapeKeys[i] + ' = ' + value);
       }
     }
 
@@ -118,10 +129,10 @@ describe('L1: Static Utility Audit', function () {
   it('should have theme Color values as strings', function () {
 
     const errors = [];
-    const colorKeys = Object.keys(theme.Color);
+    const colorKeys = Object.keys(Style.tokens.Color);
 
     for (let i = 0; i < colorKeys.length; i++) {
-      const value = theme.Color[colorKeys[i]];
+      const value = Style.tokens.Color[colorKeys[i]];
       if (typeof value !== 'string') {
         errors.push('Color.' + colorKeys[i] + ' = ' + value);
       }
@@ -133,20 +144,20 @@ describe('L1: Static Utility Audit', function () {
   });
 
 
-  it('should have theme Font weight values as strings', function () {
+  it('should have theme Font weight values as finite numbers', function () {
 
     const errors = [];
-    const weightKeys = Object.keys(theme.Font.weight);
+    const weightKeys = Object.keys(Style.tokens.Font.weight);
 
     for (let i = 0; i < weightKeys.length; i++) {
-      const value = theme.Font.weight[weightKeys[i]];
-      if (typeof value !== 'string') {
+      const value = Style.tokens.Font.weight[weightKeys[i]];
+      if (!Number.isFinite(value)) {
         errors.push('Font.weight.' + weightKeys[i] + ' = ' + value);
       }
     }
 
     assert.strictEqual(errors.length, 0,
-      'L1 found non-string Font.weight values:\n  ' + errors.join('\n  '));
+      'L1 found non-finite Font.weight values:\n  ' + errors.join('\n  '));
 
   });
 
@@ -221,43 +232,53 @@ describe('L1: Proof tests', function () {
 
   it('should detect NaN, null, and unit strings in a bad theme', function () {
 
+    // Build a bad theme using the new token-group shape: Spacing, Shape,
+    // and TypeSet carry the numeric values the auditor inspects.
     const badTheme = {
-      Color: { APP_PRIMARY: '#0f62fe', TEXT_PRIMARY: '#161616' },
-      Dimension: {
-        fontSize: { xs: '0.75rem', sm: NaN, md: null },
-        space: { xs: 4, sm: '0.5rem' },
-        radius: { sm: 4 },
-        lineHeightRatio: 1.4
-      },
-      Font: {
-        family: { primary: 'System', secondary: 'System' },
-        weight: { regular: '400' }
-      },
-      Breakpoint: { base: 0 }
+      Spacing: { spacing_01: 4, spacing_02: '0.5rem' },
+      Shape: { radius_04: NaN, radius_08: null },
+      TypeSet: {
+        body01: { fontSize: '0.75rem', lineHeight: 20, letterSpacing: 0.16 }
+      }
     };
 
     const errors = [];
-    const fontSizeKeys = Object.keys(badTheme.Dimension.fontSize);
 
-    for (let i = 0; i < fontSizeKeys.length; i++) {
-      const key = fontSizeKeys[i];
-      const value = badTheme.Dimension.fontSize[key];
-
+    // Audit Spacing for unit-suffixed strings
+    const spacingKeys = Object.keys(badTheme.Spacing);
+    for (let i = 0; i < spacingKeys.length; i++) {
+      const key = spacingKeys[i];
+      const value = badTheme.Spacing[key];
       if (Number.isNaN(value)) {
-        errors.push('NaN at fontSize.' + key);
+        errors.push('NaN at Spacing.' + key);
       } else if (value === null) {
-        errors.push('null at fontSize.' + key);
+        errors.push('null at Spacing.' + key);
       } else if (typeof value === 'string' && UNIT_PATTERN.test(value)) {
-        errors.push('unit string at fontSize.' + key + ': ' + value);
+        errors.push('unit string at Spacing.' + key + ': ' + value);
       }
     }
 
-    const spaceKeys = Object.keys(badTheme.Dimension.space);
-    for (let i = 0; i < spaceKeys.length; i++) {
-      const key = spaceKeys[i];
-      const value = badTheme.Dimension.space[key];
+    // Audit Shape for NaN and null
+    const shapeKeys = Object.keys(badTheme.Shape);
+    for (let i = 0; i < shapeKeys.length; i++) {
+      const key = shapeKeys[i];
+      const value = badTheme.Shape[key];
+      if (Number.isNaN(value)) {
+        errors.push('NaN at Shape.' + key);
+      } else if (value === null) {
+        errors.push('null at Shape.' + key);
+      } else if (typeof value === 'string' && UNIT_PATTERN.test(value)) {
+        errors.push('unit string at Shape.' + key + ': ' + value);
+      }
+    }
+
+    // Audit TypeSet fontSize for unit-suffixed strings
+    const typeSetKeys = Object.keys(badTheme.TypeSet);
+    for (let i = 0; i < typeSetKeys.length; i++) {
+      const key = typeSetKeys[i];
+      const value = badTheme.TypeSet[key].fontSize;
       if (typeof value === 'string' && UNIT_PATTERN.test(value)) {
-        errors.push('unit string at space.' + key + ': ' + value);
+        errors.push('unit string at TypeSet.' + key + '.fontSize: ' + value);
       }
     }
 
@@ -269,20 +290,15 @@ describe('L1: Proof tests', function () {
 
   it('should reject unit-suffixed dimension values at build time', function () {
 
-    const badTheme = {
-      Color: theme.Color,
-      Dimension: {
-        fontSize: { xs: '0.75rem', sm: 14, md: 16 },
-        space: { xs: 4 },
-        radius: { sm: 4 },
-        lineHeightRatio: 1.4
-      },
-      Font: theme.Font,
-      Breakpoint: theme.Breakpoint
-    };
+    // Build a flat tokens map with a unit-suffixed spacing value, then pass
+    // it through buildFullSystem. The validators reject unit-suffixed
+    // strings on number-typed groups (spacing, shape, border, focus, size).
+    const badTokens = Object.assign({}, theme.tokens, {
+      'spacing.spacing_01': '0.25rem'
+    });
 
     assert.throws(function () {
-      buildFullSystem(badTheme, 'base');
+      buildFullSystem({ tokens: badTokens }, 'sm');
     }, function (err) {
       return err instanceof TypeError &&
         err.message.indexOf('unit-suffixed string') !== -1;
@@ -293,23 +309,20 @@ describe('L1: Proof tests', function () {
 
   it('should reject NaN dimension values at build time', function () {
 
-    const badTheme = {
-      Color: theme.Color,
-      Dimension: {
-        fontSize: { xs: 12, sm: NaN },
-        space: { xs: 4 },
-        radius: { sm: 4 },
-        lineHeightRatio: 1.4
-      },
-      Font: theme.Font,
-      Breakpoint: theme.Breakpoint
+    // The Themer engine rejects NaN at build time: NaN is not a valid token
+    // value type (literal, alias, rule, generator, or type set).
+    const badLayer = {
+      name: 'bad',
+      tokens: {
+        'spacing.spacing_01': NaN
+      }
     };
 
     assert.throws(function () {
-      buildFullSystem(badTheme, 'base');
+      Themer.buildTheme(carbonV11Profile.schemes.white, [badLayer], 'native');
     }, function (err) {
       return err instanceof TypeError &&
-        err.message.indexOf('finite number') !== -1;
+        err.message.indexOf('spacing.spacing_01') !== -1;
     });
 
   });
@@ -326,7 +339,7 @@ describe('L1: Font weight resolution', function () {
   it('should generate font_weight utilities for all weights', function () {
 
     const warnings = [];
-    const weightKeys = Object.keys(theme.Font.weight);
+    const weightKeys = Object.keys(Style.tokens.Font.weight);
 
     for (let i = 0; i < weightKeys.length; i++) {
       const w = weightKeys[i];
@@ -346,13 +359,23 @@ describe('L1: Font weight resolution', function () {
 
   it('should not include fontWeight for Poppins per-weight-face family', function () {
 
-    const poppinsTheme = createRealFamilyTheme();
-    const poppinsSystem = buildFullSystem(poppinsTheme, 'base');
+    // Build a theme through the Themer engine with a layer that sets
+    // font.family.sans to a real per-weight-face family name (Poppins).
+    const poppinsLayer = {
+      name: 'poppins',
+      tokens: {
+        'font.family.sans': 'Poppins'
+      }
+    };
+    const poppinsTheme = Themer.buildTheme(
+      carbonV11Profile.schemes.white, [poppinsLayer], 'native'
+    );
+    const poppinsSystem = buildFullSystem(poppinsTheme, 'sm');
     const poppinsUtils = poppinsSystem.Style.utilities;
 
     const regular = poppinsUtils['font_weight_regular'];
     assert.ok(regular);
-    assert.strictEqual(regular.fontFamily, 'Poppins_400Regular');
+    assert.strictEqual(regular.fontFamily, 'Poppins');
     assert.strictEqual(regular.fontWeight, undefined);
 
   });

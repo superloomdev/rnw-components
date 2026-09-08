@@ -86,10 +86,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           id: contentId,
           ref: focusTrap.containerRef,
           style: [
-            Style.utilities['background_surface'],
-            Style.utilities['br_md'],
-            Style.utilities['border_default'],
-            Style.utilities['p_a_md'],
+            Style.utilities['background_layer_02'],
+            Style.utilities['br_radius_08'],
+            Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+            Style.utilities['p_a_spacing_05'],
             {
               position: 'absolute',
               top: pos.top,

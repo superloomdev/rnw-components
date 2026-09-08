@@ -47,20 +47,20 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       Object.assign({
         accessibilityRole: 'list',
         style: [
-          Style.utilities['br_md'],
-          Style.utilities['border_default'],
-          Style.utilities['background_surface'],
+          Style.utilities['br_radius_08'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+          Style.utilities['background_layer_02'],
           style
         ]
       }, rest),
       label
         ? React.createElement(Registry.Text, {
-          size: 'md',
+          typeSet: 'body01',
           color: 'text_primary',
           weight: 'medium',
           style: [
-            Style.utilities['p_h_md'],
-            Style.utilities['p_v_sm']
+            Style.utilities['p_h_spacing_05'],
+            Style.utilities['p_v_spacing_03']
           ]
         }, label)
         : null,

@@ -16,6 +16,21 @@ export default Object.freeze({
     message: 'Theme contract is missing a required token group'
   },
 
+  THEME_MISSING_TOKENS: {
+    type: 'rnw-components/theme-missing-tokens',
+    message: 'Theme is missing required tokens'
+  },
+
+  THEME_UNSUPPORTED_TOKENS: {
+    type: 'rnw-components/theme-unsupported-tokens',
+    message: 'Theme contains unsupported tokens'
+  },
+
+  THEMER_UNAVAILABLE: {
+    type: 'rnw-components/themer-unavailable',
+    message: 'Themer engine is not injected. Provide shared_libs.Themer'
+  },
+
   REACT_NOT_INJECTED: {
     type: 'rnw-components/react-not-injected',
     message: 'React is not injected. Provide shared_libs.React (the react module)'

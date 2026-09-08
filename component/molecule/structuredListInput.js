@@ -45,7 +45,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
     const isChecked = !!checked;
 
     // Handle selection
@@ -84,8 +83,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             borderRadius: 10,
             borderWidth: 2,
             borderColor: isChecked
-              ? (colorMap.APP_PRIMARY)
-              : (colorMap.BORDER)
+              ? (Style.tokens.Color.interactive)
+              : (Style.tokens.Color.border_subtle_01)
           },
           style
         ]
@@ -96,7 +95,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             width: 8,
             height: 8,
             borderRadius: 4,
-            backgroundColor: colorMap.APP_PRIMARY
+            backgroundColor: Style.tokens.Color.interactive
           }
         })
         : null

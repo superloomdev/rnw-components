@@ -305,6 +305,39 @@ jobs:
             exit 1
           fi
           echo "PASS: no raw length or keys checks in module source"
+      - name: G27 - No vendor terminology in generic modules
+        run: |
+          hits=$(grep -rniE "carbon|ibm plex" component/ components.js 2>/dev/null || true)
+          if [ -n "$hits" ]; then
+            echo "FAIL: vendor-specific terminology found in generic modules."
+            echo "Generic modules must not embed vendor names. Use the"
+            echo "Themer contract vocabulary instead."
+            echo "$hits"
+            exit 1
+          fi
+          echo "PASS: no vendor terminology in generic modules"
+      - name: G28 - No dead token names in component source
+        run: |
+          hits=$(grep -rnE "background_surface|background_app_primary|background_app_secondary|background_app_primary_subtle|background_background_primary|background_background_secondary|background_status_danger|background_status_success|background_status_warning|background_status_info|font_size_xs|font_size_sm|font_size_md|font_size_lg|font_size_xl|font_size_xxl|font_family_secondary|br_sm|br_md|br_lg|br_xl|br_pill|p_a_xs|p_a_sm|p_a_md|p_a_lg|p_a_xl|p_a_xxl|border_default|border_top|border_primary|border_focused|app_primary|text_on_primary|text_muted|status_danger" component/ 2>/dev/null || true)
+          if [ -n "$hits" ]; then
+            echo "FAIL: dead token name found in component source."
+            echo "These old names were removed by the Superloom token migration."
+            echo "Use the new contract vocabulary (spacing_*, radius_*, type_*, etc.)."
+            echo "$hits"
+            exit 1
+          fi
+          echo "PASS: no dead token names in component source"
+      - name: G29 - No removed ./theme export reference
+        run: |
+          hits=$(grep -rnE "rnw-components/theme|from ['\"]\./theme['\"]" component/ components.js all.js parts/ 2>/dev/null || true)
+          if [ -n "$hits" ]; then
+            echo "FAIL: reference to removed ./theme export found."
+            echo "The ./theme export was removed in Wave F. Themes are built"
+            echo "through the injected Themer engine, not a package subpath."
+            echo "$hits"
+            exit 1
+          fi
+          echo "PASS: no removed ./theme export reference"
 
   contract:
     name: L4 Contract Tests

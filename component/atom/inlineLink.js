@@ -57,8 +57,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) { // eslin
         style: [style]
       }, ariaProps, rest),
       React.createElement(Registry.Text, {
-        size: 'md',
-        color: disabled ? 'text_disabled' : 'app_primary',
+        typeSet: 'body01',
+        color: disabled ? 'text_disabled' : 'interactive',
         weight: 'regular'
       }, title)
     );

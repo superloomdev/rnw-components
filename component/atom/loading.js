@@ -41,7 +41,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     // Map size token to ActivityIndicator size
     const aiSize = size === 'sm' ? 'small' : size === 'lg' ? 'large' : 'small';
@@ -67,7 +66,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       }, ariaProps, ariaValueProps, rest),
       React.createElement(ActivityIndicator, {
         size: aiSize,
-        color: colorMap.APP_PRIMARY
+        color: Style.tokens.Color.interactive
       })
     );
 

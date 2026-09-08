@@ -73,7 +73,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const stepVal = Lib.Utils.isNumber(step) ? step : 1;
     const minVal = Lib.Utils.isNumber(min) ? min : null;
     const maxVal = Lib.Utils.isNumber(max) ? max : null;
-    const colorMap = Style.tokens.Color;
 
     // Clamp a value to min/max
     const clamp = function (val) {
@@ -116,14 +115,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
-          Style.utilities['br_md'],
-          Style.utilities['border_default'],
+          Style.utilities['br_radius_08'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
           isInvalid
-            ? { borderColor: colorMap.STATUS_DANGER }
+            ? { borderColor: Style.tokens.Color.support_error }
             : null,
           isDisabled
-            ? { backgroundColor: colorMap.BACKGROUND_SECONDARY }
-            : Style.utilities['background_surface'],
+            ? { backgroundColor: Style.tokens.Color.layer_01 }
+            : Style.utilities['background_layer_02'],
           style
         ]
       },
@@ -135,10 +134,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           disabled: isDisabled,
           accessibilityRole: 'button',
           accessibilityLabel: 'Decrement',
-          style: [Style.utilities['p_h_sm'], Style.utilities['p_v_xs']]
+          style: [Style.utilities['p_h_spacing_03'], Style.utilities['p_v_spacing_01']]
         },
         React.createElement(Registry.Text, {
-          size: 'lg',
+          typeSet: 'body02',
           color: isDisabled ? 'text_disabled' : 'text_primary',
           weight: 'bold'
         }, '-')
@@ -170,10 +169,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           disabled: isDisabled,
           accessibilityRole: 'button',
           accessibilityLabel: 'Increment',
-          style: [Style.utilities['p_h_sm'], Style.utilities['p_v_xs']]
+          style: [Style.utilities['p_h_spacing_03'], Style.utilities['p_v_spacing_01']]
         },
         React.createElement(Registry.Text, {
-          size: 'lg',
+          typeSet: 'body02',
           color: isDisabled ? 'text_disabled' : 'text_primary',
           weight: 'bold'
         }, '+')

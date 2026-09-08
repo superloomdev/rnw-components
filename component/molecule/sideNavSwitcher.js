@@ -71,9 +71,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       }, rest),
       label
         ? React.createElement(Registry.Text, {
-          size: 'sm',
+          typeSet: 'label01',
           color: 'text_secondary',
-          style: Style.utilities['m_b_xs']
+          style: Style.utilities['m_b_spacing_01']
         }, label)
         : null,
       React.createElement(
@@ -87,20 +87,20 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             Style.utilities['flex_row'],
             Style.utilities['align_center'],
             Style.utilities['justify_between'],
-            Style.utilities['p_h_md'],
-            Style.utilities['p_v_sm'],
-            Style.utilities['border_default'],
-            Style.utilities['br_sm']
+            Style.utilities['p_h_spacing_05'],
+            Style.utilities['p_v_spacing_03'],
+            Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+            Style.utilities['br_radius_04']
           ]
         }),
         React.createElement(Registry.Text, {
-          size: 'md',
+          typeSet: 'body01',
           color: 'text_primary'
         }, Array.isArray(options) && !Lib.Utils.isEmptyArray(options) ? String(options[0]) : ''),
         React.createElement(Registry.Icon, {
           name: 'chevron--down',
-          size: 'sm',
-          color: 'TEXT_SECONDARY'
+          typeSet: 'label01',
+          color: 'text_secondary'
         })
       )
     );

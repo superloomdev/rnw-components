@@ -99,21 +99,21 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           id: tooltipId,
           accessibilityRole: 'tooltip',
           style: [
-            Style.utilities['background_surface'],
-            Style.utilities['br_sm'],
-            Style.utilities['p_h_sm'],
-            Style.utilities['p_v_xs'],
+            Style.utilities['background_layer_02'],
+            Style.utilities['br_radius_04'],
+            Style.utilities['p_h_spacing_03'],
+            Style.utilities['p_v_spacing_01'],
             {
               position: 'absolute',
               top: pos.top,
               left: pos.left,
-              zIndex: 1000
+              zIndex: Parts.Stacking.floating
             },
             style
           ]
         }, rest),
         React.createElement(Registry.Text, {
-          size: 'xs',
+          typeSet: 'caption01',
           color: 'text_primary'
         }, content)
       );

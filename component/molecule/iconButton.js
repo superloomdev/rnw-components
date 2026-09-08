@@ -60,16 +60,16 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityRole: 'button',
         accessibilityLabel: label,
         style: [
-          Style.utilities['p_h_sm'],
-          Style.utilities['p_v_sm'],
-          Style.utilities['br_md'],
+          Style.utilities['p_h_spacing_03'],
+          Style.utilities['p_v_spacing_03'],
+          Style.utilities['br_radius_08'],
           style
         ]
       }, ariaProps, rest),
       React.createElement(Registry.Icon, {
         name: name,
         size: size || 'md',
-        color: color || 'TEXT_PRIMARY'
+        color: color || 'text_primary'
       })
     );
   };////////////////////////// Public Functions END ////////////////////////////

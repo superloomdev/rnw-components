@@ -66,7 +66,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           ref: focusTrap.containerRef,
           accessibilityRole: 'dialog',
           style: [
-            Style.utilities['background_surface'],
+            Style.utilities['background_layer_02'],
             {
               position: 'absolute',
               top: 0, bottom: 0,
@@ -78,10 +78,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         }, focusTrap.accessibilityProps, rest),
         title
           ? React.createElement(Registry.Text, {
-            size: 'xl',
+            typeSet: 'heading01',
             color: 'text_primary',
             weight: 'semibold',
-            style: [Style.utilities['p_h_lg'], Style.utilities['p_v_md']]
+            style: [Style.utilities['p_h_spacing_06'], Style.utilities['p_v_spacing_05']]
           }, title)
           : null,
         children
@@ -132,7 +132,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     if (overlay.layerIndex < 0) {
       return React.createElement(
         RNView,
-        { style: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000 } },
+        { style: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: Parts.Stacking.modal } },
         renderBackdrop(),
         renderPanel()
       );

@@ -16,6 +16,11 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
+import themerLoader from 'helper-themer';
+import utilsLoader from 'helper-utils';
+import debugLoader from 'helper-debug';
+import carbonV11Profile from 'helper-themer-template-carbon';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Load the independent parity oracle
@@ -138,21 +143,31 @@ describe('parity oracle - negative controls', () => {
 
 describe('parity oracle - Superloom profile comparison', () => {
 
-  let profiles;
+  // Info: Build themes through the real Themer engine from the Carbon
+  // reference template. The ./theme export was removed in Wave F.1, so
+  // we construct the Themer instance directly from the helper modules
+  // and build each scheme via Themer.buildTheme().
+  const Utils = utilsLoader();
+  const Debug = debugLoader({ Utils });
+  const Themer = themerLoader({ Utils, Debug });
 
-  it('should import the Carbon profile from ./theme', async () => {
+  const white = Themer.buildTheme(carbonV11Profile.schemes.white, [], 'native');
+  const g10 = Themer.buildTheme(carbonV11Profile.schemes.g10, [], 'native');
+  const g90 = Themer.buildTheme(carbonV11Profile.schemes.g90, [], 'native');
+  const g100 = Themer.buildTheme(carbonV11Profile.schemes.g100, [], 'native');
 
-    profiles = await import('rnw-components/theme');
-    assert.ok(profiles.white, 'white profile must exist');
-    assert.ok(profiles.g10, 'g10 profile must exist');
-    assert.ok(profiles.g90, 'g90 profile must exist');
-    assert.ok(profiles.g100, 'g100 profile must exist');
+  it('should build all four Carbon schemes through the Themer engine', () => {
+
+    assert.ok(white, 'white theme must build');
+    assert.ok(g10, 'g10 theme must build');
+    assert.ok(g90, 'g90 theme must build');
+    assert.ok(g100, 'g100 theme must build');
 
   });
 
   it('should match white profile background values against the oracle', () => {
 
-    const w = profiles.white.tokens;
+    const w = white.tokens;
     assert.equal(w['color.background'], oracle.themes.white.background.background);
     assert.equal(w['color.layer_01'], oracle.themes.white.layers.layer01);
     assert.equal(w['color.layer_02'], oracle.themes.white.layers.layer02);
@@ -162,7 +177,7 @@ describe('parity oracle - Superloom profile comparison', () => {
 
   it('should match white profile text values against the oracle', () => {
 
-    const w = profiles.white.tokens;
+    const w = white.tokens;
     assert.equal(w['color.text_primary'], oracle.themes.white.text.textPrimary);
     assert.equal(w['color.text_secondary'], oracle.themes.white.text.textSecondary);
     assert.equal(w['color.text_on_color'], oracle.themes.white.text.textOnColor);
@@ -171,7 +186,7 @@ describe('parity oracle - Superloom profile comparison', () => {
 
   it('should match white profile interactive values against the oracle', () => {
 
-    const w = profiles.white.tokens;
+    const w = white.tokens;
     assert.equal(w['color.interactive'], oracle.themes.white.interactive.interactive);
     assert.equal(w['color.focus'], oracle.themes.white.interactive.focus);
 
@@ -179,7 +194,7 @@ describe('parity oracle - Superloom profile comparison', () => {
 
   it('should match white profile border values against the oracle', () => {
 
-    const w = profiles.white.tokens;
+    const w = white.tokens;
     assert.equal(w['color.border_subtle_01'], oracle.themes.white.border.borderSubtle01);
     assert.equal(w['color.border_interactive'], oracle.themes.white.border.borderInteractive);
 
@@ -187,7 +202,7 @@ describe('parity oracle - Superloom profile comparison', () => {
 
   it('should match g100 profile values against the oracle', () => {
 
-    const g = profiles.g100.tokens;
+    const g = g100.tokens;
     assert.equal(g['color.background'], oracle.themes.g100.background.background);
     assert.equal(g['color.layer_01'], oracle.themes.g100.layers.layer01);
     assert.equal(g['color.text_primary'], oracle.themes.g100.text.textPrimary);
@@ -197,7 +212,7 @@ describe('parity oracle - Superloom profile comparison', () => {
 
   it('should match g10 profile values against the oracle', () => {
 
-    const t = profiles.g10.tokens;
+    const t = g10.tokens;
     assert.equal(t['color.background'], oracle.themes.g10.background.background);
     assert.equal(t['color.layer_01'], oracle.themes.g10.layers.layer01);
     assert.equal(t['color.text_primary'], oracle.themes.g10.text.textPrimary);
@@ -206,7 +221,7 @@ describe('parity oracle - Superloom profile comparison', () => {
 
   it('should match g90 profile values against the oracle', () => {
 
-    const t = profiles.g90.tokens;
+    const t = g90.tokens;
     assert.equal(t['color.background'], oracle.themes.g90.background.background);
     assert.equal(t['color.layer_01'], oracle.themes.g90.layers.layer01);
     assert.equal(t['color.text_primary'], oracle.themes.g90.text.textPrimary);

@@ -73,19 +73,19 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           style: [
             Style.utilities['flex_row'],
             Style.utilities['align_center'],
-            Style.utilities['p_h_sm'],
-            Style.utilities['p_v_sm']
+            Style.utilities['p_h_spacing_03'],
+            Style.utilities['p_v_spacing_03']
           ]
         }),
         React.createElement(Registry.Text, {
-          size: 'md',
+          typeSet: 'body01',
           color: 'text_primary'
         }, label || ''),
         React.createElement(Registry.Icon, {
           name: 'chevron--down',
-          size: 'sm',
-          color: 'TEXT_SECONDARY',
-          style: Style.utilities['m_s_xs']
+          typeSet: 'label01',
+          color: 'text_secondary',
+          style: Style.utilities['m_s_spacing_01']
         })
       ),
       children

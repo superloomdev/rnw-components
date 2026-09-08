@@ -43,7 +43,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     // Build aria state props through the a11y translator
     const ariaProps = Parts.A11y.state({
@@ -69,20 +68,20 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
           Style.utilities['justify_center'],
-          Style.utilities['p_h_md'],
-          Style.utilities['p_v_sm'],
-          Style.utilities['br_sm'],
+          Style.utilities['p_h_spacing_05'],
+          Style.utilities['p_v_spacing_03'],
+          Style.utilities['br_radius_04'],
           {
             backgroundColor: disabled
-              ? (colorMap.APP_PRIMARY_DISABLED)
-              : (colorMap.APP_PRIMARY)
+              ? (Style.tokens.Color.icon_disabled)
+              : (Style.tokens.Color.interactive)
           },
           style
         ]
       }, rest),
       React.createElement(Registry.Text, {
-        size: 'md',
-        color: 'text_on_primary',
+        typeSet: 'body01',
+        color: 'text_on_color',
         weight: 'medium'
       }, label || 'Add file')
     );

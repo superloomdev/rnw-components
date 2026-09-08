@@ -43,14 +43,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     return React.createElement(
       RNView,
       Object.assign({
         style: [
           {
-            backgroundColor: colorMap.BACKGROUND_SECONDARY,
+            backgroundColor: Style.tokens.Color.layer_01,
             borderRadius: 6,
             padding: 12,
             fontFamily: 'monospace'
@@ -59,7 +58,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         ]
       }, rest),
       React.createElement(Registry.Text, {
-        size: 'sm',
+        typeSet: 'label01',
         color: 'text_primary',
         style: { fontFamily: 'monospace' }
       }, code || ''),

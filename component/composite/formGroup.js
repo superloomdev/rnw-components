@@ -57,19 +57,19 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     // Render the label if provided
     const labelElement = label
       ? React.createElement(Registry.Text, {
-        size: 'sm',
+        typeSet: 'label01',
         color: isDisabled ? 'text_disabled' : 'text_primary',
         weight: 'medium',
-        style: Style.utilities['m_b_xs']
+        style: Style.utilities['m_b_spacing_01']
       }, label)
       : null;
 
     // Render the message (error or helper) below the group
     const messageElement = message
       ? React.createElement(Registry.Text, {
-        size: 'xs',
-        color: isInvalid ? 'status_danger' : 'text_secondary',
-        style: Style.utilities['m_t_xs']
+        typeSet: 'caption01',
+        color: isInvalid ? 'support_error' : 'text_secondary',
+        style: Style.utilities['m_t_spacing_01']
       }, message)
       : null;
 
@@ -78,7 +78,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       Object.assign({
         accessibilityRole: 'group',
         accessibilityLabel: accessibilityLabel || label,
-        style: [Style.utilities['m_b_md'], style]
+        style: [Style.utilities['m_b_spacing_05'], style]
       }, ariaStateProps, rest),
       labelElement,
       children,

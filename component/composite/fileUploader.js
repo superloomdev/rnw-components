@@ -70,18 +70,18 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityLabel: label,
         style: [
           Style.utilities['flex_col'],
-          Style.utilities['border_default'],
-          Style.utilities['br_md'],
-          Style.utilities['p_a_md'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+          Style.utilities['br_radius_08'],
+          Style.utilities['p_a_spacing_05'],
           style
         ]
       }, rest),
       label
         ? React.createElement(Registry.Text, {
-          size: 'md',
+          typeSet: 'body01',
           color: 'text_primary',
           weight: 'medium',
-          style: Style.utilities['m_b_sm']
+          style: Style.utilities['m_b_spacing_03']
         }, label)
         : null,
       React.createElement(
@@ -94,13 +94,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           style: [
             Style.utilities['flex_col'],
             Style.utilities['align_center'],
-            Style.utilities['p_a_md'],
-            Style.utilities['br_md'],
-            Style.utilities['background_background_secondary']
+            Style.utilities['p_a_spacing_05'],
+            Style.utilities['br_radius_08'],
+            Style.utilities['background_layer_01']
           ]
         }),
         React.createElement(Registry.Text, {
-          size: 'sm',
+          typeSet: 'label01',
           color: 'text_secondary'
         }, multiple ? 'Drag and drop files or click to select' : 'Drag and drop a file or click to select')
       )

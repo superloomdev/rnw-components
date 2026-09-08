@@ -50,14 +50,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     // Render the label if provided
     const labelElement = label
       ? React.createElement(Registry.Text, {
-        size: 'sm',
+        typeSet: 'label01',
         color: disabled ? 'text_disabled' : 'text_primary',
         weight: 'medium',
-        style: Style.utilities['m_b_xs']
+        style: Style.utilities['m_b_spacing_01']
       }, label, required
         ? React.createElement(Registry.Text, {
-          size: 'sm',
-          color: 'status_danger',
+          typeSet: 'label01',
+          color: 'support_error',
           weight: 'medium'
         }, ' *')
         : null)
@@ -66,21 +66,21 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     // Render helper or error text below the control
     const messageElement = errorText
       ? React.createElement(Registry.Text, {
-        size: 'xs',
-        color: 'status_danger',
-        style: Style.utilities['m_t_xs']
+        typeSet: 'caption01',
+        color: 'support_error',
+        style: Style.utilities['m_t_spacing_01']
       }, errorText)
       : helperText
         ? React.createElement(Registry.Text, {
-          size: 'xs',
+          typeSet: 'caption01',
           color: 'text_secondary',
-          style: Style.utilities['m_t_xs']
+          style: Style.utilities['m_t_spacing_01']
         }, helperText)
         : null;
 
     return React.createElement(
       Registry.View,
-      Object.assign({ style: [Style.utilities['m_b_md'], style] }, rest),
+      Object.assign({ style: [Style.utilities['m_b_spacing_05'], style] }, rest),
       labelElement,
       children,
       messageElement

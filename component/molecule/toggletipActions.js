@@ -48,7 +48,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
-          Style.utilities['m_t_sm'],
+          Style.utilities['m_t_spacing_03'],
           style
         ]
       }, rest),

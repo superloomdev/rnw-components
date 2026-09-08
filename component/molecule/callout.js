@@ -29,10 +29,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
   /////////////////////////// Static Constants START ////////////////////////////
   const KIND_BG = {
-    success: 'background_status_success',
-    error: 'background_status_danger',
-    warning: 'background_status_warning',
-    info: 'background_status_info'
+    success: 'background_support_success',
+    error: 'background_support_error',
+    warning: 'background_support_warning',
+    info: 'background_support_info'
   };
 
   const KIND_ICON = {
@@ -64,10 +64,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       Object.assign({
         accessibilityRole: 'note',
         style: [
-          Style.utilities[bgKey] || Style.utilities['background_surface'],
-          Style.utilities['br_md'],
-          Style.utilities['border_default'],
-          Style.utilities['p_a_md'],
+          Style.utilities[bgKey] || Style.utilities['background_layer_02'],
+          Style.utilities['br_radius_08'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+          Style.utilities['p_a_spacing_05'],
           style
         ]
       }, rest),
@@ -82,13 +82,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         },
         React.createElement(Registry.Icon, {
           name: iconName,
-          size: 'md',
-          color: 'TEXT_SECONDARY',
-          style: Style.utilities['m_e_sm']
+          typeSet: 'body01',
+          color: 'text_secondary',
+          style: Style.utilities['m_e_spacing_03']
         }),
         title
           ? React.createElement(Registry.Text, {
-            size: 'md',
+            typeSet: 'body01',
             color: 'text_primary',
             weight: 'medium'
           }, title)
@@ -97,7 +97,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       children
         ? React.createElement(
           Registry.View,
-          { style: Style.utilities['m_t_sm'] },
+          { style: Style.utilities['m_t_spacing_03'] },
           children
         )
         : null

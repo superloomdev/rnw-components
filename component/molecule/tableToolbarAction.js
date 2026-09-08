@@ -57,22 +57,22 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityRole: 'button',
         accessibilityLabel: label,
         style: [
-          Style.utilities['p_h_sm'],
-          Style.utilities['p_v_sm'],
-          Style.utilities['br_md'],
+          Style.utilities['p_h_spacing_03'],
+          Style.utilities['p_v_spacing_03'],
+          Style.utilities['br_radius_08'],
           style
         ]
       }, pressKeysProps, rest),
       icon
         ? React.createElement(Registry.Icon, {
           name: icon,
-          size: 'md',
-          color: 'TEXT_PRIMARY'
+          typeSet: 'body01',
+          color: 'text_primary'
         })
         : null,
       label
         ? React.createElement(Registry.Text, {
-          size: 'sm',
+          typeSet: 'label01',
           color: 'text_primary'
         }, label)
         : null

@@ -45,7 +45,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
     const isOperational = variant === 'operational';
     const isSelectable = Lib.Utils.isFunction(onPress);
     const isDismissible = Lib.Utils.isFunction(onDismiss);
@@ -59,8 +58,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     // Tag container style
     const tagStyle = {
       backgroundColor: isOperational
-        ? (colorMap.APP_PRIMARY)
-        : (colorMap.BACKGROUND_SECONDARY),
+        ? (Style.tokens.Color.interactive)
+        : (Style.tokens.Color.layer_01),
       borderRadius: 12,
       paddingHorizontal: 10,
       paddingVertical: 4,
@@ -72,8 +71,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const content = [
       React.createElement(Registry.Text, {
         key: 'label',
-        size: 'sm',
-        color: isOperational ? 'text_on_primary' : 'text_primary',
+        typeSet: 'label01',
+        color: isOperational ? 'text_on_color' : 'text_primary',
         weight: 'medium'
       }, label)
     ];
@@ -91,8 +90,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           style: { marginLeft: 6 }
         },
         React.createElement(Registry.Text, {
-          size: 'sm',
-          color: isOperational ? 'text_on_primary' : 'text_muted'
+          typeSet: 'label01',
+          color: isOperational ? 'text_on_color' : 'text_secondary'
         }, '\u00d7')
       ));
     }

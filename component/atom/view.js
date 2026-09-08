@@ -2,10 +2,10 @@
 // map to generated utility classes (background / radius / border); anything
 // else falls through `style`.
 //
-// The layer prop accepts a Carbon layer token name (layer_01, layer_02,
+// The layer prop accepts a layer token name (layer_01, layer_02,
 // layer_03, background) and resolves it to the corresponding background
 // utility. This is the layer-aware surface selection point for components
-// that need to paint the correct Carbon layer background.
+// that need to paint the correct layer background.
 
 
 // Imports
@@ -45,7 +45,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
 
     // ---- Background ----
-    // The layer prop takes precedence over background for Carbon layer selection
+    // The layer prop takes precedence over background for layer selection
     const bgToken = layer || background;
 
     if (bgToken) {
@@ -74,14 +74,22 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
 
     // ---- Border ----
+    // The border prop accepts a contract border width name (width_01, etc.)
+    // or true for a default 1px subtle border.
     if (border) {
-      const borderKey = border === true ? 'default' : border;
-      const borderClass = Style.utilities['border_' + borderKey];
-
-      if (borderClass) {
-        classes.push(borderClass);
+      if (border === true) {
+        // Default: 1px width + subtle border color
+        classes.push(Style.utilities['border_w_width_01']);
+        classes.push(Style.utilities['border_color_border_subtle_01']);
       } else {
-        Lib.Debug.warn('unknown border token, ignoring', { border: border });
+        // Named border width
+        const borderWClass = Style.utilities['border_w_' + border];
+        if (borderWClass) {
+          classes.push(borderWClass);
+          classes.push(Style.utilities['border_color_border_subtle_01']);
+        } else {
+          Lib.Debug.warn('unknown border token, ignoring', { border: border });
+        }
       }
 
     }

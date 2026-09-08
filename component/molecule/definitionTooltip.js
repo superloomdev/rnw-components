@@ -86,20 +86,20 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           id: defId,
           accessibilityRole: 'tooltip',
           style: [
-            Style.utilities['background_surface'],
-            Style.utilities['br_sm'],
-            Style.utilities['p_a_sm'],
+            Style.utilities['background_layer_02'],
+            Style.utilities['br_radius_04'],
+            Style.utilities['p_a_spacing_03'],
             {
               position: 'absolute',
               top: pos.top,
               left: pos.left,
               maxWidth: 300,
-              zIndex: 1000
+              zIndex: Parts.Stacking.floating
             }
           ]
         },
         React.createElement(Registry.Text, {
-          size: 'xs',
+          typeSet: 'caption01',
           color: 'text_primary'
         }, definition)
       );
@@ -116,8 +116,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           accessibilityLabel: term
         }, ariaProps, triggerProps),
         React.createElement(Registry.Text, {
-          size: 'md',
-          color: 'app_primary',
+          typeSet: 'body01',
+          color: 'interactive',
           weight: 'medium',
           style: { textDecorationLine: 'underline' }
         }, term)

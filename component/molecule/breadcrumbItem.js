@@ -77,7 +77,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           ]
         }, ariaProps, rest),
         React.createElement(Registry.Text, {
-          size: 'sm',
+          typeSet: 'label01',
           color: 'text_primary',
           weight: 'medium'
         }, children)
@@ -100,18 +100,18 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           accessibilityRole: 'link',
           accessibilityLabel: typeof children === 'string' ? children : undefined,
           href: href,
-          style: Style.utilities['m_r_xs']
+          style: Style.utilities['m_r_spacing_01']
         }, ariaProps, pressKeysProps),
         React.createElement(Registry.Text, {
-          size: 'sm',
-          color: 'app_primary'
+          typeSet: 'label01',
+          color: 'interactive'
         }, children)
       ),
       // Separator chevron
       React.createElement(Registry.Text, {
-        size: 'sm',
-        color: 'text_muted',
-        style: Style.utilities['m_h_xs']
+        typeSet: 'label01',
+        color: 'text_secondary',
+        style: Style.utilities['m_h_spacing_01']
       }, '/')
     );
   };////////////////////////// Public Functions END ////////////////////////////

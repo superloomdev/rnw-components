@@ -44,7 +44,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
     const isChecked = !!checked;
 
     // Handle selection
@@ -74,22 +73,22 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityLabel: name || value
       }, ariaProps, pressKeysProps, {
         style: [
-          Style.utilities['br_md'],
-          Style.utilities['p_a_md'],
+          Style.utilities['br_radius_08'],
+          Style.utilities['p_a_spacing_05'],
           {
             borderWidth: 2,
             borderColor: isChecked
-              ? (colorMap.APP_PRIMARY)
-              : (colorMap.BORDER),
+              ? (Style.tokens.Color.interactive)
+              : (Style.tokens.Color.border_subtle_01),
             backgroundColor: isChecked
-              ? (colorMap.BACKGROUND_SECONDARY)
+              ? (Style.tokens.Color.layer_01)
               : 'transparent'
           },
           style
         ]
       }, rest),
       React.createElement(Registry.Text, {
-        size: 'md',
+        typeSet: 'body01',
         color: 'text_primary',
         weight: 'medium'
       }, value)

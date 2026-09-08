@@ -40,7 +40,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
     const lineCount = lines || 3;
 
     const lineElements = [];
@@ -53,7 +52,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           height: 16,
           borderRadius: 2,
           marginBottom: isLast ? 0 : 8,
-          backgroundColor: colorMap.BACKGROUND_SECONDARY
+          backgroundColor: Style.tokens.Color.layer_01
         }
       }));
     }

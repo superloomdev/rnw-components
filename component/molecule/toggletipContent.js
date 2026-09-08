@@ -46,9 +46,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       Object.assign({
         accessibilityRole: 'tooltip',
         style: [
-          Style.utilities['background_surface'],
-          Style.utilities['br_md'],
-          Style.utilities['p_a_sm'],
+          Style.utilities['background_layer_02'],
+          Style.utilities['br_radius_08'],
+          Style.utilities['p_a_spacing_03'],
           style
         ]
       }, rest),

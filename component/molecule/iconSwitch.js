@@ -43,7 +43,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
     const isChecked = !!checked;
 
     // Handle toggle
@@ -80,8 +79,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             height: 28,
             borderRadius: 14,
             backgroundColor: isChecked
-              ? (colorMap.APP_PRIMARY)
-              : (colorMap.BACKGROUND_SECONDARY),
+              ? (Style.tokens.Color.interactive)
+              : (Style.tokens.Color.layer_01),
             padding: 2
           },
           style
@@ -90,8 +89,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       icon
         ? React.createElement(Registry.Icon, {
           name: icon,
-          size: 'sm',
-          color: isChecked ? 'text_on_primary' : 'TEXT_SECONDARY'
+          typeSet: 'label01',
+          color: isChecked ? 'text_on_color' : 'text_secondary'
         })
         : null
     );

@@ -42,7 +42,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
     const [isOpen, setIsOpen] = React.useState(false);
 
     // Build aria state props
@@ -62,15 +61,15 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           accessibilityRole: 'button',
           accessibilityLabel: 'AI label',
           style: [
-            Style.utilities['br_sm'],
-            Style.utilities['p_h_xs'],
-            Style.utilities['p_v_xs'],
-            { backgroundColor: colorMap.BACKGROUND_SECONDARY }
+            Style.utilities['br_radius_04'],
+            Style.utilities['p_h_spacing_01'],
+            Style.utilities['p_v_spacing_01'],
+            { backgroundColor: Style.tokens.Color.layer_01 }
           ]
         }, ariaProps),
         React.createElement(Registry.Text, {
-          size: 'xs',
-          color: 'text_on_primary',
+          typeSet: 'caption01',
+          color: 'text_on_color',
           weight: 'medium'
         }, label || 'AI')
       ),
@@ -79,15 +78,15 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           RNView,
           {
             style: [
-              Style.utilities['background_surface'],
-              Style.utilities['br_md'],
-              Style.utilities['border_default'],
-              Style.utilities['p_a_sm'],
-              { position: 'absolute', top: '100%', left: 0, marginTop: 4, maxWidth: 300, zIndex: 1000 }
+              Style.utilities['background_layer_02'],
+              Style.utilities['br_radius_08'],
+              Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+              Style.utilities['p_a_spacing_03'],
+              { position: 'absolute', top: '100%', left: 0, marginTop: 4, maxWidth: 300, zIndex: Parts.Stacking.floating }
             ]
           },
           React.createElement(Registry.Text, {
-            size: 'sm',
+            typeSet: 'label01',
             color: 'text_primary'
           }, details || 'AI-generated content')
         )

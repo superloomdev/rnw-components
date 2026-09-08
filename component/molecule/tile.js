@@ -48,34 +48,34 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       RNView,
       Object.assign({
         style: [
-          Style.utilities['background_surface'],
-          Style.utilities['br_md'],
-          Style.utilities['border_default'],
-          Style.utilities['p_a_md'],
+          Style.utilities['background_layer_02'],
+          Style.utilities['br_radius_08'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+          Style.utilities['p_a_spacing_05'],
           style
         ]
       }, rest),
       icon
         ? React.createElement(Registry.Icon, {
           name: icon,
-          size: 'lg',
-          color: 'TEXT_PRIMARY',
-          style: Style.utilities['m_b_sm']
+          typeSet: 'body02',
+          color: 'text_primary',
+          style: Style.utilities['m_b_spacing_03']
         })
         : null,
       title
         ? React.createElement(Registry.Text, {
-          size: 'lg',
+          typeSet: 'body02',
           color: 'text_primary',
           weight: 'semibold',
-          style: Style.utilities['m_b_xs']
+          style: Style.utilities['m_b_spacing_01']
         }, title)
         : null,
       subtitle
         ? React.createElement(Registry.Text, {
-          size: 'sm',
+          typeSet: 'label01',
           color: 'text_secondary',
-          style: Style.utilities['m_b_sm']
+          style: Style.utilities['m_b_spacing_03']
         }, subtitle)
         : null,
       children

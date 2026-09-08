@@ -2,7 +2,7 @@
 // for counts. Uses the A11y mechanism for aria-* label. Composes Text atom.
 //   count       -> number (the count to display)
 //   max         -> number (display '99+' when count exceeds max, default 99)
-//   color       -> string (color token, default 'app_primary')
+//   color       -> string (color token, default 'interactive')
 //   style       -> custom style overrides
 
 
@@ -41,7 +41,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
     const maxVal = Lib.Utils.isNumber(max) ? max : 99;
     const displayCount = count > maxVal ? maxVal + '+' : String(count || 0);
 
@@ -51,7 +50,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityLabel: displayCount + ' items',
         style: [
           {
-            backgroundColor: colorMap.APP_PRIMARY,
+            backgroundColor: Style.tokens.Color.interactive,
             borderRadius: 10,
             minWidth: 20,
             height: 20,
@@ -63,8 +62,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         ]
       }, rest),
       React.createElement(Registry.Text, {
-        size: 'xs',
-        color: 'text_on_primary',
+        typeSet: 'caption01',
+        color: 'text_on_color',
         weight: 'medium'
       }, displayCount)
     );

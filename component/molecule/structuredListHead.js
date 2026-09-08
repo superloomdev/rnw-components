@@ -40,7 +40,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     return React.createElement(
       RNView,
@@ -50,7 +49,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['flex_col'],
           {
             borderBottomWidth: 1,
-            borderBottomColor: colorMap.BORDER
+            borderBottomColor: Style.tokens.Color.border_subtle_01
           },
           style
         ]

@@ -39,7 +39,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     return React.createElement(
       RNView,
@@ -48,9 +47,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           {
             height: 1,
-            backgroundColor: colorMap.BORDER
+            backgroundColor: Style.tokens.Color.border_subtle_01
           },
-          Style.utilities['m_v_sm'],
+          Style.utilities['m_v_spacing_03'],
           style
         ]
       }, rest)

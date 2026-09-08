@@ -42,7 +42,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     // Build aria state props through the a11y translator
     const ariaProps = Parts.A11y.state({});
@@ -64,19 +63,19 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
-          Style.utilities['p_h_sm'],
-          Style.utilities['p_v_xs'],
-          Style.utilities['br_pill'],
+          Style.utilities['p_h_spacing_03'],
+          Style.utilities['p_v_spacing_01'],
+          Style.utilities['br_radius_max'],
           {
             borderWidth: 1,
-            borderColor: colorMap.BORDER,
-            backgroundColor: colorMap.BACKGROUND_SECONDARY
+            borderColor: Style.tokens.Color.border_subtle_01,
+            backgroundColor: Style.tokens.Color.layer_01
           },
           style
         ]
       }, rest),
       React.createElement(Registry.Text, {
-        size: 'sm',
+        typeSet: 'label01',
         color: 'text_primary'
       }, text)
     );

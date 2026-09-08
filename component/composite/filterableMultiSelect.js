@@ -63,7 +63,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const [isOpen, setIsOpen] = React.useState(false);
     const [filterText, setFilterText] = React.useState('');
     const isDisabled = !!disabled;
-    const colorMap = Style.tokens.Color;
     const itemList = items || [];
     const selectedArray = resolvedSelected || [];
 
@@ -146,25 +145,25 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             Style.utilities['flex_row'],
             Style.utilities['align_center'],
             Style.utilities['justify_between'],
-            Style.utilities['br_md'],
-            Style.utilities['border_default'],
-            Style.utilities['p_h_md'],
-            Style.utilities['p_v_sm'],
-            Style.utilities['background_surface'],
+            Style.utilities['br_radius_08'],
+            Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+            Style.utilities['p_h_spacing_05'],
+            Style.utilities['p_v_spacing_03'],
+            Style.utilities['background_layer_02'],
             isDisabled
-              ? { backgroundColor: colorMap.BACKGROUND_SECONDARY }
+              ? { backgroundColor: Style.tokens.Color.layer_01 }
               : null,
             style
           ]
         }, ariaStateProps, pressKeysProps, rest),
         React.createElement(Registry.Text, {
-          size: 'md',
-          color: !Lib.Utils.isEmptyArray(selectedArray) ? 'text_primary' : 'text_muted'
+          typeSet: 'body01',
+          color: !Lib.Utils.isEmptyArray(selectedArray) ? 'text_primary' : 'text_secondary'
         }, displayLabel),
         React.createElement(Registry.Icon, {
           name: isOpen ? 'chevron_up' : 'chevron_down',
-          size: 'sm',
-          color: 'TEXT_MUTED'
+          typeSet: 'label01',
+          color: 'text_secondary'
         })
       );
     };
@@ -179,17 +178,17 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           accessibilityRole: 'listbox',
           'aria-multiselectable': true,
           style: [
-            Style.utilities['background_surface'],
-            Style.utilities['br_md'],
-            Style.utilities['border_default'],
-            Style.utilities['p_v_xs'],
+            Style.utilities['background_layer_02'],
+            Style.utilities['br_radius_08'],
+            Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+            Style.utilities['p_v_spacing_01'],
             { position: 'absolute', top: pos.top, left: pos.left, minWidth: 200, zIndex: zIndex || 1000 }
           ]
         },
         // Filter text input
         React.createElement(
           RNView,
-          { style: [Style.utilities['p_h_sm'], Style.utilities['p_v_xs']] },
+          { style: [Style.utilities['p_h_spacing_03'], Style.utilities['p_v_spacing_01']] },
           React.createElement(Registry.TextInput, {
             value: filterText,
             onChangeText: setFilterText,
@@ -198,10 +197,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             accessibilityRole: 'searchbox',
             accessibilityLabel: 'Filter options',
             style: [
-              Style.utilities['br_sm'],
-              Style.utilities['border_default'],
-              Style.utilities['p_h_sm'],
-              Style.utilities['p_v_xs']
+              Style.utilities['br_radius_04'],
+              Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+              Style.utilities['p_h_spacing_03'],
+              Style.utilities['p_v_spacing_01']
             ]
           })
         ),

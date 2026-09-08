@@ -86,7 +86,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           disabled: isDisabled,
           accessibilityRole: 'button',
           accessibilityLabel: showPassword ? 'Hide password' : 'Show password',
-          style: Style.utilities['m_s_xs']
+          style: Style.utilities['m_s_spacing_01']
         },
         showPassword ? 'Hide' : 'Show'
       )

@@ -43,7 +43,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     // Build aria state props through the a11y translator
     const ariaProps = Parts.A11y.state({});
@@ -63,22 +62,22 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityLabel: text
       }, ariaProps, pressKeysProps, {
         style: [
-          Style.utilities['p_h_md'],
-          Style.utilities['p_v_sm'],
-          Style.utilities['br_md'],
+          Style.utilities['p_h_spacing_05'],
+          Style.utilities['p_v_spacing_03'],
+          Style.utilities['br_radius_08'],
           {
             backgroundColor: kind === 'primary'
-              ? (colorMap.APP_PRIMARY)
+              ? Style.tokens.Color.interactive
               : 'transparent',
             borderWidth: kind === 'primary' ? 0 : 1,
-            borderColor: colorMap.BORDER
+            borderColor: Style.tokens.Color.border_subtle_01
           },
           style
         ]
       }, rest),
       React.createElement(Registry.Text, {
-        size: 'sm',
-        color: kind === 'primary' ? 'text_on_primary' : 'text_primary',
+        typeSet: 'label01',
+        color: kind === 'primary' ? 'text_on_color' : 'text_primary',
         weight: 'medium'
       }, text)
     );

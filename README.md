@@ -4,7 +4,7 @@ The standard Superloom component system for React Native Web. Component anatomy 
 
 ## Overview
 
-This module provides a themed component registry for React Native Web applications. It consumes a theme contract (`{ Color, Dimension, Font, Breakpoint }`) and produces a set of atoms, molecules, variants, and freeform components that all drive their visuals from tokens. The library ships no color of its own: a theme supplies all 22 required `Color` tokens or
+This module provides a themed component registry for React Native Web applications. It consumes a built theme from the Superloom Themer engine and produces a set of atoms, molecules, variants, and freeform components that all drive their visuals from tokens. The library ships no color of its own: a theme supplies all 38 required color tokens or
 `createSystem` refuses to build, naming every absent one. That keeps the component set free
 of any single design language - the same components render IBM Carbon or anything else,
 depending entirely on the theme handed in.
@@ -17,19 +17,19 @@ depending entirely on the theme handed in.
 npm install @superloomdev/rnw-components
 ```
 
-Peer dependencies: `react`, `react-native`, `helper-utils`, `helper-debug`, `helper-themer`, `helper-device`.
+Peer dependencies: `react`, `react-native`, `helper-utils`, `helper-debug`, `helper-themer`, `helper-device`. The Themer engine is injected via `shared_libs.Themer`; the host calls `Themer.buildTheme(...)` and passes the result to `createSystem`.
 
 ## Quick Start
 
 ```javascript
-import {
-  createSystem,
-  buildThemeContract,
-  View, Text, Button
-} from '@superloomdev/rnw-components';
+import { createSystem, View, Text, Button } from '@superloomdev/rnw-components';
+import Themer from 'helper-themer';
+import Utils from 'helper-utils';
+import Debug from 'helper-debug';
+import Device from 'helper-device';
 
-// Bridge themer output to the theme contract
-const theme = buildThemeContract(themer.buildTheme(template, layers, 'native'));
+// Build the theme through the Themer engine
+const built = Themer.buildTheme(template, layers, 'native');
 
 // Build the system, then register only the components this screen uses
 const system = createSystem({
@@ -37,8 +37,9 @@ const system = createSystem({
   Debug: Debug,
   React: React,
   Device: Device,
+  Themer: Themer,
   Icons: Icons
-}, {}, theme, 'base');
+}, {}, built, 'sm');
 
 system.addComponents({ View, Text, Button });
 
@@ -47,12 +48,12 @@ const Style = system.Style;
 
 // Use components
 const MyScreen = function () {
-  return React.createElement(Component.View, { background: 'surface', p_a_lg: true },
-    React.createElement(Component.Text, { size: 'xl', weight: 'bold' }, 'Hello'),
+  return React.createElement(Component.View, { background: 'background', p_a_spacing_05: true },
+    React.createElement(Component.Text, { typeSet: 'heading03', weight: 'bold' }, 'Hello'),
     React.createElement(Component.Button, {
       kind: 'primary',
       onPress: function () { /* ... */ }
-    }, React.createElement(Component.Text, { color: 'text_on_primary' }, 'Submit'))
+    }, React.createElement(Component.Text, { color: 'text_on_color' }, 'Submit'))
   );
 };
 ```

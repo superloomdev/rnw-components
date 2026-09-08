@@ -26,12 +26,15 @@ import { COMPONENTS, VARIANTS, FREEFORMS, PROVIDERS } from 'rnw-components/all';
 import {
   Utils,
   Debug,
+  Themer,
   React,
   TestRenderer,
+  act,
   Device,
-  Icons,
-  createTestTheme
+  Icons
 } from './loader.js';
+
+import { buildCarbonWhite, buildContrastTheme } from './harness/themes.js';
 
 
 // ========================= SHARED FIXTURES ================================ //
@@ -41,10 +44,11 @@ const sharedLibs = {
   Debug: Debug,
   React: React,
   Device: Device,
+  Themer: Themer,
   Icons: Icons
 };
 
-const testTheme = createTestTheme();
+const testTheme = buildCarbonWhite();
 
 
 /********************************************************************
@@ -56,7 +60,7 @@ cases. Each call returns an independent registry.
 function buildSystem () {
 
   // Return an independent system instance for this test
-  return createSystem(sharedLibs, {}, testTheme, 'base');
+  return createSystem(sharedLibs, {}, testTheme, 'sm');
 
 }
 
@@ -82,7 +86,7 @@ describe('createSystem surface', function () {
     assert.strictEqual(typeof system.Lib, 'object');
     assert.strictEqual(typeof system.CONFIG, 'object');
     assert.strictEqual(typeof system.ERRORS, 'object');
-    assert.strictEqual(system.breakpoint, 'base');
+    assert.strictEqual(system.breakpoint, 'sm');
 
   });
 
@@ -94,11 +98,11 @@ describe('createSystem surface', function () {
 
   });
 
-  it('should default the breakpoint to base when omitted', function () {
+  it('should default the breakpoint to sm when omitted', function () {
 
     const system = createSystem(sharedLibs, {}, testTheme);
 
-    assert.strictEqual(system.breakpoint, 'base');
+    assert.strictEqual(system.breakpoint, 'sm');
 
   });
 
@@ -107,19 +111,24 @@ describe('createSystem surface', function () {
     const system = buildSystem();
 
     assert.strictEqual(typeof system.Style.utilities, 'object');
-    assert.strictEqual(system.Style.tokens, testTheme);
-    assert.strictEqual(system.Style.breakpoint, 'base');
+    assert.ok(system.Style.tokens.Color);
+    assert.ok(system.Style.tokens.Spacing);
+    assert.ok(system.Style.tokens.Shape);
+    assert.ok(system.Style.tokens.TypeSet);
+    assert.ok(system.Style.tokens.Font);
+    assert.ok(system.Style.tokens.Breakpoint);
+    assert.strictEqual(system.Style.breakpoint, 'sm');
     assert.strictEqual(typeof system.Style.allBreakpoints, 'object');
 
   });
 
-  it('should build all twelve mechanism parts', function () {
+  it('should build all fourteen mechanism parts', function () {
 
     const system = buildSystem();
     const expected = [
       'A11y', 'PressKeys', 'RovingTabIndex', 'ControllableState',
       'AnchoredPosition', 'FocusTrap', 'Overlay', 'CompoundContext',
-      'Units', 'Typeface', 'Direction', 'Filter'
+      'Units', 'Typeface', 'Direction', 'Filter', 'Motion', 'Stacking'
     ];
 
     assert.deepStrictEqual(Object.keys(system.Parts).sort(), expected.slice().sort());
@@ -129,7 +138,7 @@ describe('createSystem surface', function () {
   it('should throw when the theme contract is malformed', function () {
 
     assert.throws(function () {
-      createSystem(sharedLibs, {}, {}, 'base');
+      createSystem(sharedLibs, {}, {}, 'sm');
     });
 
   });
@@ -137,7 +146,7 @@ describe('createSystem surface', function () {
   it('should throw when a required injection is missing', function () {
 
     assert.throws(function () {
-      createSystem({ Utils: Utils }, {}, testTheme, 'base');
+      createSystem({ Utils: Utils }, {}, testTheme, 'sm');
     });
 
   });
@@ -182,7 +191,10 @@ describe('createSystem registration', function () {
     const system = buildSystem();
     const TextComponent = system.make(Text);
 
-    const tree = TestRenderer.create(React.createElement(TextComponent, {}, 'hello'));
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(React.createElement(TextComponent, {}, 'hello'));
+    });
 
     assert.ok(tree.toJSON());
 
@@ -334,15 +346,21 @@ describe('createSystem variants', function () {
     system.addVariants({ ButtonPrimaryOutlined: ButtonPrimaryOutlined });
     system.addComponents({ Text: Text });
 
-    const tree = TestRenderer.create(
-      React.createElement(system.Component.variant.ButtonPrimaryOutlined, {
-        title: 'Cancel',
-        onPress: function () {}
-      })
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(system.Component.variant.ButtonPrimaryOutlined, {
+          title: 'Cancel',
+          onPress: function () {}
+        })
+      );
+    });
 
-    assert.ok(tree);
-    assert.strictEqual(tree.props.role, 'button');
+    const json = tree.toJSON();
+    assert.ok(json);
+    assert.strictEqual(json.props.role, 'button');
+
+    tree.unmount();
 
   });
 
@@ -357,7 +375,6 @@ describe('createSystem variants', function () {
   });
 
 });
-
 
 describe('createSystem freeforms', function () {
 
@@ -384,13 +401,18 @@ describe('createSystem freeforms', function () {
     const system = buildSystem();
     system.addFreeforms({ RawBox: RawBox });
 
-    const tree = TestRenderer.create(
-      React.createElement(system.Component.freeform.RawBox, {
-        style: { padding: 4 }
-      })
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(system.Component.freeform.RawBox, {
+          style: { padding: 4 }
+        })
+      );
+    });
 
-    assert.ok(tree);
+    assert.ok(tree.toJSON());
+
+    tree.unmount();
 
   });
 
@@ -411,19 +433,22 @@ describe('createSystem freeforms', function () {
 
 describe('createSystem useBreakpoint', function () {
 
-  it('should resolve base for the stubbed 375px viewport', function () {
+  it('should resolve sm for the stubbed 375px viewport', function () {
 
     const system = buildSystem();
     let captured = null;
 
     function Probe () {
-      captured = system.useBreakpoint(testTheme);
+      captured = system.useBreakpoint(system.Style.tokens);
       return null;
     }
 
-    const tree = TestRenderer.create(React.createElement(Probe));
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(React.createElement(Probe));
+    });
 
-    assert.strictEqual(captured, 'base');
+    assert.strictEqual(captured, 'sm');
 
     tree.unmount();
 
@@ -435,7 +460,7 @@ describe('createSystem useBreakpoint', function () {
 
     assert.deepStrictEqual(
       Object.keys(system.Style.allBreakpoints).sort(),
-      ['base', 'lg', 'md', 'sm', 'xl']
+      ['lg', 'max', 'md', 'sm', 'xlg']
     );
 
   });
@@ -505,13 +530,16 @@ describe('createSystem render integration', function () {
 
     assert.strictEqual(system.checkRegistry().complete, true);
 
-    const tree = TestRenderer.create(
-      React.createElement(system.Component.Dropdown, {
-        items: [{ id: 'a', label: 'Alpha' }],
-        triggerLabel: 'Pick one',
-        accessibilityLabel: 'Pick one'
-      })
-    );
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(system.Component.Dropdown, {
+          items: [{ id: 'a', label: 'Alpha' }],
+          triggerLabel: 'Pick one',
+          accessibilityLabel: 'Pick one'
+        })
+      );
+    });
 
     assert.ok(tree.toJSON());
 
@@ -526,13 +554,16 @@ describe('createSystem render integration', function () {
     system.addComponents({ Dropdown: Dropdown });
     system.addComponents({ Text: Text, Icon: Icon });
 
-    const tree = TestRenderer.create(
-      React.createElement(system.Component.Dropdown, {
-        items: [{ id: 'a', label: 'Alpha' }],
-        triggerLabel: 'Pick one',
-        accessibilityLabel: 'Pick one'
-      })
-    );
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(system.Component.Dropdown, {
+          items: [{ id: 'a', label: 'Alpha' }],
+          triggerLabel: 'Pick one',
+          accessibilityLabel: 'Pick one'
+        })
+      );
+    });
 
     assert.ok(tree.toJSON());
 
@@ -545,12 +576,15 @@ describe('createSystem render integration', function () {
     const system = buildSystem();
     system.addComponents({ Button: Button, Text: Text });
 
-    const tree = TestRenderer.create(
-      React.createElement(system.Component.Button, {
-        onPress: function () {},
-        accessibilityLabel: 'Save'
-      }, 'Save')
-    );
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(system.Component.Button, {
+          onPress: function () {},
+          accessibilityLabel: 'Save'
+        }, 'Save')
+      );
+    });
 
     assert.ok(tree.toJSON());
 
@@ -595,14 +629,36 @@ describe('createSystem parity with the factory path', function () {
     const system = buildSystem();
     system.addComponents({ Text: Text });
 
-    const fromSystem = TestRenderer.create(
-      React.createElement(system.Component.Text, {}, 'same')
-    );
-    const fromFactory = TestRenderer.create(
-      React.createElement(loaderModule.Component.Text, {}, 'same')
-    );
+    let fromSystem;
+    let fromFactory;
+    act(function () {
+      fromSystem = TestRenderer.create(
+        React.createElement(system.Component.Text, {}, 'same')
+      );
+      fromFactory = TestRenderer.create(
+        React.createElement(loaderModule.Component.Text, {}, 'same')
+      );
+    });
 
-    assert.deepStrictEqual(fromSystem.toJSON(), fromFactory.toJSON());
+    // React 19 + RNW assign a unique forwardRef per render, so strip ref
+    // before comparing the two trees structurally.
+    function stripRef (node) {
+      if (node && typeof node === 'object') {
+        const copy = Object.assign({}, node);
+        delete copy.ref;
+        if (copy.props) {
+          copy.props = Object.assign({}, copy.props);
+          delete copy.props.ref;
+        }
+        if (Array.isArray(copy.children)) {
+          copy.children = copy.children.map(stripRef);
+        }
+        return copy;
+      }
+      return node;
+    }
+
+    assert.deepStrictEqual(stripRef(fromSystem.toJSON()), stripRef(fromFactory.toJSON()));
 
     fromSystem.unmount();
     fromFactory.unmount();
@@ -618,38 +674,39 @@ describe('createSystem color token contract', function () {
 
   // Each required token is removed on its own so a regression that drops one
   // token from the required list is caught by exactly one failing case.
+  // These are the lowercase contract names, not the old UPPERCASE names.
   const REQUIRED = [
-    'APP_PRIMARY', 'APP_PRIMARY_HOVERED', 'APP_PRIMARY_PRESSED',
-    'APP_PRIMARY_DISABLED', 'APP_PRIMARY_SUBTLE',
-    'TEXT_PRIMARY', 'TEXT_SECONDARY', 'TEXT_MUTED', 'TEXT_DISABLED',
-    'TEXT_ON_PRIMARY',
-    'BACKGROUND_PRIMARY', 'BACKGROUND_SECONDARY', 'SURFACE', 'BORDER',
-    'STATUS_SUCCESS', 'STATUS_SUCCESS_SUBTLE',
-    'STATUS_DANGER', 'STATUS_DANGER_SUBTLE',
-    'STATUS_WARNING', 'STATUS_WARNING_SUBTLE',
-    'STATUS_INFO', 'STATUS_INFO_SUBTLE',
-    'BUTTON_PRIMARY', 'BUTTON_PRIMARY_HOVER', 'BUTTON_PRIMARY_ACTIVE',
-    'BUTTON_SECONDARY', 'BUTTON_SECONDARY_HOVER', 'BUTTON_SECONDARY_ACTIVE',
-    'BUTTON_TERTIARY', 'BUTTON_TERTIARY_HOVER', 'BUTTON_TERTIARY_ACTIVE',
-    'BUTTON_DANGER_PRIMARY', 'BUTTON_DANGER_HOVER', 'BUTTON_DANGER_ACTIVE',
-    'BUTTON_DANGER_SECONDARY', 'BUTTON_DISABLED', 'BUTTON_SEPARATOR'
+    'interactive', 'text_primary', 'text_secondary', 'text_disabled',
+    'text_on_color', 'text_helper', 'background', 'layer_01', 'layer_02',
+    'border_subtle_01', 'border_interactive',
+    'support_success', 'support_error', 'support_warning', 'support_info',
+    'button_primary', 'button_primary_hover', 'button_primary_active',
+    'button_secondary', 'button_secondary_hover', 'button_secondary_active',
+    'button_tertiary', 'button_tertiary_hover', 'button_tertiary_active',
+    'button_danger_primary', 'button_danger_hover', 'button_danger_active',
+    'button_danger_secondary', 'button_disabled', 'button_separator',
+    'focus', 'icon_primary', 'icon_secondary', 'icon_on_color', 'icon_disabled',
+    'overlay', 'shadow', 'skeleton_background'
   ];
 
-  it('should require exactly thirty-seven color tokens', function () {
+  it('should require exactly thirty-eight color tokens', function () {
 
-    assert.strictEqual(REQUIRED.length, 37);
+    assert.strictEqual(REQUIRED.length, 38);
 
   });
 
   it('should throw for each individually absent token', function () {
 
     for (let i = 0; i < REQUIRED.length; i++) {
-      const theme = createTestTheme();
-      delete theme.Color[REQUIRED[i]];
+
+      // Copy the tokens map so the cached buildTheme result is not mutated
+      const built = buildCarbonWhite();
+      const theme = { tokens: Object.assign({}, built.tokens) };
+      delete theme.tokens['color.' + REQUIRED[i]];
 
       assert.throws(
         function () {
-          createSystem(sharedLibs, {}, theme, 'base');
+          createSystem(sharedLibs, {}, theme, 'sm');
         },
         TypeError,
         'no throw when ' + REQUIRED[i] + ' was absent'
@@ -660,74 +717,77 @@ describe('createSystem color token contract', function () {
 
   it('should name the absent token in the message', function () {
 
-    const theme = createTestTheme();
-    delete theme.Color.BORDER;
+    const built = buildCarbonWhite();
+    const theme = { tokens: Object.assign({}, built.tokens) };
+    delete theme.tokens['color.border_subtle_01'];
 
     try {
-      createSystem(sharedLibs, {}, theme, 'base');
-      assert.fail('accepted a theme with no BORDER');
+      createSystem(sharedLibs, {}, theme, 'sm');
+      assert.fail('accepted a theme with no border_subtle_01');
     } catch (error) {
-      assert.ok(error.message.indexOf('BORDER') !== -1);
+      assert.ok(error.message.indexOf('border_subtle_01') !== -1);
     }
 
   });
 
   it('should accept a theme carrying extra tokens beyond the required set', function () {
 
-    // The gate checks presence, never absence. A richer theme is valid.
-    const theme = createTestTheme();
-    theme.Color.BRAND_ACCENT = '#123456';
+    // The gate checks presence, never absence. A non-Carbon theme with
+    // the same contract but different values is valid.
+    const theme = buildContrastTheme();
 
-    assert.ok(createSystem(sharedLibs, {}, theme, 'base').Style.utilities);
+    assert.ok(createSystem(sharedLibs, {}, theme, 'sm').Style.utilities);
 
   });
 
-  it('should still reject a non-object Color group', function () {
+  it('should still reject a non-object tokens map', function () {
 
-    const theme = createTestTheme();
-    theme.Color = null;
+    const built = buildCarbonWhite();
+    const theme = { tokens: null };
 
     assert.throws(function () {
-      createSystem(sharedLibs, {}, theme, 'base');
+      createSystem(sharedLibs, {}, theme, 'sm');
     }, TypeError);
 
   });
 
   it('should report every absent token in one throw', function () {
 
-    const theme = createTestTheme();
-    delete theme.Color.SURFACE;
-    delete theme.Color.BORDER;
+    const built = buildCarbonWhite();
+    const theme = { tokens: Object.assign({}, built.tokens) };
+    delete theme.tokens['color.layer_02'];
+    delete theme.tokens['color.border_subtle_01'];
 
     try {
-      createSystem(sharedLibs, {}, theme, 'base');
+      createSystem(sharedLibs, {}, theme, 'sm');
       assert.fail('accepted a theme missing two tokens');
     } catch (error) {
-      assert.ok(error.message.indexOf('SURFACE') !== -1);
-      assert.ok(error.message.indexOf('BORDER') !== -1);
+      assert.ok(error.message.indexOf('layer_02') !== -1);
+      assert.ok(error.message.indexOf('border_subtle_01') !== -1);
     }
 
   });
 
   it('should carry the error catalog type in the message', function () {
 
-    const theme = createTestTheme();
-    delete theme.Color.TEXT_MUTED;
+    const built = buildCarbonWhite();
+    const theme = { tokens: Object.assign({}, built.tokens) };
+    delete theme.tokens['color.text_secondary'];
 
     try {
-      createSystem(sharedLibs, {}, theme, 'base');
-      assert.fail('accepted a theme with no TEXT_MUTED');
+      createSystem(sharedLibs, {}, theme, 'sm');
+      assert.fail('accepted a theme with no text_secondary');
     } catch (error) {
-      assert.ok(error.message.indexOf('theme-missing-color-token') !== -1);
+      assert.ok(error.message.indexOf('CONTRACT_MISSING_TOKEN') !== -1);
     }
 
   });
 
   it('should not mutate the theme it was given', function () {
 
-    const theme = createTestTheme();
+    const theme = buildCarbonWhite();
     const before = JSON.stringify(theme);
-    createSystem(sharedLibs, {}, theme, 'base');
+    createSystem(sharedLibs, {}, theme, 'sm');
 
     assert.strictEqual(JSON.stringify(theme), before);
 

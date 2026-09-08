@@ -83,20 +83,20 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           style: [
             Style.utilities['flex_row'],
             Style.utilities['align_center'],
-            Style.utilities['p_h_md'],
-            Style.utilities['p_v_sm']
+            Style.utilities['p_h_spacing_05'],
+            Style.utilities['p_v_spacing_03']
           ]
         }),
         React.createElement(Registry.Text, {
-          size: 'md',
+          typeSet: 'body01',
           color: 'text_primary',
           weight: 'medium',
           style: { flex: 1 }
         }, label || ''),
         React.createElement(Registry.Icon, {
           name: isExpanded ? 'chevron--up' : 'chevron--down',
-          size: 'sm',
-          color: 'TEXT_SECONDARY'
+          typeSet: 'label01',
+          color: 'text_secondary'
         })
       ),
       isExpanded

@@ -1,6 +1,6 @@
 // Info: Unit tests for rnw-components.
 //
-// Tests the public interface: system construction, theme contract bridge,
+// Tests the public interface: system construction, theme contract validation,
 // atom rendering and accessibility, mechanism parts, and composite components.
 // Uses react-test-renderer over jsdom via the loader.
 
@@ -16,15 +16,17 @@ import {
   Utils,
   React,
   TestRenderer,
+  act,
   Device,
   createDeviceStub,
-  createTestTheme,
   createSystem,
-  buildThemeContract,
   TOKENS,
   buildFullSystem,
-  COMPONENTS
+  COMPONENTS,
+  sharedLibs
 } from './loader.js';
+
+import { buildCarbonWhite } from './harness/themes.js';
 
 // Named factory import: the no-Icons case builds a one-component system
 import { Icon as IconFactory } from 'rnw-components';
@@ -53,7 +55,7 @@ describe('build', function () {
     assert.ok(Style);
     assert.ok(Style.utilities);
     assert.ok(Style.tokens);
-    assert.strictEqual(Style.breakpoint, 'base');
+    assert.strictEqual(Style.breakpoint, 'sm');
 
   });
 
@@ -122,7 +124,7 @@ describe('re-theming by building a second system', function () {
 
     buildFullSystem(theme, 'md');
 
-    assert.strictEqual(Style.breakpoint, 'base');
+    assert.strictEqual(Style.breakpoint, 'sm');
 
   });
 
@@ -134,28 +136,16 @@ describe('createSystem theme validation', function () {
   it('should throw TypeError on malformed theme', function () {
 
     assert.throws(function () {
-      buildFullSystem({ Color: {}, Dimension: {}, Font: {} }, 'base');
+      buildFullSystem({ tokens: null }, 'sm');
     }, TypeError);
 
   });
 
 
-  it('should throw TypeError on missing Color group', function () {
+  it('should throw TypeError on missing tokens map', function () {
 
     assert.throws(function () {
-      buildFullSystem({ Dimension: {}, Font: {} }, 'base');
-    }, TypeError);
-
-  });
-
-
-  it('should throw TypeError on unit-suffixed dimension values', function () {
-
-    const badTheme = createTestTheme();
-    badTheme.Dimension.fontSize.md = '1rem';
-
-    assert.throws(function () {
-      buildFullSystem(badTheme, 'base');
+      buildFullSystem({}, 'sm');
     }, TypeError);
 
   });
@@ -164,91 +154,20 @@ describe('createSystem theme validation', function () {
 
 
 // ============================================================================
-// 2. THEME CONTRACT BRIDGE
-// ============================================================================
-
-describe('buildThemeContract', function () {
-
-  it('should reshape flat tokens to nested structure', function () {
-
-    const flat = {
-      'color.APP_PRIMARY': '#0f62fe',
-      'color.TEXT_PRIMARY': '#161616',
-      'dimension.font_size.xs': 12,
-      'dimension.font_size.md': 16,
-      'dimension.line_height_ratio': 1.4,
-      'font.family.primary': 'System',
-      'font.weight.regular': '400'
-    };
-
-    const result = buildThemeContract(flat);
-
-    assert.strictEqual(result.Color.APP_PRIMARY, '#0f62fe');
-    assert.strictEqual(result.Color.TEXT_PRIMARY, '#161616');
-    assert.strictEqual(result.Dimension.fontSize.xs, 12);
-    assert.strictEqual(result.Dimension.fontSize.md, 16);
-    assert.strictEqual(result.Dimension.lineHeightRatio, 1.4);
-    assert.strictEqual(result.Font.family.primary, 'System');
-    assert.strictEqual(result.Font.weight.regular, '400');
-    assert.ok(result.Breakpoint);
-
-  });
-
-
-  it('should accept buildTheme result with tokens key', function () {
-
-    const themerOutput = {
-      tokens: {
-        'color.APP_PRIMARY': '#0f62fe',
-        'dimension.font_size.md': 16
-      }
-    };
-
-    const result = buildThemeContract(themerOutput);
-
-    assert.strictEqual(result.Color.APP_PRIMARY, '#0f62fe');
-    assert.strictEqual(result.Dimension.fontSize.md, 16);
-
-  });
-
-
-  it('should round font sizes to integers', function () {
-
-    const flat = { 'dimension.font_size.md': 16.7 };
-    const result = buildThemeContract(flat);
-
-    assert.strictEqual(result.Dimension.fontSize.md, 17);
-
-  });
-
-
-  it('should handle null input gracefully', function () {
-
-    const result = buildThemeContract(null);
-
-    assert.ok(result.Color);
-    assert.ok(result.Dimension);
-    assert.ok(result.Font);
-    assert.ok(result.Breakpoint);
-
-  });
-
-});
-
-
-// ============================================================================
-// 3. TOKEN CONSTANTS
+// 2. TOKEN CONSTANTS
 // ============================================================================
 
 describe('TOKENS', function () {
 
   it('should export frozen token sets', function () {
 
-    assert.ok(Array.isArray(TOKENS.fontSize));
     assert.ok(Array.isArray(TOKENS.fontColor));
     assert.ok(Array.isArray(TOKENS.fontWeight));
-    assert.ok(Array.isArray(TOKENS.space));
+    assert.ok(Array.isArray(TOKENS.fontFamily));
+    assert.ok(Array.isArray(TOKENS.typeSet));
     assert.ok(Array.isArray(TOKENS.radius));
+    assert.ok(Array.isArray(TOKENS.spacing));
+    assert.ok(Array.isArray(TOKENS.background));
     assert.ok(Object.isFrozen(TOKENS));
 
   });
@@ -256,15 +175,15 @@ describe('TOKENS', function () {
 
   it('should freeze every token array', function () {
 
-    assert.ok(Object.isFrozen(TOKENS.fontSize));
+    assert.ok(Object.isFrozen(TOKENS.fontColor));
     assert.ok(Object.isFrozen(TOKENS.radius));
 
   });
 
 
-  it('should include md in fontSize', function () {
+  it('should include body01 in typeSet', function () {
 
-    assert.ok(TOKENS.fontSize.indexOf('md') !== -1);
+    assert.ok(TOKENS.typeSet.indexOf('body01') !== -1);
 
   });
 
@@ -272,31 +191,31 @@ describe('TOKENS', function () {
 
 
 // ============================================================================
-// 4. COMMON STYLES GENERATION
+// 3. COMMON STYLES GENERATION
 // ============================================================================
 
 describe('commonStyles', function () {
 
-  it('should generate font_size utilities for all sizes', function () {
+  it('should generate type_ utilities for all type sets', function () {
 
-    const sizes = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
+    const sets = ['body01', 'heading01', 'caption01', 'label01'];
 
-    for (let i = 0; i < sizes.length; i++) {
-      assert.ok(Style.utilities['font_size_' + sizes[i]],
-        'font_size_' + sizes[i] + ' should exist');
+    for (let i = 0; i < sets.length; i++) {
+      assert.ok(Style.utilities['type_' + sets[i]],
+        'type_' + sets[i] + ' should exist');
     }
 
   });
 
 
-  it('should generate padding utilities for all sides and sizes', function () {
+  it('should generate padding utilities for all sides and spacing tokens', function () {
 
     const sides = ['a', 'h', 'v', 't', 'b', 's', 'e'];
-    const sizes = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
+    const spacings = ['spacing_01', 'spacing_03', 'spacing_05', 'spacing_06', 'spacing_07', 'spacing_09'];
 
     for (let i = 0; i < sides.length; i++) {
-      for (let j = 0; j < sizes.length; j++) {
-        const key = 'p_' + sides[i] + '_' + sizes[j];
+      for (let j = 0; j < spacings.length; j++) {
+        const key = 'p_' + sides[i] + '_' + spacings[j];
         assert.ok(Style.utilities[key], key + ' should exist');
       }
     }
@@ -306,7 +225,7 @@ describe('commonStyles', function () {
 
   it('should generate background utilities for color tokens', function () {
 
-    const tokens = ['app_primary', 'background_primary', 'background_secondary', 'surface'];
+    const tokens = ['interactive', 'background', 'layer_01', 'layer_02'];
 
     for (let i = 0; i < tokens.length; i++) {
       assert.ok(Style.utilities['background_' + tokens[i]],
@@ -320,48 +239,48 @@ describe('commonStyles', function () {
 
   it('should emit marginInlineEnd for m_e_* utilities', function () {
 
-    const util = Style.utilities['m_e_xs'];
-    assert.ok(util, 'm_e_xs should exist');
+    const util = Style.utilities['m_e_spacing_01'];
+    assert.ok(util, 'm_e_spacing_01 should exist');
     assert.ok(util.marginInlineEnd !== undefined,
-      'm_e_xs should have marginInlineEnd');
+      'm_e_spacing_01 should have marginInlineEnd');
     assert.strictEqual(util.marginEnd, undefined,
-      'm_e_xs should not have legacy marginEnd');
+      'm_e_spacing_01 should not have legacy marginEnd');
 
   });
 
 
   it('should emit marginInlineStart for m_s_* utilities', function () {
 
-    const util = Style.utilities['m_s_xs'];
-    assert.ok(util, 'm_s_xs should exist');
+    const util = Style.utilities['m_s_spacing_01'];
+    assert.ok(util, 'm_s_spacing_01 should exist');
     assert.ok(util.marginInlineStart !== undefined,
-      'm_s_xs should have marginInlineStart');
+      'm_s_spacing_01 should have marginInlineStart');
     assert.strictEqual(util.marginStart, undefined,
-      'm_s_xs should not have legacy marginStart');
+      'm_s_spacing_01 should not have legacy marginStart');
 
   });
 
 
   it('should emit paddingInlineEnd for p_e_* utilities', function () {
 
-    const util = Style.utilities['p_e_xs'];
-    assert.ok(util, 'p_e_xs should exist');
+    const util = Style.utilities['p_e_spacing_01'];
+    assert.ok(util, 'p_e_spacing_01 should exist');
     assert.ok(util.paddingInlineEnd !== undefined,
-      'p_e_xs should have paddingInlineEnd');
+      'p_e_spacing_01 should have paddingInlineEnd');
     assert.strictEqual(util.paddingEnd, undefined,
-      'p_e_xs should not have legacy paddingEnd');
+      'p_e_spacing_01 should not have legacy paddingEnd');
 
   });
 
 
   it('should emit paddingInlineStart for p_s_* utilities', function () {
 
-    const util = Style.utilities['p_s_xs'];
-    assert.ok(util, 'p_s_xs should exist');
+    const util = Style.utilities['p_s_spacing_01'];
+    assert.ok(util, 'p_s_spacing_01 should exist');
     assert.ok(util.paddingInlineStart !== undefined,
-      'p_s_xs should have paddingInlineStart');
+      'p_s_spacing_01 should have paddingInlineStart');
     assert.strictEqual(util.paddingStart, undefined,
-      'p_s_xs should not have legacy paddingStart');
+      'p_s_spacing_01 should not have legacy paddingStart');
 
   });
 
@@ -397,29 +316,37 @@ describe('commonStyles', function () {
 
 
 // ============================================================================
-// 5. ATOM COMPONENTS
+// 4. ATOM COMPONENTS
 // ============================================================================
 
 describe('View', function () {
 
   it('should render with background token', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.View, { background: 'surface' }, 'test')
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.View, { background: 'layer_01' }, 'test')
+      );
+    });
 
-    assert.ok(tree);
+    assert.ok(tree.toJSON());
+    tree.unmount();
 
   });
 
 
   it('should render with radius and border tokens', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.View, { radius: 'lg', border: true }, 'test')
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.View, { radius: 'radius_04', border: true }, 'test')
+      );
+    });
 
-    assert.ok(tree);
+    assert.ok(tree.toJSON());
+    tree.unmount();
 
   });
 
@@ -428,24 +355,32 @@ describe('View', function () {
 
 describe('Text', function () {
 
-  it('should render with default size, color, and weight', function () {
+  it('should render with default typeSet, color, and weight', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.Text, null, 'hello')
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.Text, null, 'hello')
+      );
+    });
 
-    assert.ok(tree);
+    assert.ok(tree.toJSON());
+    tree.unmount();
 
   });
 
 
-  it('should apply custom size, color, and weight tokens', function () {
+  it('should apply custom typeSet, color, and weight tokens', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.Text, { size: 'xl', color: 'app_primary', weight: 'bold' }, 'hello')
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.Text, { typeSet: 'heading01', color: 'interactive', weight: 'bold' }, 'hello')
+      );
+    });
 
-    assert.ok(tree);
+    assert.ok(tree.toJSON());
+    tree.unmount();
 
   });
 
@@ -456,11 +391,15 @@ describe('Icon', function () {
 
   it('should render with injected Glyph component', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.Icon, { name: 'check', size: 'md', color: 'TEXT_PRIMARY' })
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.Icon, { name: 'check', size: 'md', color: 'text_primary' })
+      );
+    });
 
-    assert.ok(tree);
+    assert.ok(tree.toJSON());
+    tree.unmount();
 
   });
 
@@ -471,16 +410,21 @@ describe('Icon', function () {
       Utils: Utils,
       Debug: { warn: function () {} },
       React: React,
-      Device: createDeviceStub(375, 812)
-    }, {}, createTestTheme(), 'base');
+      Device: createDeviceStub(375, 812),
+      Themer: sharedLibs.Themer
+    }, {}, buildCarbonWhite(), 'sm');
 
     noIconsSystem.addComponents({ Icon: IconFactory });
 
-    const tree = TestRenderer.create(
-      React.createElement(noIconsSystem.Component.Icon, { name: 'check' })
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(noIconsSystem.Component.Icon, { name: 'check' })
+      );
+    });
 
-    assert.strictEqual(tree, null);
+    assert.strictEqual(tree.toJSON(), null);
+    tree.unmount();
 
   });
 
@@ -491,23 +435,32 @@ describe('Button', function () {
 
   it('should render with accessibilityRole button', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.Button, { onPress: function () {} }, 'Click')
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.Button, { onPress: function () {} }, 'Click')
+      );
+    });
 
-    assert.ok(tree);
-    assert.strictEqual(tree.props.role, 'button');
+    const json = tree.toJSON();
+    assert.ok(json);
+    assert.strictEqual(json.props.role, 'button');
+    tree.unmount();
 
   });
 
 
   it('should set aria-disabled when disabled prop is true', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.Button, { disabled: true, onPress: function () {} }, 'Click')
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.Button, { disabled: true, onPress: function () {} }, 'Click')
+      );
+    });
 
-    assert.strictEqual(tree.props['aria-disabled'], true);
+    assert.strictEqual(tree.toJSON().props['aria-disabled'], true);
+    tree.unmount();
 
   });
 
@@ -517,9 +470,12 @@ describe('Button', function () {
   // Helper: resolve the style function on a rendered Button
   function resolveButtonStyles (props) {
 
-    const renderer = TestRenderer.create(
-      React.createElement(Component.Button, props)
-    );
+    let renderer;
+    act(function () {
+      renderer = TestRenderer.create(
+        React.createElement(Component.Button, props)
+      );
+    });
 
     const pressable = renderer.root.findByProps({ accessibilityRole: 'button' });
     const styleResult = pressable.props.style;
@@ -664,9 +620,12 @@ describe('Button', function () {
 
   it('should wrap a string child in a Text component', function () {
 
-    const renderer = TestRenderer.create(
-      React.createElement(Component.Button, { onPress: function () {} }, 'Click')
-    );
+    let renderer;
+    act(function () {
+      renderer = TestRenderer.create(
+        React.createElement(Component.Button, { onPress: function () {} }, 'Click')
+      );
+    });
 
     const pressable = renderer.root.findByProps({ accessibilityRole: 'button' });
     const child = pressable.props.children;
@@ -686,9 +645,12 @@ describe('Button', function () {
       return React.createElement(Component.Text, null, 'Custom');
     };
 
-    const renderer = TestRenderer.create(
-      React.createElement(Component.Button, { onPress: function () {} }, fnChildren)
-    );
+    let renderer;
+    act(function () {
+      renderer = TestRenderer.create(
+        React.createElement(Component.Button, { onPress: function () {} }, fnChildren)
+      );
+    });
 
     const pressable = renderer.root.findByProps({ accessibilityRole: 'button' });
     assert.strictEqual(typeof pressable.props.children, 'function',
@@ -699,15 +661,18 @@ describe('Button', function () {
   });
 
 
-  it('should carry the on-primary text color for primary kind', function () {
+  it('should carry the on-color text color for primary kind', function () {
 
-    const renderer = TestRenderer.create(
-      React.createElement(Component.Button, { kind: 'primary', onPress: function () {} }, 'Click')
-    );
+    let renderer;
+    act(function () {
+      renderer = TestRenderer.create(
+        React.createElement(Component.Button, { kind: 'primary', onPress: function () {} }, 'Click')
+      );
+    });
 
-    // The wrapped child should be a Text element with the on-primary color
-    const textInstance = renderer.root.findByProps({ color: 'text_on_primary' });
-    assert.ok(textInstance, 'primary button child does not carry text_on_primary color');
+    // The wrapped child should be a Text element with the on-color color
+    const textInstance = renderer.root.findByProps({ color: 'text_on_color' });
+    assert.ok(textInstance, 'primary button child does not carry text_on_color color');
 
     renderer.unmount();
 
@@ -720,23 +685,32 @@ describe('TextInput', function () {
 
   it('should render with accessibilityRole textbox', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.TextInput, { accessibilityLabel: 'Email' })
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.TextInput, { accessibilityLabel: 'Email' })
+      );
+    });
 
-    assert.ok(tree);
-    assert.strictEqual(tree.props.role, 'textbox');
+    const json = tree.toJSON();
+    assert.ok(json);
+    assert.strictEqual(json.props.role, 'textbox');
+    tree.unmount();
 
   });
 
 
   it('should set aria-invalid when isInvalid is true', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.TextInput, { isInvalid: true })
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.TextInput, { isInvalid: true })
+      );
+    });
 
-    assert.strictEqual(tree.props['aria-invalid'], true);
+    assert.strictEqual(tree.toJSON().props['aria-invalid'], true);
+    tree.unmount();
 
   });
 
@@ -747,13 +721,18 @@ describe('Toggle', function () {
 
   it('should render with accessibilityRole switch and aria-checked', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.Toggle, { value: true, onValueChange: function () {} })
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.Toggle, { value: true, onValueChange: function () {} })
+      );
+    });
 
-    assert.ok(tree);
-    assert.strictEqual(tree.props.role, 'switch');
-    assert.strictEqual(tree.props['aria-checked'], true);
+    const json = tree.toJSON();
+    assert.ok(json);
+    assert.strictEqual(json.props.role, 'switch');
+    assert.strictEqual(json.props['aria-checked'], true);
+    tree.unmount();
 
   });
 
@@ -764,16 +743,21 @@ describe('Checkbox', function () {
 
   it('should render with role checkbox', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.Checkbox, {
-        checked: true,
-        label: 'Accept',
-        onChange: function () {}
-      })
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.Checkbox, {
+          checked: true,
+          label: 'Accept',
+          onChange: function () {}
+        })
+      );
+    });
 
-    assert.ok(tree);
-    assert.strictEqual(tree.props.role, 'checkbox');
+    const json = tree.toJSON();
+    assert.ok(json);
+    assert.strictEqual(json.props.role, 'checkbox');
+    tree.unmount();
 
   });
 
@@ -782,18 +766,23 @@ describe('Checkbox', function () {
 
     let captured = null;
 
-    const inst = TestRenderer.create(
-      React.createElement(Component.Checkbox, {
-        checked: true,
-        label: 'Test',
-        onChange: function (val) { captured = val; }
-      })
-    );
+    let inst;
+    act(function () {
+      inst = TestRenderer.create(
+        React.createElement(Component.Checkbox, {
+          checked: true,
+          label: 'Test',
+          onChange: function (val) { captured = val; }
+        })
+      );
+    });
 
     const pressable = inst.root.findByProps({ accessibilityRole: 'checkbox' });
     pressable.props.onPress();
 
     assert.strictEqual(captured, false);
+
+    inst.unmount();
 
   });
 
@@ -804,16 +793,21 @@ describe('RadioButton', function () {
 
   it('should render with role radio', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.RadioButton, {
-        checked: true,
-        label: 'Option A',
-        onChange: function () {}
-      })
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.RadioButton, {
+          checked: true,
+          label: 'Option A',
+          onChange: function () {}
+        })
+      );
+    });
 
-    assert.ok(tree);
-    assert.strictEqual(tree.props.role, 'radio');
+    const json = tree.toJSON();
+    assert.ok(json);
+    assert.strictEqual(json.props.role, 'radio');
+    tree.unmount();
 
   });
 
@@ -824,27 +818,37 @@ describe('ProgressBar', function () {
 
   it('should render determinate mode with aria-valuenow', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.ProgressBar, { value: 0.5 })
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.ProgressBar, { value: 0.5 })
+      );
+    });
 
-    assert.ok(tree);
-    assert.strictEqual(tree.props.role, 'progressbar');
-    assert.strictEqual(tree.props['aria-valuenow'], 0.5);
-    assert.strictEqual(tree.props['aria-valuemin'], 0);
-    assert.strictEqual(tree.props['aria-valuemax'], 1);
+    const json = tree.toJSON();
+    assert.ok(json);
+    assert.strictEqual(json.props.role, 'progressbar');
+    assert.strictEqual(json.props['aria-valuenow'], 0.5);
+    assert.strictEqual(json.props['aria-valuemin'], 0);
+    assert.strictEqual(json.props['aria-valuemax'], 1);
+    tree.unmount();
 
   });
 
 
   it('should clamp value above 1 to 1', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.ProgressBar, { value: 1.5 })
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.ProgressBar, { value: 1.5 })
+      );
+    });
 
-    assert.ok(tree);
-    assert.ok(tree.children);
+    const json = tree.toJSON();
+    assert.ok(json);
+    assert.ok(json.children);
+    tree.unmount();
 
   });
 
@@ -855,13 +859,18 @@ describe('Heading', function () {
 
   it('should render with role heading and aria-level', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.Heading, { level: 2 }, 'Title')
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.Heading, { level: 2 }, 'Title')
+      );
+    });
 
-    assert.ok(tree);
-    assert.strictEqual(tree.props.role, 'heading');
-    assert.strictEqual(tree.props['aria-level'], 2);
+    const json = tree.toJSON();
+    assert.ok(json);
+    assert.strictEqual(json.props.role, 'heading');
+    assert.strictEqual(json.props['aria-level'], 2);
+    tree.unmount();
 
   });
 
@@ -872,15 +881,20 @@ describe('Link', function () {
 
   it('should render with role link', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.Link, {
-        onPress: function () {},
-        accessibilityLabel: 'More'
-      }, 'More')
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.Link, {
+          onPress: function () {},
+          accessibilityLabel: 'More'
+        }, 'More')
+      );
+    });
 
-    assert.ok(tree);
-    assert.strictEqual(tree.props.role, 'link');
+    const json = tree.toJSON();
+    assert.ok(json);
+    assert.strictEqual(json.props.role, 'link');
+    tree.unmount();
 
   });
 
@@ -977,9 +991,13 @@ describe('usePressKeys', function () {
       return null;
     }
 
-    TestRenderer.create(React.createElement(TestComp));
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(React.createElement(TestComp));
+    });
 
     assert.strictEqual(typeof capturedProps.onKeyDown, 'function');
+    tree.unmount();
 
   });
 
@@ -998,9 +1016,13 @@ describe('useControllableState', function () {
       return null;
     }
 
-    TestRenderer.create(React.createElement(TestComp));
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(React.createElement(TestComp));
+    });
 
     assert.strictEqual(capturedValue, 42);
+    tree.unmount();
 
   });
 
@@ -1015,9 +1037,13 @@ describe('useControllableState', function () {
       return null;
     }
 
-    TestRenderer.create(React.createElement(TestComp));
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(React.createElement(TestComp));
+    });
 
     assert.strictEqual(capturedValue, 10);
+    tree.unmount();
 
   });
 
@@ -1036,7 +1062,9 @@ describe('createCompoundContext', function () {
     }
 
     assert.throws(function () {
-      TestRenderer.create(React.createElement(Consumer));
+      act(function () {
+        TestRenderer.create(React.createElement(Consumer));
+      });
     }, TypeError);
 
   });
@@ -1053,13 +1081,17 @@ describe('createCompoundContext', function () {
       return null;
     }
 
-    TestRenderer.create(
-      React.createElement(ctx.Provider, { value: { activeIndex: 0 } },
-        React.createElement(Consumer)
-      )
-    );
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(ctx.Provider, { value: { activeIndex: 0 } },
+          React.createElement(Consumer)
+        )
+      );
+    });
 
     assert.strictEqual(captured.activeIndex, 0);
+    tree.unmount();
 
   });
 
@@ -1074,22 +1106,30 @@ describe('ListItem', function () {
 
   it('should render with title', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.ListItem, { title: 'Item 1', subtitle: 'Desc' })
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.ListItem, { title: 'Item 1', subtitle: 'Desc' })
+      );
+    });
 
-    assert.ok(tree);
+    assert.ok(tree.toJSON());
+    tree.unmount();
 
   });
 
 
   it('should have role button when onPress is provided', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.ListItem, { title: 'Item', onPress: function () {} })
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.ListItem, { title: 'Item', onPress: function () {} })
+      );
+    });
 
-    assert.strictEqual(tree.props.role, 'button');
+    assert.strictEqual(tree.toJSON().props.role, 'button');
+    tree.unmount();
 
   });
 
@@ -1100,22 +1140,30 @@ describe('Modal', function () {
 
   it('should render nothing when isOpen is false', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.Modal, { isOpen: false, onClose: function () {} }, 'content')
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.Modal, { isOpen: false, onClose: function () {} }, 'content')
+      );
+    });
 
-    assert.strictEqual(tree, null);
+    assert.strictEqual(tree.toJSON(), null);
+    tree.unmount();
 
   });
 
 
   it('should render content when isOpen is true', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.Modal, { isOpen: true, onClose: function () {} }, 'content')
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.Modal, { isOpen: true, onClose: function () {} }, 'content')
+      );
+    });
 
-    assert.ok(tree);
+    assert.ok(tree.toJSON());
+    tree.unmount();
 
   });
 
@@ -1126,16 +1174,21 @@ describe('Dropdown', function () {
 
   it('should render trigger with role button when closed', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.Dropdown, {
-        triggerLabel: 'Select',
-        items: [{ value: 'a', label: 'A' }],
-        onSelect: function () {}
-      })
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.Dropdown, {
+          triggerLabel: 'Select',
+          items: [{ value: 'a', label: 'A' }],
+          onSelect: function () {}
+        })
+      );
+    });
 
-    assert.ok(tree);
-    assert.strictEqual(tree.props.role, 'button');
+    const json = tree.toJSON();
+    assert.ok(json);
+    assert.strictEqual(json.props.role, 'button');
+    tree.unmount();
 
   });
 
@@ -1150,21 +1203,25 @@ describe('Accordion', function () {
 
   it('should render with children', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.Accordion, {
-        allowMultiple: false,
-        expandedKeys: [],
-        onChange: function () {}
-      },
-        React.createElement(Component.AccordionItem, {
-          title: 'Section 1',
-          expanded: false,
-          onToggle: function () {}
-        }, 'Content 1')
-      )
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.Accordion, {
+          allowMultiple: false,
+          expandedKeys: [],
+          onChange: function () {}
+        },
+          React.createElement(Component.AccordionItem, {
+            title: 'Section 1',
+            expanded: false,
+            onToggle: function () {}
+          }, 'Content 1')
+        )
+      );
+    });
 
-    assert.ok(tree);
+    assert.ok(tree.toJSON());
+    tree.unmount();
 
   });
 
@@ -1175,51 +1232,70 @@ describe('Tabs', function () {
 
   it('should render Tab with role tab', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.Tab, {
-        label: 'Overview',
-        selected: true,
-        onPress: function () {}
-      })
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.Tab, {
+          label: 'Overview',
+          selected: true,
+          onPress: function () {}
+        })
+      );
+    });
 
-    assert.ok(tree);
-    assert.strictEqual(tree.props.role, 'tab');
+    const json = tree.toJSON();
+    assert.ok(json);
+    assert.strictEqual(json.props.role, 'tab');
+    tree.unmount();
 
   });
 
 
   it('should render TabList with role tablist', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.TabList, null, 'tabs')
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.TabList, null, 'tabs')
+      );
+    });
 
-    assert.ok(tree);
-    assert.strictEqual(tree.props.role, 'tablist');
+    const json = tree.toJSON();
+    assert.ok(json);
+    assert.strictEqual(json.props.role, 'tablist');
+    tree.unmount();
 
   });
 
 
   it('should render TabPanel with role tabpanel when selected', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.TabPanel, { selected: true }, 'content')
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.TabPanel, { selected: true }, 'content')
+      );
+    });
 
-    assert.ok(tree);
-    assert.strictEqual(tree.props.role, 'tabpanel');
+    const json = tree.toJSON();
+    assert.ok(json);
+    assert.strictEqual(json.props.role, 'tabpanel');
+    tree.unmount();
 
   });
 
 
   it('should render TabPanel as null when not selected', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.TabPanel, { selected: false }, 'content')
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.TabPanel, { selected: false }, 'content')
+      );
+    });
 
-    assert.strictEqual(tree, null);
+    assert.strictEqual(tree.toJSON(), null);
+    tree.unmount();
 
   });
 
@@ -1232,18 +1308,22 @@ describe('Tabs', function () {
 
 describe('useBreakpoint', function () {
 
-  it('should return base for a 375px viewport', function () {
+  it('should return sm for a 375px viewport', function () {
 
     let capturedBp = null;
 
     function TestComp () {
-      capturedBp = system.useBreakpoint(theme);
+      capturedBp = system.useBreakpoint(system.Style.tokens);
       return null;
     }
 
-    TestRenderer.create(React.createElement(TestComp));
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(React.createElement(TestComp));
+    });
 
-    assert.strictEqual(capturedBp, 'base');
+    assert.strictEqual(capturedBp, 'sm');
+    tree.unmount();
 
   });
 
@@ -1258,15 +1338,20 @@ describe('ButtonPrimaryOutlined', function () {
 
   it('should render with role button', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.variant.ButtonPrimaryOutlined, {
-        title: 'Cancel',
-        onPress: function () {}
-      })
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.variant.ButtonPrimaryOutlined, {
+          title: 'Cancel',
+          onPress: function () {}
+        })
+      );
+    });
 
-    assert.ok(tree);
-    assert.strictEqual(tree.props.role, 'button');
+    const json = tree.toJSON();
+    assert.ok(json);
+    assert.strictEqual(json.props.role, 'button');
+    tree.unmount();
 
   });
 
@@ -1277,13 +1362,17 @@ describe('RawBox', function () {
 
   it('should render with raw style', function () {
 
-    const tree = TestRenderer.create(
-      React.createElement(Component.freeform.RawBox, {
-        style: { backgroundColor: 'red' }
-      }, 'raw')
-    ).toJSON();
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.freeform.RawBox, {
+          style: { backgroundColor: 'red' }
+        }, 'raw')
+      );
+    });
 
-    assert.ok(tree);
+    assert.ok(tree.toJSON());
+    tree.unmount();
 
   });
 
@@ -1302,7 +1391,7 @@ describe('naming doctrine', function () {
 
     // The package's public surface, imported as names
     const exports = Object.keys(COMPONENTS).concat(
-      ['createSystem', 'buildThemeContract', 'TOKENS']
+      ['createSystem', 'TOKENS']
     );
 
     // TOKENS is a const, not a function, so skip it

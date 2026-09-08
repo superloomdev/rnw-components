@@ -50,7 +50,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     // Read Accordion context if available
     const ctxValue = React.useContext(accordionCtx.Context);
@@ -86,7 +85,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       RNView,
       Object.assign({
         style: [
-          Style.utilities['border_default'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
           { borderBottomWidth: 1 },
           style
         ]
@@ -102,18 +101,18 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             Style.utilities['flex_row'],
             Style.utilities['align_center'],
             Style.utilities['justify_between'],
-            Style.utilities['p_h_md'],
-            Style.utilities['p_v_md']
+            Style.utilities['p_h_spacing_05'],
+            Style.utilities['p_v_spacing_05']
           ]
         }, ariaProps, pressKeysProps),
         React.createElement(Registry.Text, {
-          size: 'md',
+          typeSet: 'body01',
           color: 'text_primary',
           weight: 'medium'
         }, title),
         // Expand/collapse chevron
         React.createElement(Registry.Text, {
-          size: 'md',
+          typeSet: 'body01',
           color: 'text_secondary'
         }, isExpanded ? '\u25B2' : '\u25BC')
       ),
@@ -124,9 +123,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           {
             accessibilityRole: 'region',
             style: [
-              Style.utilities['p_h_md'],
-              Style.utilities['p_v_md'],
-              { backgroundColor: colorMap.BACKGROUND_SECONDARY }
+              Style.utilities['p_h_spacing_05'],
+              Style.utilities['p_v_spacing_05'],
+              { backgroundColor: Style.tokens.Color.layer_01 }
             ]
           },
           children

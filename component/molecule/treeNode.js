@@ -53,7 +53,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     // Read TreeView context if available
     const ctxValue = React.useContext(treeViewCtx.Context);
@@ -107,12 +106,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           style: [
             Style.utilities['flex_row'],
             Style.utilities['align_center'],
-            Style.utilities['p_h_sm'],
-            Style.utilities['p_v_xs'],
+            Style.utilities['p_h_spacing_03'],
+            Style.utilities['p_v_spacing_01'],
             {
               marginLeft: (nodeLevel - 1) * 20,
               backgroundColor: isSelected
-                ? (colorMap.APP_PRIMARY_SUBTLE)
+                ? (Style.tokens.Color.background)
                 : 'transparent'
             }
           ]
@@ -120,17 +119,17 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         // Expand/collapse indicator (only if has children)
         hasChildren
           ? React.createElement(Registry.Text, {
-            size: 'xs',
+            typeSet: 'caption01',
             color: 'text_secondary',
-            style: Style.utilities['m_r_xs']
+            style: Style.utilities['m_r_spacing_01']
           }, isExpanded ? '\u25BC' : '\u25B6')
           : React.createElement(RNView, {
             style: { width: 12, marginRight: 4 }
           }),
         // Label
         React.createElement(Registry.Text, {
-          size: 'sm',
-          color: isSelected ? 'app_primary' : 'text_primary',
+          typeSet: 'label01',
+          color: isSelected ? 'interactive' : 'text_primary',
           weight: isSelected ? 'medium' : 'regular'
         }, label)
       ),

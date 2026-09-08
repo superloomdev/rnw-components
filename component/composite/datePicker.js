@@ -68,7 +68,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const [viewMonth, setViewMonth] = React.useState(null);
     const isDisabled = !!disabled;
     const isInvalid = !!invalid;
-    const colorMap = Style.tokens.Color;
 
     // Initialize the calendar view from the current value or today
     React.useEffect(function () {
@@ -188,28 +187,28 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             Style.utilities['flex_row'],
             Style.utilities['align_center'],
             Style.utilities['justify_between'],
-            Style.utilities['br_md'],
-            Style.utilities['border_default'],
-            Style.utilities['p_h_md'],
-            Style.utilities['p_v_sm'],
-            Style.utilities['background_surface'],
+            Style.utilities['br_radius_08'],
+            Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+            Style.utilities['p_h_spacing_05'],
+            Style.utilities['p_v_spacing_03'],
+            Style.utilities['background_layer_02'],
             isInvalid
-              ? { borderColor: colorMap.STATUS_DANGER }
+              ? { borderColor: Style.tokens.Color.support_error }
               : null,
             isDisabled
-              ? { backgroundColor: colorMap.BACKGROUND_SECONDARY }
+              ? { backgroundColor: Style.tokens.Color.layer_01 }
               : null,
             style
           ]
         }, ariaStateProps, pressKeysProps, rest),
         React.createElement(Registry.Text, {
-          size: 'md',
-          color: resolvedValue ? 'text_primary' : 'text_muted'
+          typeSet: 'body01',
+          color: resolvedValue ? 'text_primary' : 'text_secondary'
         }, resolvedValue || 'YYYY-MM-DD'),
         React.createElement(Registry.Icon, {
           name: 'calendar',
-          size: 'sm',
-          color: 'TEXT_MUTED'
+          typeSet: 'label01',
+          color: 'text_secondary'
         })
       );
     };
@@ -244,13 +243,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             style: [
               { width: 32, height: 32, justifyContent: 'center', alignItems: 'center', borderRadius: 4 },
               isSelected
-                ? { backgroundColor: colorMap.APP_PRIMARY }
+                ? { backgroundColor: Style.tokens.Color.interactive }
                 : null
             ]
           },
           React.createElement(Registry.Text, {
-            size: 'sm',
-            color: isSelected ? 'text_on_primary' : 'text_primary'
+            typeSet: 'label01',
+            color: isSelected ? 'text_on_color' : 'text_primary'
           }, String(day))
         ));
       }
@@ -259,10 +258,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         RNView,
         {
           style: [
-            Style.utilities['background_surface'],
-            Style.utilities['br_md'],
-            Style.utilities['border_default'],
-            Style.utilities['p_a_sm'],
+            Style.utilities['background_layer_02'],
+            Style.utilities['br_radius_08'],
+            Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+            Style.utilities['p_a_spacing_03'],
             { position: 'absolute', top: pos.top, left: pos.left, width: 240, zIndex: zIndex || 1000 }
           ]
         },
@@ -274,23 +273,23 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
               Style.utilities['flex_row'],
               Style.utilities['align_center'],
               Style.utilities['justify_between'],
-              Style.utilities['m_b_xs']
+              Style.utilities['m_b_spacing_01']
             ]
           },
           React.createElement(
             Pressable,
             { onPress: handlePrevMonth, accessibilityRole: 'button', accessibilityLabel: 'Previous month' },
-            React.createElement(Registry.Text, { size: 'md', color: 'text_primary', weight: 'bold' }, '<')
+            React.createElement(Registry.Text, { typeSet: 'body01', color: 'text_primary', weight: 'bold' }, '<')
           ),
           React.createElement(Registry.Text, {
-            size: 'md',
+            typeSet: 'body01',
             color: 'text_primary',
             weight: 'semibold'
           }, (monthNames[viewMonth] || '') + ' ' + viewYear),
           React.createElement(
             Pressable,
             { onPress: handleNextMonth, accessibilityRole: 'button', accessibilityLabel: 'Next month' },
-            React.createElement(Registry.Text, { size: 'md', color: 'text_primary', weight: 'bold' }, '>')
+            React.createElement(Registry.Text, { typeSet: 'body01', color: 'text_primary', weight: 'bold' }, '>')
           )
         ),
         // Calendar grid

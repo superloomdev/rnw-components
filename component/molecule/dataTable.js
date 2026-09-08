@@ -50,8 +50,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityRole: 'row',
         style: [
           Style.utilities['flex_row'],
-          Style.utilities['background_background_secondary'],
-          Style.utilities['border_default']
+          Style.utilities['background_layer_01'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01']
         ]
       },
       (headers || []).map(function (header, index) {
@@ -62,12 +62,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             accessibilityRole: 'columnheader',
             style: [
               Style.utilities['flex_1'],
-              Style.utilities['p_h_md'],
-              Style.utilities['p_v_sm']
+              Style.utilities['p_h_spacing_05'],
+              Style.utilities['p_v_spacing_03']
             ]
           },
           React.createElement(Registry.Text, {
-            size: 'sm',
+            typeSet: 'label01',
             color: 'text_secondary',
             weight: 'medium'
           }, String(header))
@@ -84,7 +84,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           accessibilityRole: 'row',
           style: [
             Style.utilities['flex_row'],
-            Style.utilities['border_default']
+            Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01']
           ]
         },
         (row || []).map(function (cell, cellIndex) {
@@ -95,12 +95,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
               accessibilityRole: 'cell',
               style: [
                 Style.utilities['flex_1'],
-                Style.utilities['p_h_md'],
-                Style.utilities['p_v_sm']
+                Style.utilities['p_h_spacing_05'],
+                Style.utilities['p_v_spacing_03']
               ]
             },
             React.createElement(Registry.Text, {
-              size: 'sm',
+              typeSet: 'label01',
               color: 'text_primary'
             }, String(cell))
           );
@@ -113,8 +113,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       Object.assign({
         accessibilityRole: 'table',
         style: [
-          Style.utilities['border_default'],
-          Style.utilities['br_md'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+          Style.utilities['br_radius_08'],
           { overflow: 'hidden' },
           style
         ]

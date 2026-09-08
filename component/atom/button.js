@@ -30,9 +30,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
   /////////////////////////// Static Constants START ////////////////////////////
 
-  // Map kind to the background token. Carbon models buttons as their own token
-  // family, so a kind never borrows a general palette token. Every value here
-  // must appear in BACKGROUND_COLOR_TOKENS, or no background is applied.
+  // Map kind to the background token. Buttons are their own token family,
+  // so a kind never borrows a general palette token.
   const KIND_BACKGROUND = {
     primary: 'button_primary',
     secondary: 'button_secondary',
@@ -41,12 +40,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
   };
 
   // Map kind to the text color token. A filled kind needs an on-color label so
-  // it contrasts its fill. Every value must appear in FONT_COLOR_TOKENS.
+  // it contrasts its fill.
   const KIND_FONT = {
-    primary: 'text_on_primary',
-    secondary: 'text_on_primary',
-    danger: 'text_on_primary',
-    ghost: 'app_primary'
+    primary: 'text_on_color',
+    secondary: 'text_on_color',
+    danger: 'text_on_color',
+    ghost: 'interactive'
   };
 
   /////////////////////////// Static Constants END //////////////////////////////
@@ -93,8 +92,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         Style.utilities['flex_row'],
         Style.utilities['align_center'],
         Style.utilities['justify_center'],
-        Style.utilities['p_h_md'],
-        Style.utilities['p_v_sm'],
+        Style.utilities['p_h_spacing_05'],
+        Style.utilities['p_v_spacing_03'],
         { minHeight: CONFIG.MIN_HIT_TARGET },
         ...baseClasses
       ];
@@ -121,7 +120,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
       // Focus ring for the focused state
       if (pressableState.focused && !disabled) {
-        classes.push(Style.utilities['border_focused']);
+        classes.push(Style.utilities['focus_ring']);
       }
 
       return [...classes, style];
@@ -187,13 +186,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         return '_selected';
       }
 
-      // Pressed is transient, checked after persistent states
+      // Pressed maps to the _active suffix
       if (pressableState.pressed) {
-        return '_pressed';
+        return '_active';
       }
 
+      // Hovered maps to the _hover suffix
       if (pressableState.hovered) {
-        return '_hovered';
+        return '_hover';
       }
 
       if (pressableState.focused) {

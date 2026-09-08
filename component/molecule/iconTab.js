@@ -43,7 +43,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
     const isActive = !!active;
 
     // Build aria state props through the a11y translator
@@ -66,13 +65,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityLabel: icon
       }, ariaProps, pressKeysProps, {
         style: [
-          Style.utilities['p_h_md'],
-          Style.utilities['p_v_sm'],
-          Style.utilities['m_r_sm'],
+          Style.utilities['p_h_spacing_05'],
+          Style.utilities['p_v_spacing_03'],
+          Style.utilities['m_r_spacing_03'],
           {
             borderBottomWidth: 2,
             borderBottomColor: isActive
-              ? (colorMap.APP_PRIMARY)
+              ? (Style.tokens.Color.interactive)
               : 'transparent'
           },
           style
@@ -80,8 +79,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       }, rest),
       React.createElement(Registry.Icon, {
         name: icon,
-        size: 'md',
-        color: isActive ? 'text_primary' : 'TEXT_SECONDARY'
+        typeSet: 'body01',
+        color: isActive ? 'text_primary' : 'text_secondary'
       })
     );
   };////////////////////////// Public Functions END ////////////////////////////

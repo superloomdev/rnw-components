@@ -61,15 +61,15 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityRole: 'listitem',
         accessibilityLabel: label,
         style: [
-          Style.utilities['p_h_md'],
-          Style.utilities['p_v_sm'],
+          Style.utilities['p_h_spacing_05'],
+          Style.utilities['p_v_spacing_03'],
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
           style
         ]
       }, ariaProps, pressKeysProps, rest),
       React.createElement(Registry.Text, {
-        size: 'md',
+        typeSet: 'body01',
         color: 'text_primary',
         weight: 'medium',
         style: Style.utilities['flex_1']

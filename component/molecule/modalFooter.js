@@ -42,11 +42,11 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       RNView,
       Object.assign({
         style: [
-          Style.utilities['p_h_lg'],
-          Style.utilities['p_v_md'],
+          Style.utilities['p_h_spacing_06'],
+          Style.utilities['p_v_spacing_05'],
           Style.utilities['flex_row'],
           Style.utilities['justify_end'],
-          Style.utilities['border_default'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
           { borderTopWidth: 1 },
           style
         ]

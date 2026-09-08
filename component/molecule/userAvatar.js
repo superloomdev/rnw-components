@@ -43,7 +43,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     // Map size token to pixels
     const sizeMap = { sm: 24, md: 40, lg: 64 };
@@ -54,7 +53,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       width: px,
       height: px,
       borderRadius: px / 2,
-      backgroundColor: colorMap.BACKGROUND_SECONDARY,
+      backgroundColor: Style.tokens.Color.layer_01,
       justifyContent: 'center',
       alignItems: 'center',
       overflow: 'hidden'

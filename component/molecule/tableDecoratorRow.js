@@ -46,7 +46,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       Object.assign({
         accessibilityRole: 'row',
         style: [
-          Style.utilities['border_default'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
           { height: 1 },
           style
         ]

@@ -44,7 +44,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     const current = Lib.Utils.isNumber(currentPage) ? currentPage : 1;
     const total = Lib.Utils.isNumber(totalPages) ? totalPages : 1;
@@ -86,7 +85,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           accessibilityRole: 'button',
           accessibilityLabel: 'Page ' + pageNum,
           style: [
-            Style.utilities['br_sm'],
+            Style.utilities['br_radius_04'],
             {
               minWidth: 32,
               height: 32,
@@ -94,14 +93,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
               alignItems: 'center',
               marginHorizontal: 2,
               backgroundColor: isActive
-                ? (colorMap.APP_PRIMARY)
+                ? (Style.tokens.Color.interactive)
                 : 'transparent'
             }
           ]
         }, ariaProps, pressKeysProps),
         React.createElement(Registry.Text, {
-          size: 'sm',
-          color: isActive ? 'text_on_primary' : 'text_secondary'
+          typeSet: 'label01',
+          color: isActive ? 'text_on_color' : 'text_secondary'
         }, String(pageNum))
       );
     };

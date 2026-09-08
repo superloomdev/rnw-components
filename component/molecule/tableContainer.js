@@ -55,7 +55,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             marginLeft: 'auto',
             marginRight: 'auto'
           },
-          Style.utilities['p_h_md'],
+          Style.utilities['p_h_spacing_05'],
           style
         ]
       }, rest),

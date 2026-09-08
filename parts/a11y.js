@@ -254,7 +254,7 @@ const createInterface = function (Lib) {
     idCounter += 1;
 
     // Return the prefixed id
-    return (prefix || 'carbon') + '-' + idCounter;
+    return (prefix || 'sl') + '-' + idCounter;
 
   };
 

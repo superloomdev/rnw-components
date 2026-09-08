@@ -49,14 +49,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     const cellStyle = [
       Style.utilities['flex_1'],
-      Style.utilities['p_h_md'],
-      Style.utilities['p_v_sm'],
+      Style.utilities['p_h_spacing_05'],
+      Style.utilities['p_v_spacing_03'],
       Lib.Utils.isNumber(width) ? { width: width } : null,
       style
     ];
 
     const textElement = React.createElement(Registry.Text, {
-      size: 'sm',
+      typeSet: 'label01',
       color: isHeader ? 'text_secondary' : 'text_primary',
       weight: isHeader ? 'medium' : 'regular'
     }, content == null ? '' : String(content));

@@ -44,7 +44,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     const React = Lib.React;
     const v = variant || 'text';
-    const colorMap = Style.tokens.Color;
 
     // Build aria-hidden through the a11y translator
     const ariaProps = Parts.A11y.state({
@@ -59,7 +58,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Build skeleton box style
     const boxStyle = {
-      backgroundColor: colorMap.BACKGROUND_SECONDARY,
+      backgroundColor: Style.tokens.Color.layer_01,
       borderRadius: v === 'text' ? 2 : 4,
       height: resolvedHeight,
       width: resolvedWidth

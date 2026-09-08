@@ -7,7 +7,7 @@
 ```javascript
 import { createSystem } from 'rnw-components';
 
-const system = createSystem(shared_libs, config?, theme, breakpoint?)
+const system = createSystem(shared_libs, config?, built, breakpoint?)
 ```
 
 | Parameter | Type | Required | Description |
@@ -16,11 +16,12 @@ const system = createSystem(shared_libs, config?, theme, breakpoint?)
 | `shared_libs.Debug` | Object | Yes | `helper-debug` instance |
 | `shared_libs.React` | Object | Yes | The `react` module (injected, not imported) |
 | `shared_libs.Device` | Object | Yes | `js-rnw-helper-device` instance |
+| `shared_libs.Themer` | Object | Yes | `helper-themer` engine; `createSystem` calls `Themer.getContract()` for validation |
 | `shared_libs.Icons` | Object | No | Icon source with a `Glyph` component |
 | `shared_libs.Font` | Object | No | `helper-font` instance |
 | `config` | Object | No | Overrides merged over defaults |
-| `theme` | Object | Yes | Theme contract `{ Color, Dimension, Font, Breakpoint }`. `Color` must carry all 22 required tokens |
-| `breakpoint` | String | No | Active breakpoint key, default `'base'` |
+| `built` | Object | Yes | Result of `Themer.buildTheme(...)`; must carry a `.tokens` flat map with all 38 required color tokens |
+| `breakpoint` | String | No | Active breakpoint key, default `'sm'` |
 
 The system carries the validated container, the mechanism parts, the
 per-breakpoint utility styles, and an **empty** registry. No component exists
@@ -31,16 +32,21 @@ Re-theming builds a new system. A system is never mutated in place.
 
 ### Required Color tokens
 
-`createSystem` throws a `TypeError` when `theme.Color` omits any of these, naming every
+`createSystem` throws a `TypeError` when `built.tokens` omits any of these, naming every
 absent token in one message. The component set holds no color of its own, so an absent
 token has nothing to resolve to and would render as `undefined`.
 
 | Group | Tokens |
 |---|---|
-| Interactive | `APP_PRIMARY`, `APP_PRIMARY_HOVERED`, `APP_PRIMARY_PRESSED`, `APP_PRIMARY_DISABLED`, `APP_PRIMARY_SUBTLE` |
-| Text | `TEXT_PRIMARY`, `TEXT_SECONDARY`, `TEXT_MUTED`, `TEXT_DISABLED`, `TEXT_ON_PRIMARY` |
-| Surface | `BACKGROUND_PRIMARY`, `BACKGROUND_SECONDARY`, `SURFACE`, `BORDER` |
-| Status | `STATUS_SUCCESS`, `STATUS_SUCCESS_SUBTLE`, `STATUS_DANGER`, `STATUS_DANGER_SUBTLE`, `STATUS_WARNING`, `STATUS_WARNING_SUBTLE`, `STATUS_INFO`, `STATUS_INFO_SUBTLE` |
+| Interactive | `interactive` |
+| Text | `text_primary`, `text_secondary`, `text_disabled`, `text_on_color`, `text_helper` |
+| Surface | `background`, `layer_01`, `layer_02` |
+| Border | `border_subtle_01`, `border_interactive` |
+| Support | `support_success`, `support_error`, `support_warning`, `support_info` |
+| Button | `button_primary`, `button_primary_hover`, `button_primary_active`, `button_secondary`, `button_secondary_hover`, `button_secondary_active`, `button_tertiary`, `button_tertiary_hover`, `button_tertiary_active`, `button_danger_primary`, `button_danger_hover`, `button_danger_active`, `button_danger_secondary`, `button_disabled`, `button_separator` |
+| Focus | `focus` |
+| Icon | `icon_primary`, `icon_secondary`, `icon_on_color`, `icon_disabled` |
+| Misc | `overlay`, `shadow`, `skeleton_background` |
 
 Each value must be a non-empty string. Tokens beyond this set are allowed and ignored.
 
@@ -49,7 +55,6 @@ Each value must be a non-empty string. Tokens beyond this set are allowed and ig
 | Export | Kind | Description |
 |---|---|---|
 | `createSystem` | Function | The entry point above |
-| `buildThemeContract` | Function | Bridges themer output to the theme contract |
 | `TOKENS` | Frozen Object | Valid token sets |
 | 245 component names | Function | One factory per component, e.g. `Button`, `Text` |
 
@@ -141,39 +146,47 @@ Returns the component.
 | Property | Description |
 |---|---|
 | `Component` | The shared registry, with `variant`, `freeform`, `provider` namespaces |
-| `Style` | `{ utilities, tokens, breakpoint, allBreakpoints }` |
+| `Style` | `{ utilities, tokens, breakpoint, allBreakpoints }`. `tokens` exposes the reshaped groups: `Color`, `Spacing`, `Shape`, `TypeSet`, `Font`, `Breakpoint`, `Border`, `Focus`, `Motion`, `Feedback`, `Shadow`, `Grid`, `State`, `Tint`, `Size` |
 | `Parts` | The 12 mechanism parts |
 | `Lib` | The validated dependency container |
 | `CONFIG` | Merged configuration |
 | `ERRORS` | Frozen error catalog |
 | `breakpoint` | Active breakpoint key |
 
-## Functions
-
-### buildThemeContract(themer_output)
-
-Bridges themer output to the component theme contract. Reshapes the flat token
-map into `{ Color, Dimension, Font, Breakpoint }`. Pure function; it needs no
-system.
-
-| Parameter | Type | Description |
-|---|---|---|
-| `themer_output` | Object | Result from `Lib.Themer.buildTheme()` or a flat token map |
-
-Returns `{ Color, Dimension, Font, Breakpoint }`.
-
-### TOKENS
+## TOKENS
 
 Frozen object of valid token sets. Every array is frozen too.
 
 ```javascript
 {
-  fontSize: ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'],
-  fontColor: ['text_primary', 'text_secondary', 'text_muted', 'text_on_primary',
-    'app_primary', 'status_success', 'status_danger', 'status_warning', 'status_info'],
-  fontWeight: ['regular', 'medium', 'semibold', 'bold'],
-  space: ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'],
-  radius: ['sm', 'md', 'lg', 'xl', 'pill']
+  fontColor: ['text_primary', 'text_secondary', 'text_disabled', 'text_on_color',
+    'text_helper', 'interactive', 'button_primary', 'button_primary_hover',
+    'button_primary_active', 'button_secondary', 'button_secondary_hover',
+    'button_secondary_active', 'button_tertiary', 'button_tertiary_hover',
+    'button_tertiary_active', 'button_danger_primary', 'button_danger_hover',
+    'button_danger_active', 'button_danger_secondary', 'button_disabled',
+    'button_separator', 'support_success', 'support_error', 'support_warning',
+    'support_info', 'background', 'layer_01', 'layer_02', 'border_subtle_01',
+    'border_interactive', 'focus', 'icon_primary', 'icon_secondary',
+    'icon_on_color', 'icon_disabled', 'overlay', 'shadow', 'skeleton_background'],
+  fontWeight: ['thin', 'extralight', 'light', 'regular', 'medium', 'semibold',
+    'bold', 'extrabold', 'black'],
+  fontFamily: ['sans', 'serif', 'mono'],
+  typeSet: ['body01', 'body02', 'heading01', 'heading02', 'heading03',
+    'display01', 'display02', 'display03', 'caption01', 'label01', 'overline01'],
+  radius: ['radius_00', 'radius_01', 'radius_02', 'radius_03', 'radius_04',
+    'radius_06', 'radius_08', 'radius_12', 'radius_28', 'radius_max'],
+  spacing: ['spacing_00', 'spacing_01', 'spacing_02', 'spacing_03', 'spacing_04',
+    'spacing_05', 'spacing_06', 'spacing_07', 'spacing_08', 'spacing_09',
+    'spacing_10', 'spacing_11', 'spacing_12', 'spacing_13'],
+  borderWidth: ['width_00', 'width_01', 'width_02', 'width_03', 'width_04'],
+  background: ['background', 'layer_01', 'layer_02', 'layer_03',
+    'button_primary', 'button_primary_hover', 'button_primary_active',
+    'button_secondary', 'button_secondary_hover', 'button_secondary_active',
+    'button_tertiary', 'button_tertiary_hover', 'button_tertiary_active',
+    'button_danger_primary', 'button_danger_hover', 'button_danger_active',
+    'button_danger_secondary', 'button_disabled', 'button_separator',
+    'skeleton_background', 'overlay']
 }
 ```
 
@@ -359,7 +372,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 |---|---|---|---|
 | `count` | Number | - | number (the count to display) |
 | `max` | Number | - | number (display '99+' when count exceeds max, default 99) |
-| `color` | - | - | string (color token, default 'app_primary') |
+| `color` | - | - | string (color token, default 'interactive') |
 | `style` | Object|Array | - | custom style overrides |
 | `// eslint-disable-line no-unused-vars
       ...rest` | - | - | - |
@@ -1169,7 +1182,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `level` | - | - | 1-6 (default 1, maps to aria-level) |
-| `typeSet` | - | typeSetMap[lvl] || 'heading_01' | Carbon type set name (heading_01, heading_02, etc.) |
+| `typeSet` | - | typeSetMap[lvl] || 'heading_01' | type set name (heading_01, heading_02, etc.) |
 | `children` | Node | - | heading text content |
 | `style` | Object|Array | - | custom style overrides |
 
@@ -1181,7 +1194,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 |---|---|---|---|
 | `name` | - | - | glyph name (vendor-specific, set by the host adapter) |
 | `size` | Number | - | dimension token (xs..xxl) OR a raw number |
-| `color` | - | - | color token (e.g. 'TEXT_PRIMARY' / 'text_primary') OR a raw hex |
+| `color` | - | - | color token (e.g. 'text_primary' / 'icon_primary') OR a raw hex |
 | `style` | Object|Array | - | - |
 
 ### IconButton
@@ -1206,7 +1219,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 |---|---|---|---|
 | `iconName` | - | - | string (name of the icon to render) |
 | `color` | - | - | string (background color token or hex) |
-| `iconColor` | - | - | string (icon color token or hex, default 'text_on_primary') |
+| `iconColor` | - | - | string (icon color token or hex, default 'text_on_color') |
 | `size` | Number | - | number (pixels, default 24) |
 | `label` | - | - | string (accessibility label) |
 | `style` | Object|Array | - | custom style overrides |
@@ -1701,8 +1714,8 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `value` | - | - | 0 to 1 for determinate, null for indeterminate |
-| `color` | - | - | background color token for the fill (default app_primary) |
-| `trackColor` | - | - | background color token for the track (default surface) |
+| `color` | - | - | background color token for the fill (default interactive) |
+| `trackColor` | - | - | background color token for the track (default layer_02) |
 | `height` | - | - | bar height in pixels (default 4) |
 | `style` | Object|Array | - | - |
 
@@ -1878,7 +1891,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `shape` | String | 'circle' | 'circle' | 'square' | 'triangle' (default 'circle') |
-| `color` | - | - | string (color token or hex, default 'app_primary') |
+| `color` | - | - | string (color token or hex, default 'interactive') |
 | `size` | Number | - | number (pixels, default 16) |
 | `label` | - | - | string (accessibility label) |
 | `style` | Object|Array | - | custom style overrides |
@@ -2522,10 +2535,10 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
-| `typeSet` | - | - | type_<typeSet>     (body_01|heading_01|caption_01|...) |
-| `size` | - | - | font_size_<size>   (xs|sm|md|lg|xl|xxl) [legacy, no type set] |
-| `color` | - | - | font_<color>       (text_primary|text_secondary|app_primary|...) |
+| `typeSet` | - | CONFIG.DEFAULT_TYPE_SET | type_<typeSet>     (body01|heading01|caption01|...) |
+| `color` | - | - | font_<color>       (text_primary|text_secondary|interactive|...) |
 | `weight` | - | - | font_weight_<weight> (regular|medium|semibold|bold) |
+| `family` | - | - | font_family_<family> (sans|serif|mono) |
 | `align` | - | - | - |
 | `style` | Object|Array | - | - |
 | `children` | Node | - | - |

@@ -1,11 +1,11 @@
 // Info: Heading atom [S1 presentational]. A text element with role="header"
 // and a level prop. Uses the A11y mechanism for aria-* level.
 //   level       -> 1-6 (default 1, maps to aria-level)
-//   typeSet     -> Carbon type set name (heading_01, heading_02, etc.)
+//   typeSet     -> type set name (heading_01, heading_02, etc.)
 //   children    -> heading text content
 //   style       -> custom style overrides
 //
-// When typeSet is provided, the full Carbon type style is used. Otherwise,
+// When typeSet is provided, the full type style is used. Otherwise,
 // the legacy size map is used as a fallback.
 
 
@@ -45,7 +45,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const React = Lib.React;
     const lvl = Lib.Utils.isNumber(level) ? level : 1;
 
-    // Map level to Carbon type set name (heading_01 through heading_06)
+    // Map level to type set name (heading_01 through heading_06)
     const typeSetMap = { 1: 'heading_01', 2: 'heading_02', 3: 'heading_03', 4: 'heading_04', 5: 'heading_05', 6: 'heading_06' };
     const resolvedTypeSet = typeSet || typeSetMap[lvl] || 'heading_01';
 

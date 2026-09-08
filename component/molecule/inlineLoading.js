@@ -41,7 +41,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
     const st = status || 'active';
 
     // Build aria state props through the a11y translator
@@ -59,13 +58,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       st === 'active'
         ? React.createElement(ActivityIndicator, {
           size: 'small',
-          color: colorMap.APP_PRIMARY,
-          style: Style.utilities['m_e_xs']
+          color: Style.tokens.Color.interactive,
+          style: Style.utilities['m_e_spacing_01']
         })
         : null,
       React.createElement(Registry.Text, {
-        size: 'sm',
-        color: st === 'error' ? 'status_danger' : 'text_secondary'
+        typeSet: 'label01',
+        color: st === 'error' ? 'support_error' : 'text_secondary'
       }, label || (st === 'active' ? 'Loading...' : st === 'error' ? 'Error' : 'Loaded'))
     );
   };////////////////////////// Public Functions END ////////////////////////////

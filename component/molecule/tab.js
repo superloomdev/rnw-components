@@ -50,7 +50,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     // Read Tabs context if available (for roving tab index)
     const ctxValue = React.useContext(tabsCtx.Context);
@@ -97,20 +96,20 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityLabel: label,
         focusable: focusable,
         style: [
-          Style.utilities['p_h_md'],
-          Style.utilities['p_v_sm'],
-          Style.utilities['m_r_sm'],
+          Style.utilities['p_h_spacing_05'],
+          Style.utilities['p_v_spacing_03'],
+          Style.utilities['m_r_spacing_03'],
           {
             borderBottomWidth: 2,
             borderBottomColor: isSelected
-              ? (colorMap.APP_PRIMARY)
+              ? (Style.tokens.Color.interactive)
               : 'transparent'
           },
           style
         ]
       }, ariaProps, pressKeysProps, rest),
       React.createElement(Registry.Text, {
-        size: 'md',
+        typeSet: 'body01',
         color: isSelected ? 'text_primary' : 'text_secondary',
         weight: isSelected ? 'medium' : 'regular'
       }, label)

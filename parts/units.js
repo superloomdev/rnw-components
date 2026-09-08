@@ -38,8 +38,13 @@ export default function (shared_libs, config, errors) {
   // Compiled once per instance; the pattern ships as JSON data, not as code
   const UNIT_PATTERN = new RegExp(DATA.unit_suffix_pattern);
 
+  // The style prop name for background images. React Native 0.86 exposes this
+  // under the experimental name; the rename to 'backgroundImage' is a one-line
+  // change here when the floor reaches 0.87 (D17).
+  const BACKGROUND_IMAGE_PROP = 'experimental_backgroundImage';
+
   // Build the public interface from the injected dependencies
-  return createInterface(Lib, DATA, UNIT_PATTERN);
+  return createInterface(Lib, DATA, UNIT_PATTERN, BACKGROUND_IMAGE_PROP);
 
 }/////////////////////////// Module-Loader END /////////////////////////////////
 
@@ -56,12 +61,16 @@ Build the Units interface over one instance's injected dependencies.
 
 @return {Object} - Public Units interface
 *********************************************************************/
-const createInterface = function (Lib, DATA, UNIT_PATTERN) {
+const createInterface = function (Lib, DATA, UNIT_PATTERN, BACKGROUND_IMAGE_PROP) {
 
 
   ///////////////////////////Public Functions START//////////////////////////////
   const Units = {
     // Public Units interface: numeric conversion and native contract enforcement
+
+    // The style prop name for background images (D17). Experimental on 0.86,
+    // renamed to 'backgroundImage' at the 0.87 floor.
+    BACKGROUND_IMAGE_PROP: BACKGROUND_IMAGE_PROP,
 
 
     // ~~~~~~~~~~~~~~~~~~~~ Conversion ~~~~~~~~~~~~~~~~~~~~

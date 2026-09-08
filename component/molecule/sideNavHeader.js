@@ -48,17 +48,17 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityRole: 'group',
         style: [
           Style.utilities['flex_col'],
-          Style.utilities['p_h_md'],
-          Style.utilities['p_v_sm'],
+          Style.utilities['p_h_spacing_05'],
+          Style.utilities['p_v_spacing_03'],
           style
         ]
       }, rest),
       title
         ? React.createElement(Registry.Text, {
-          size: 'sm',
+          typeSet: 'label01',
           color: 'text_secondary',
           weight: 'medium',
-          style: Style.utilities['m_b_xs']
+          style: Style.utilities['m_b_spacing_01']
         }, title)
         : null,
       children

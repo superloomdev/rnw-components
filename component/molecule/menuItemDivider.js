@@ -36,14 +36,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const { style, ...rest } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     return React.createElement(RNView, Object.assign({
       accessibilityRole: 'separator',
       style: [
         {
           height: 1,
-          backgroundColor: colorMap.BORDER,
+          backgroundColor: Style.tokens.Color.border_subtle_01,
           marginVertical: 4
         },
         style

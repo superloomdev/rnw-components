@@ -6,11 +6,12 @@ All keys can be overridden by passing a config object to the loader.
 
 | Key | Type | Default | Constraint | Description |
 |---|---|---|---|---|
-| `DEFAULT_FONT_SIZE` | String | `'md'` | non-empty string | Default font size token when a component receives no `size` prop |
+| `DEFAULT_TYPE_SET` | String | `'body01'` | non-empty string | Default type set when a component receives no `typeSet` prop |
 | `DEFAULT_FONT_COLOR` | String | `'text_primary'` | non-empty string | Default font color token when a component receives no `color` prop |
-| `DEFAULT_FONT_WEIGHT` | String | `'regular'` | non-empty string | Default font weight token when a component receives no `weight` prop |
+| `DEFAULT_FONT_FAMILY` | String | `'sans'` | non-empty string | Default font family role when a component receives no `family` prop |
 | `MIN_HIT_TARGET` | Number | `44` | positive number | Minimum accessible hit target in points (iOS HIG 44, Android Material 48) |
-| `BREAKPOINT_ORDER` | Array | `['base','sm','md','lg','xl']` | non-empty array of strings | Breakpoint keys in ascending order |
+| `BREAKPOINT_ORDER` | Array | `['sm','md','lg','xlg','max']` | non-empty array of strings | Breakpoint keys in ascending order |
+| `STRICT_TOKENS` | Boolean | `false` | boolean | Throw on a utility lookup that names a key the theme did not produce |
 
 ## Validation
 
@@ -35,6 +36,7 @@ const system = createSystem({
 | `shared_libs.Debug` | Yes | `helper-debug` |
 | `shared_libs.React` | Yes | `react` module |
 | `shared_libs.Device` | Yes | `js-rnw-helper-device` |
+| `shared_libs.Themer` | Yes | `helper-themer` engine; `createSystem` calls `Themer.getContract()` for validation |
 | `shared_libs.Icons` | No | Icon source with `Glyph` component |
 
 Missing required injections throw `TypeError` at construction time.
@@ -49,27 +51,28 @@ The `package.json` peer dependencies must match the injections:
 | `react-native` | `>=0.74` | Direct import (not injected) |
 | `helper-utils` | `^1.0.0` | `shared_libs.Utils` |
 | `helper-debug` | `^1.0.0` | `shared_libs.Debug` |
-| `helper-themer` | `^1.0.0` | Used by the host to produce theme contracts |
+| `helper-themer` | `^1.0.0` | `shared_libs.Themer` |
 | `helper-device` | `^1.0.0` | `shared_libs.Device` |
 
 ## Breakpoint Configuration
 
-Breakpoints are layout boundaries, not design tokens. They live in the theme contract's `Breakpoint` group, not in the themer template. The default breakpoints are:
+Breakpoints are layout boundaries, not design tokens. They live in the Themer contract's `breakpoint` group, not in the themer template. The default breakpoints are:
 
 | Key | Min Width |
 |---|---|
-| `base` | 0 |
-| `sm` | 480 |
+| `sm` | 0 |
 | `md` | 768 |
 | `lg` | 1024 |
-| `xl` | 1280 |
+| `xlg` | 1280 |
+| `max` | 1584 |
 
-The `BREAKPOINT_ORDER` config key must match the keys in the theme contract's `Breakpoint` group. The `useBreakpoint` hook walks the order in descending width to find the active breakpoint.
+The `BREAKPOINT_ORDER` config key must match the keys in the contract's `breakpoint` group. The `useBreakpoint` hook walks the order in descending width to find the active breakpoint. The default breakpoint is `'sm'`.
 
 ## Theme requirements
 
 The theme is not configuration, but `createSystem` rejects an incomplete one, so it belongs
-in the same boot-time checklist. `theme.Color` must carry all 22 required tokens; see
+in the same boot-time checklist. The built theme (from `Themer.buildTheme(...)`) must carry all
+38 required color tokens in its `.tokens` map; see
 [api.md](api.md#required-color-tokens) for the list. Every value is a non-empty string.
 
 The library ships no color of its own. There is no default palette and no fallback: a

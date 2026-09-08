@@ -43,15 +43,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
     const currentStatus = status || 'incomplete';
 
     // Determine the indicator color based on status
     const indicatorColor = currentStatus === 'complete'
-      ? (colorMap.STATUS_SUCCESS)
+      ? (Style.tokens.Color.support_success)
       : currentStatus === 'current'
-        ? (colorMap.APP_PRIMARY)
-        : (colorMap.BORDER);
+        ? (Style.tokens.Color.interactive)
+        : (Style.tokens.Color.border_subtle_01);
 
     // Build aria state props
     const ariaProps = Parts.A11y.state({
@@ -70,7 +69,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
-          Style.utilities['m_r_lg'],
+          Style.utilities['m_r_spacing_06'],
           style
         ]
       }, ariaProps, positionProps, rest),
@@ -87,14 +86,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         }
       },
       React.createElement(Registry.Text, {
-        size: 'sm',
-        color: 'text_on_primary',
+        typeSet: 'label01',
+        color: 'text_on_color',
         weight: 'medium'
       }, currentStatus === 'complete' ? '\u2713' : String(stepNumber || ''))
       ),
       // ProgressStep label
       React.createElement(Registry.Text, {
-        size: 'md',
+        typeSet: 'body01',
         color: currentStatus === 'current' ? 'text_primary' : 'text_secondary',
         weight: currentStatus === 'current' ? 'medium' : 'regular'
       }, label)

@@ -56,7 +56,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       title
         ? React.createElement(Registry.Heading, {
           level: 3,
-          style: Style.utilities['m_b_sm']
+          style: Style.utilities['m_b_spacing_03']
         }, title)
         : null,
       children

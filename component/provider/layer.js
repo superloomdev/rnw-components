@@ -2,7 +2,7 @@
 // nesting so descendants pick the next surface token. Uses
 // createCompoundContext. Context holds an integer 0 through 2.
 //
-// Layer mapping to Carbon semantics:
+// Layer mapping to layer semantics:
 //   0 -> base (background)
 //   1 -> layer-01
 //   2 -> layer-02
@@ -46,7 +46,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) { // eslin
   const LayerContext = createContext(0);
   LayerContext.displayName = 'LayerContext';
 
-  // Mapping from layer numbers to Carbon token name suffixes
+  // Mapping from layer numbers to token name suffixes
   const LAYER_TOKEN_SUFFIXES = ['background', 'layer_01', 'layer_02', 'layer_03'];
 
   // Hook for descendants to read the current layer
@@ -54,7 +54,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) { // eslin
     return React.useContext(LayerContext);
   };
 
-  // Hook for descendants to get the Carbon token suffix for the current layer
+  // Hook for descendants to get the token suffix for the current layer
   const useLayerToken = function () {
     const level = React.useContext(LayerContext);
     return LAYER_TOKEN_SUFFIXES[level] || LAYER_TOKEN_SUFFIXES[0];

@@ -53,8 +53,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       Object.assign({
         accessibilityRole: 'region',
         style: [
-          Style.utilities['background_surface'],
-          Style.utilities['p_a_md'],
+          Style.utilities['background_layer_02'],
+          Style.utilities['p_a_spacing_05'],
           style
         ]
       }, ariaProps, rest),

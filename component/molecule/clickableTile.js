@@ -64,24 +64,24 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityRole: 'button',
         accessibilityLabel: title,
         style: [
-          Style.utilities['background_surface'],
-          Style.utilities['br_md'],
-          Style.utilities['border_default'],
-          Style.utilities['p_a_md'],
+          Style.utilities['background_layer_02'],
+          Style.utilities['br_radius_08'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+          Style.utilities['p_a_spacing_05'],
           style
         ]
       }, ariaProps, pressKeysProps, rest),
       title
         ? React.createElement(Registry.Text, {
-          size: 'lg',
+          typeSet: 'body02',
           color: 'text_primary',
           weight: 'semibold',
-          style: Style.utilities['m_b_xs']
+          style: Style.utilities['m_b_spacing_01']
         }, title)
         : null,
       subtitle
         ? React.createElement(Registry.Text, {
-          size: 'sm',
+          typeSet: 'label01',
           color: 'text_secondary'
         }, subtitle)
         : null

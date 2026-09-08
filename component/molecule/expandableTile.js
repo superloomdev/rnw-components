@@ -44,7 +44,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
     const isExpanded = !!expanded;
 
     // Handle toggle
@@ -70,10 +69,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       RNView,
       Object.assign({
         style: [
-          Style.utilities['br_md'],
-          Style.utilities['border_default'],
+          Style.utilities['br_radius_08'],
+          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
           {
-            backgroundColor: colorMap.SURFACE
+            backgroundColor: Style.tokens.Color.layer_02
           },
           style
         ]
@@ -89,12 +88,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           style: [
             Style.utilities['flex_row'],
             Style.utilities['align_center'],
-            Style.utilities['p_a_md']
+            Style.utilities['p_a_spacing_05']
           ]
         }),
         title
           ? React.createElement(Registry.Text, {
-            size: 'md',
+            typeSet: 'body01',
             color: 'text_primary',
             weight: 'medium',
             style: Style.utilities['flex_1']
@@ -102,15 +101,15 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           : null,
         React.createElement(Registry.Icon, {
           name: isExpanded ? 'chevron--up' : 'chevron--down',
-          size: 'sm',
-          color: 'TEXT_SECONDARY'
+          typeSet: 'label01',
+          color: 'text_secondary'
         })
       ),
       // Expanded content
       isExpanded
         ? React.createElement(
           RNView,
-          { style: Style.utilities['p_h_md'] },
+          { style: Style.utilities['p_h_spacing_05'] },
           children || null
         )
         : null

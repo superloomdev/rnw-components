@@ -42,7 +42,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const colorMap = Style.tokens.Color;
 
     // Handle press (simulates drop on native where drag-drop is unavailable)
     const handlePress = function () {
@@ -72,18 +71,18 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['flex_col'],
           Style.utilities['align_center'],
           Style.utilities['justify_center'],
-          Style.utilities['p_a_lg'],
-          Style.utilities['br_md'],
+          Style.utilities['p_a_spacing_06'],
+          Style.utilities['br_radius_08'],
           {
             borderWidth: 2,
             borderStyle: 'dashed',
-            borderColor: colorMap.BORDER
+            borderColor: Style.tokens.Color.border_subtle_01
           },
           style
         ]
       }, rest),
       React.createElement(Registry.Text, {
-        size: 'md',
+        typeSet: 'body01',
         color: 'text_secondary'
       }, label || 'Drag and drop files here or click to browse')
     );

@@ -54,10 +54,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       }, rest),
       label
         ? React.createElement(Registry.Text, {
-          size: 'sm',
+          typeSet: 'label01',
           color: 'text_secondary',
           weight: 'medium',
-          style: Style.utilities['p_h_md']
+          style: Style.utilities['p_h_spacing_05']
         }, label)
         : null,
       children
