@@ -135,7 +135,7 @@ let output = `// Info: Carbon theme profiles for the Superloom Themer (Plan 0149
 // @carbon/layout via the parity oracle generator.
 //
 // Usage:
-//   import { white } from '@superloomdev/rnw-components-carbon/theme';
+//   import { white } from '@superloomdev/rnw-components/theme';
 //   const built = Themer.buildTheme(white, [{ name: 'base' }], 'native');
 
 `;

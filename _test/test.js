@@ -1,4 +1,4 @@
-// Info: Unit tests for rnw-components-carbon.
+// Info: Unit tests for rnw-components.
 //
 // Tests the public interface: system construction, theme contract bridge,
 // atom rendering and accessibility, mechanism parts, and composite components.
@@ -27,7 +27,7 @@ import {
 } from './loader.js';
 
 // Named factory import: the no-Icons case builds a one-component system
-import { Icon as IconFactory } from 'rnw-components-carbon';
+import { Icon as IconFactory } from 'rnw-components';
 
 // Mechanism imports (ESM - resolved at module level)
 const a11yPart = (await import('../parts/a11y.js')).default;

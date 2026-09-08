@@ -5,7 +5,7 @@
 `createSystem` is the only entry point. The package has no default export.
 
 ```javascript
-import { createSystem } from 'rnw-components-carbon';
+import { createSystem } from 'rnw-components';
 
 const system = createSystem(shared_libs, config?, theme, breakpoint?)
 ```
@@ -53,7 +53,7 @@ Each value must be a non-empty string. Tokens beyond this set are allowed and ig
 | `TOKENS` | Frozen Object | Valid token sets |
 | 245 component names | Function | One factory per component, e.g. `Button`, `Text` |
 
-Subpath `rnw-components-carbon/all` exports the registration barrel:
+Subpath `rnw-components/all` exports the registration barrel:
 
 | Export | Description |
 |---|---|

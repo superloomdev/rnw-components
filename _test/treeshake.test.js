@@ -129,8 +129,8 @@ before(function () {
   // Bundle the barrel path, which reaches every component
   barrelBundle = bundleEntry(
     'probe-barrel.js',
-    'import { createSystem } from \'rnw-components-carbon\';\n'
-    + 'import { COMPONENTS } from \'rnw-components-carbon/all\';\n'
+    'import { createSystem } from \'rnw-components\';\n'
+    + 'import { COMPONENTS } from \'rnw-components/all\';\n'
     + 'globalThis.__probe = [typeof createSystem, Object.keys(COMPONENTS).length];\n'
   );
 
@@ -138,7 +138,7 @@ before(function () {
   const named = ['createSystem'].concat(PROBE_COMPONENTS).join(', ');
   subsetBundle = bundleEntry(
     'probe-subset.js',
-    'import { ' + named + ' } from \'rnw-components-carbon\';\n'
+    'import { ' + named + ' } from \'rnw-components\';\n'
     + 'globalThis.__probe = [' + named + '].length;\n'
   );
 

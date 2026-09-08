@@ -21,7 +21,7 @@ import {
   ClickableTile, SelectableTile,
   // Siblings the sixteen resolve from the registry at render time
   Icon, Text, TextInput
-} from 'rnw-components-carbon';
+} from 'rnw-components';
 
 const noop = function () {};
 

@@ -17,8 +17,8 @@ All keys can be overridden by passing a config object to the loader.
 Config is validated at load time. Bad config throws `TypeError` immediately:
 
 ```javascript
-// Throws: rnw-components-carbon: MIN_HIT_TARGET must be a positive number
-import { createSystem } from 'rnw-components-carbon';
+// Throws: rnw-components: MIN_HIT_TARGET must be a positive number
+import { createSystem } from 'rnw-components';
 
 const system = createSystem({
   Utils: Utils, Debug: Debug, React: React, Device: Device

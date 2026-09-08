@@ -1,4 +1,4 @@
-// Info: Theme fixtures for rnw-components-carbon tests.
+// Info: Theme fixtures for rnw-components tests.
 //
 // Provides the fixed-value control theme and the Poppins real-family theme.
 // The themer-driven matrix is removed; tests use the fixed control theme.

@@ -1,12 +1,12 @@
 ---
-description: Pre-commit protocol and code quality for rnw-components-carbon
+description: Pre-commit protocol and code quality for rnw-components
 ---
 
 # RNW Components Carbon Workflow
 
-The pre-commit protocol for the rnw-components-carbon library. Run before every commit or push. No commit happens until all three gates pass locally.
+The pre-commit protocol for the rnw-components library. Run before every commit or push. No commit happens until all three gates pass locally.
 
-Invoke as: `/rnw-components-carbon`
+Invoke as: `/rnw-components`
 
 ## Operating Principle
 
@@ -20,7 +20,7 @@ Wipe `node_modules/` and `package-lock.json` for a truly clean state. Everything
 
 // turbo
 ```bash
-# Cwd = codebase-rnw-components-carbon/_test
+# Cwd = codebase-rnw-components/_test
 rm -rf node_modules package-lock.json && npm install 2>&1 | tail -5
 ```
 
@@ -28,7 +28,7 @@ rm -rf node_modules package-lock.json && npm install 2>&1 | tail -5
 
 // turbo
 ```bash
-# Cwd = codebase-rnw-components-carbon
+# Cwd = codebase-rnw-components
 npm run lint 2>&1 | tail -10
 ```
 
@@ -38,7 +38,7 @@ Must exit `0` with no errors and no warnings.
 
 // turbo
 ```bash
-# Cwd = codebase-rnw-components-carbon/_test
+# Cwd = codebase-rnw-components/_test
 npm test 2>&1 | tail -20
 ```
 

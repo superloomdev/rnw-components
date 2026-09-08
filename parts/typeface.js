@@ -1,4 +1,4 @@
-// Info: Font weight-to-face resolution for rnw-components-carbon.
+// Info: Font weight-to-face resolution for rnw-components.
 //
 // Owns the contract between the themer (names font roles), the font module
 // (loads and registers faces), and the components (request a weight). When

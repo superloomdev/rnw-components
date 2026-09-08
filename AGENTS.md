@@ -1,4 +1,4 @@
-# AGENTS.md - codebase-rnw-components-carbon
+# AGENTS.md - codebase-rnw-components
 
 ## Build and test commands
 

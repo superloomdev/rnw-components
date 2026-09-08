@@ -1,6 +1,6 @@
-# rnw-components-carbon
+# rnw-components
 
-Carbon-informed component library for the RNW pipeline. Atoms, molecules, composites, and providers over the themer, with theme-driven responsiveness and a real accessibility contract.
+The standard Superloom component system for React Native Web. Component anatomy and behavior follow the IBM Carbon Design System v11; every color, size, font, and structure knob is a token of the Superloom token contract.
 
 ## Overview
 
@@ -14,7 +14,7 @@ depending entirely on the theme handed in.
 ## Installation
 
 ```bash
-npm install @superloomdev/rnw-components-carbon
+npm install @superloomdev/rnw-components
 ```
 
 Peer dependencies: `react`, `react-native`, `helper-utils`, `helper-debug`, `helper-themer`, `helper-device`.
@@ -26,7 +26,7 @@ import {
   createSystem,
   buildThemeContract,
   View, Text, Button
-} from '@superloomdev/rnw-components-carbon';
+} from '@superloomdev/rnw-components';
 
 // Bridge themer output to the theme contract
 const theme = buildThemeContract(themer.buildTheme(template, layers, 'native'));

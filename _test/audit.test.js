@@ -19,7 +19,7 @@ import { createRealFamilyTheme } from './harness/themes.js';
 
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
-const DATA = require('rnw-components-carbon/data/style-contract.json');
+const DATA = require('rnw-components/data/style-contract.json');
 
 const NUMERIC_PROPS = DATA.numeric_style_props;
 const UNIT_PATTERN = new RegExp(DATA.unit_suffix_pattern);

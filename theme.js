@@ -9,7 +9,7 @@
 // @carbon/layout via the parity oracle generator.
 //
 // Usage:
-//   import { white } from '@superloomdev/rnw-components-carbon/theme';
+//   import { white } from '@superloomdev/rnw-components/theme';
 //   const built = Themer.buildTheme(white, [{ name: 'base' }], 'native');
 
 // white profile: light polarity, 203 tokens

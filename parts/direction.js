@@ -1,4 +1,4 @@
-// Info: Text direction resolution for rnw-components-carbon.
+// Info: Text direction resolution for rnw-components.
 //
 // Provides a single RTL boolean derived from the platform. On web it reads
 // a locale config flag; on native it reads I18nManager.isRTL. Components

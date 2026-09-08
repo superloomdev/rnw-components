@@ -11,9 +11,9 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createSystem, buildThemeContract, Text } from 'rnw-components-carbon';
+import { createSystem, buildThemeContract, Text } from 'rnw-components';
 import { Text as RNText, StyleSheet } from 'react-native';
-import { COMPONENTS } from 'rnw-components-carbon/all';
+import { COMPONENTS } from 'rnw-components/all';
 
 import {
   createCarbonTheme,

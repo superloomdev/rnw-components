@@ -19,9 +19,9 @@ import {
   ButtonPrimaryOutlined,
   RawBox,
   Theme as ThemeProvider
-} from 'rnw-components-carbon';
+} from 'rnw-components';
 
-import { COMPONENTS, VARIANTS, FREEFORMS, PROVIDERS } from 'rnw-components-carbon/all';
+import { COMPONENTS, VARIANTS, FREEFORMS, PROVIDERS } from 'rnw-components/all';
 
 import {
   Utils,

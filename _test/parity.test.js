@@ -142,7 +142,7 @@ describe('parity oracle - Superloom profile comparison', () => {
 
   it('should import the Carbon profile from ./theme', async () => {
 
-    profiles = await import('rnw-components-carbon/theme');
+    profiles = await import('rnw-components/theme');
     assert.ok(profiles.white, 'white profile must exist');
     assert.ok(profiles.g10, 'g10 profile must exist');
     assert.ok(profiles.g90, 'g90 profile must exist');

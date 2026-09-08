@@ -1,6 +1,6 @@
 {
-  "name": "@superloomdev/rnw-components-carbon",
-  "description": "Carbon-informed component library for the RNW pipeline. Atoms and molecules over the themer, with theme-driven responsiveness and a real accessibility contract",
+  "name": "@superloomdev/rnw-components",
+  "description": "Superloom standard component system for React Native Web",
   "version": "1.0.0",
   "author": {
     "name": "sj00"

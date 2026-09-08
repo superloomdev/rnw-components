@@ -1,4 +1,4 @@
-// Info: Numeric and unit normalization for rnw-components-carbon.
+// Info: Numeric and unit normalization for rnw-components.
 //
 // Owns every numeric conversion the components need, so that no component
 // calls Math.*, parseFloat, or parseInt directly. Every magic number the

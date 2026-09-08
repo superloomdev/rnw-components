@@ -59,7 +59,7 @@ drops every factory the caller never imported.
 
 Register through the four registrars, each matching one registry
 namespace. Import the factories by name from this package, or import
-the whole roster from '@superloomdev/rnw-components-carbon/all'.
+the whole roster from '@superloomdev/rnw-components/all'.
 
 Re-theming builds a new system; a system is never mutated in place.
 
@@ -802,7 +802,7 @@ const buildInfrastructure = function (Lib, CONFIG, ERRORS, Validators, theme, br
 
         // Reject an unknown string key; symbol keys are React and JS internals
         if (Lib.Utils.isString(key) && !(key in target)) {
-          throw new TypeError('rnw-components-carbon: unknown utility "' + key + '"');
+          throw new TypeError('rnw-components: unknown utility "' + key + '"');
         }
 
         // Return the resolved utility for a declared key

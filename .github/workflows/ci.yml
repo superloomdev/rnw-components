@@ -1,4 +1,4 @@
-# CI Pipeline: Test and Publish rnw-components-carbon
+# CI Pipeline: Test and Publish rnw-components
 #
 # Strategy:
 #   1. Lint the module source

@@ -1,4 +1,4 @@
-// Info: Validators for rnw-components-carbon.
+// Info: Validators for rnw-components.
 //
 // Receives Lib and ERRORS by injection from the loader.
 // Never self-requires the error catalog or data files.
@@ -43,27 +43,27 @@ export default function (Lib, ERRORS) {
 
       // DEFAULT_FONT_SIZE must be a non-empty string
       if (!Lib.Utils.isString(CONFIG.DEFAULT_FONT_SIZE)) {
-        throw new TypeError('rnw-components-carbon: DEFAULT_FONT_SIZE must be a string');
+        throw new TypeError('rnw-components: DEFAULT_FONT_SIZE must be a string');
       }
 
       // DEFAULT_FONT_COLOR must be a non-empty string
       if (!Lib.Utils.isString(CONFIG.DEFAULT_FONT_COLOR)) {
-        throw new TypeError('rnw-components-carbon: DEFAULT_FONT_COLOR must be a string');
+        throw new TypeError('rnw-components: DEFAULT_FONT_COLOR must be a string');
       }
 
       // DEFAULT_FONT_WEIGHT must be a non-empty string
       if (!Lib.Utils.isString(CONFIG.DEFAULT_FONT_WEIGHT)) {
-        throw new TypeError('rnw-components-carbon: DEFAULT_FONT_WEIGHT must be a string');
+        throw new TypeError('rnw-components: DEFAULT_FONT_WEIGHT must be a string');
       }
 
       // MIN_HIT_TARGET must be a positive number
       if (!Lib.Utils.isNumber(CONFIG.MIN_HIT_TARGET) || CONFIG.MIN_HIT_TARGET <= 0) {
-        throw new TypeError('rnw-components-carbon: MIN_HIT_TARGET must be a positive number');
+        throw new TypeError('rnw-components: MIN_HIT_TARGET must be a positive number');
       }
 
       // BREAKPOINT_ORDER must be a non-empty array of strings
       if (!Array.isArray(CONFIG.BREAKPOINT_ORDER) || Lib.Utils.isEmptyArray(CONFIG.BREAKPOINT_ORDER)) {
-        throw new TypeError('rnw-components-carbon: BREAKPOINT_ORDER must be a non-empty array');
+        throw new TypeError('rnw-components: BREAKPOINT_ORDER must be a non-empty array');
       }
 
     },
@@ -80,22 +80,22 @@ export default function (Lib, ERRORS) {
 
       // React is required - two copies break hooks
       if (Lib.Utils.isNullOrUndefined(shared_libs.React)) {
-        throw new TypeError('rnw-components-carbon: shared_libs.React is required (the react module)');
+        throw new TypeError('rnw-components: shared_libs.React is required (the react module)');
       }
 
       // Utils is required
       if (Lib.Utils.isNullOrUndefined(shared_libs.Utils)) {
-        throw new TypeError('rnw-components-carbon: shared_libs.Utils is required');
+        throw new TypeError('rnw-components: shared_libs.Utils is required');
       }
 
       // Debug is required for render-time warnings
       if (Lib.Utils.isNullOrUndefined(shared_libs.Debug)) {
-        throw new TypeError('rnw-components-carbon: shared_libs.Debug is required');
+        throw new TypeError('rnw-components: shared_libs.Debug is required');
       }
 
       // Device is required for viewport and breakpoint resolution
       if (Lib.Utils.isNullOrUndefined(shared_libs.Device)) {
-        throw new TypeError('rnw-components-carbon: shared_libs.Device is required (js-rnw-helper-device)');
+        throw new TypeError('rnw-components: shared_libs.Device is required (js-rnw-helper-device)');
       }
 
     },
@@ -113,12 +113,12 @@ export default function (Lib, ERRORS) {
 
       // Theme must be an object
       if (!Lib.Utils.isObject(theme)) {
-        throw new TypeError('rnw-components-carbon: theme must be an object');
+        throw new TypeError('rnw-components: theme must be an object');
       }
 
       // Color group is required
       if (!Lib.Utils.isObject(theme.Color)) {
-        throw new TypeError('rnw-components-carbon: theme.Color must be an object');
+        throw new TypeError('rnw-components: theme.Color must be an object');
       }
 
       // Every required Color token must be a non-empty string. Collect the
@@ -138,69 +138,69 @@ export default function (Lib, ERRORS) {
       // Report the complete missing set in one throw
       if (!Lib.Utils.isEmptyArray(missingColors)) {
         throw new TypeError(
-          'rnw-components-carbon: theme.Color is missing required token(s): ' +
+          'rnw-components: theme.Color is missing required token(s): ' +
           missingColors.join(', ') + '. ' + ERRORS.THEME_MISSING_COLOR_TOKEN.type
         );
       }
 
       // Dimension group is required
       if (!Lib.Utils.isObject(theme.Dimension)) {
-        throw new TypeError('rnw-components-carbon: theme.Dimension must be an object');
+        throw new TypeError('rnw-components: theme.Dimension must be an object');
       }
 
       // Dimension.fontSize is required
       if (!Lib.Utils.isObject(theme.Dimension.fontSize)) {
-        throw new TypeError('rnw-components-carbon: theme.Dimension.fontSize must be an object');
+        throw new TypeError('rnw-components: theme.Dimension.fontSize must be an object');
       }
 
       // Dimension.space is required
       if (!Lib.Utils.isObject(theme.Dimension.space)) {
-        throw new TypeError('rnw-components-carbon: theme.Dimension.space must be an object');
+        throw new TypeError('rnw-components: theme.Dimension.space must be an object');
       }
 
       // Dimension.radius is required
       if (!Lib.Utils.isObject(theme.Dimension.radius)) {
-        throw new TypeError('rnw-components-carbon: theme.Dimension.radius must be an object');
+        throw new TypeError('rnw-components: theme.Dimension.radius must be an object');
       }
 
       // Font group is required
       if (!Lib.Utils.isObject(theme.Font)) {
-        throw new TypeError('rnw-components-carbon: theme.Font must be an object');
+        throw new TypeError('rnw-components: theme.Font must be an object');
       }
 
       // Font.family is required
       if (!Lib.Utils.isObject(theme.Font.family)) {
-        throw new TypeError('rnw-components-carbon: theme.Font.family must be an object');
+        throw new TypeError('rnw-components: theme.Font.family must be an object');
       }
 
       // Font.weight is required
       if (!Lib.Utils.isObject(theme.Font.weight)) {
-        throw new TypeError('rnw-components-carbon: theme.Font.weight must be an object');
+        throw new TypeError('rnw-components: theme.Font.weight must be an object');
       }
 
       // Breakpoint group is required
       if (!Lib.Utils.isObject(theme.Breakpoint)) {
-        throw new TypeError('rnw-components-carbon: theme.Breakpoint must be an object');
+        throw new TypeError('rnw-components: theme.Breakpoint must be an object');
       }
 
       // TypeSet group is optional but must be an object when present
       if (theme.TypeSet !== undefined && !Lib.Utils.isObject(theme.TypeSet)) {
-        throw new TypeError('rnw-components-carbon: theme.TypeSet must be an object');
+        throw new TypeError('rnw-components: theme.TypeSet must be an object');
       }
 
       // Shadow group is optional but must be an object when present
       if (theme.Shadow !== undefined && !Lib.Utils.isObject(theme.Shadow)) {
-        throw new TypeError('rnw-components-carbon: theme.Shadow must be an object');
+        throw new TypeError('rnw-components: theme.Shadow must be an object');
       }
 
       // Motion group is optional but must be an object when present
       if (theme.Motion !== undefined && !Lib.Utils.isObject(theme.Motion)) {
-        throw new TypeError('rnw-components-carbon: theme.Motion must be an object');
+        throw new TypeError('rnw-components: theme.Motion must be an object');
       }
 
       // Layer group is optional but must be an object when present
       if (theme.Layer !== undefined && !Lib.Utils.isObject(theme.Layer)) {
-        throw new TypeError('rnw-components-carbon: theme.Layer must be an object');
+        throw new TypeError('rnw-components: theme.Layer must be an object');
       }
 
       // Value-level validation: dimension values must be finite numbers
@@ -226,7 +226,7 @@ export default function (Lib, ERRORS) {
           // Reject unit-suffixed strings (web projection leak)
           if (Lib.Utils.isString(value) && UNIT_PATTERN.test(value)) {
             throw new TypeError(
-              'rnw-components-carbon: theme.Dimension.' + groupName + '.' + tokenKey +
+              'rnw-components: theme.Dimension.' + groupName + '.' + tokenKey +
               ' is "' + value + '" (unit-suffixed string). ' +
               'Pass the native projection, not the web projection. ' +
               ERRORS.THEME_VALUE_UNIT_STRING.type
@@ -236,7 +236,7 @@ export default function (Lib, ERRORS) {
           // Reject NaN and non-finite numbers
           if (!Lib.Utils.isNumber(value)) {
             throw new TypeError(
-              'rnw-components-carbon: theme.Dimension.' + groupName + '.' + tokenKey +
+              'rnw-components: theme.Dimension.' + groupName + '.' + tokenKey +
               ' must be a finite number, got ' + typeof value + '. ' +
               ERRORS.THEME_VALUE_NOT_FINITE.type
             );

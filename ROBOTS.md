@@ -1,15 +1,15 @@
-# ROBOTS.md - rnw-components-carbon
+# ROBOTS.md - rnw-components
 
 > Compact signature reference for AI agents. Read this before calling any function in this module.
 
-**Module:** `@superloomdev/rnw-components-carbon` | **Alias:** `rnw-components-carbon` | **Class:** I (standalone framework module, createSystem) | **Runtime:** React Native Web (web, iOS, Android), Node.js 24+ for testing
+**Module:** `@superloomdev/rnw-components` | **Alias:** `rnw-components` | **Class:** I (standalone framework module, createSystem) | **Runtime:** React Native Web (web, iOS, Android), Node.js 24+ for testing
 
 ## Load
 
 `createSystem` is the only entry point. There is no default export.
 
 ```javascript
-import { createSystem, View, Text, Button } from 'rnw-components-carbon';
+import { createSystem, View, Text, Button } from 'rnw-components';
 
 const system = createSystem({
   Utils: Utils,
@@ -29,8 +29,8 @@ Each call returns an independent system with its own registry. No component exis
 To register the whole roster, import the barrel:
 
 ```javascript
-import { createSystem } from 'rnw-components-carbon';
-import { COMPONENTS, VARIANTS, FREEFORMS, PROVIDERS } from 'rnw-components-carbon/all';
+import { createSystem } from 'rnw-components';
+import { COMPONENTS, VARIANTS, FREEFORMS, PROVIDERS } from 'rnw-components/all';
 
 const system = createSystem(shared_libs, {}, theme, 'base');
 
@@ -78,7 +78,7 @@ TOKENS                        -> { fontSize, fontColor, fontWeight, space, radiu
 [ComponentName]               -> component factory   // 245 named exports
 ```
 
-Subpath `rnw-components-carbon/all` exports:
+Subpath `rnw-components/all` exports:
 
 ```javascript
 COMPONENTS  -> { [name]: factory }   // 235 flat
@@ -396,7 +396,7 @@ Re-theming builds a new system. A system is never mutated in place.
 
 **Render-time prop errors warn and fall back deterministically.** Unknown token props trigger `Lib.Debug.warn` and fall back to the default token. No render-time throw.
 
-Message format: `rnw-components-carbon: <field> <expected-shape>`
+Message format: `rnw-components: <field> <expected-shape>`
 
 ## Mechanisms
 

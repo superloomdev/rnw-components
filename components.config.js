@@ -1,4 +1,4 @@
-// Info: Default configuration for rnw-components-carbon.
+// Info: Default configuration for rnw-components.
 //
 // All keys can be overridden by passing a config object to the loader.
 

@@ -174,7 +174,7 @@ function assignToken (group, path, value, containers) {
   if (!path.length || path.some(function (part) {
     return !part || ['__proto__', 'constructor', 'prototype'].includes(part);
   })) {
-    throw new TypeError('rnw-components-carbon: invalid token path ' + path.join('.'));
+    throw new TypeError('rnw-components: invalid token path ' + path.join('.'));
   }
 
   let target = group;
@@ -184,14 +184,14 @@ function assignToken (group, path, value, containers) {
       target[part] = {};
       containers.add(target[part]);
     } else if (!containers.has(target[part])) {
-      throw new TypeError('rnw-components-carbon: colliding token path ' + path.join('.'));
+      throw new TypeError('rnw-components: colliding token path ' + path.join('.'));
     }
     target = target[part];
   }
 
   const leaf = path[path.length - 1];
   if (Object.prototype.hasOwnProperty.call(target, leaf)) {
-    throw new TypeError('rnw-components-carbon: colliding token path ' + path.join('.'));
+    throw new TypeError('rnw-components: colliding token path ' + path.join('.'));
   }
   target[leaf] = value;
 
