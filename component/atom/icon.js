@@ -39,7 +39,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const { name, size, color, style, ...rest } = props;
 
     // Validate size (D21 item 2): a number of points or a dimension token; a
-    // CSS unit string such as '24px' or '50%' is not a valid size
+    // CSS unit string or percentage string is not a valid size
     if (!Lib.Utils.isNullOrUndefined(size) && Lib.Utils.isString(size) && /^[0-9]/.test(size)) {
       throw new TypeError('INVALID_LENGTH: ' + ERRORS.INVALID_LENGTH.message + ': Icon.size = ' + String(size));
     }
