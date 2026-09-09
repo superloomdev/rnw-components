@@ -836,8 +836,10 @@ const buildInfrastructure = function (Lib, CONFIG, ERRORS, Validators, built, br
 
   // Resolve the active breakpoint's utility set, wrapping it in strict mode so
   // a component naming an undeclared utility fails loudly instead of rendering
-  // unstyled. Lenient mode returns the plain object, so there is no Proxy cost.
+  // unstyled. Lenient mode returns a Proxy that warns once per unknown key and
+  // returns undefined, so a typo is never silent (D21 item 1).
   const activeStyles = allStyles[activeBreakpoint] || allStyles['sm'] || allStyles[Object.keys(allStyles)[0]];
+  const warnedUtilities = new Set();
   const utilities = CONFIG.STRICT_TOKENS
     ? new Proxy(activeStyles, {
       get: function (target, key) {
@@ -852,7 +854,28 @@ const buildInfrastructure = function (Lib, CONFIG, ERRORS, Validators, built, br
 
       }
     })
-    : activeStyles;
+    : new Proxy(activeStyles, {
+      get: function (target, key) {
+
+        // Symbol keys are React and JS internals; pass through silently
+        if (!Lib.Utils.isString(key)) {
+          return target[key];
+        }
+
+        // Warn once per unknown key, then return undefined
+        if (!(key in target)) {
+          if (!warnedUtilities.has(key)) {
+            warnedUtilities.add(key);
+            Lib.Debug.warn('rnw-components: unknown utility', { key: key });
+          }
+          return undefined;
+        }
+
+        // Return the resolved utility for a declared key
+        return target[key];
+
+      }
+    });
 
   // Build the Style slot consumed by every component factory
   const Style = {

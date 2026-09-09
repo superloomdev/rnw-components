@@ -60,7 +60,7 @@ const createInterface = function (Lib) {
     A motion token is one of three kinds (D18):
     - bezier: { x1, y1, x2, y2 } -> Easing.bezier(x1, y1, x2, y2)
     - spring: { stiffness, damping, mass } -> Animated.spring parameters
-    - segments: { points: [{ x, y }, ...], splits: [t, ...] } -> sequenced bezier list
+    - segments: { segments: true, curves: [[t, [x1, y1, x2, y2]], ...] } -> sequenced bezier list
 
     @param {Object} token - Motion curve token from the theme
 
@@ -104,14 +104,15 @@ const createInterface = function (Lib) {
         };
       }
 
-      // Segments: an ordered list of bezier control points with split points.
-      // Material writes its emphasized curve this way. React Native runs them
-      // as a sequence of Easing.bezier calls.
-      if (Lib.Utils.isObject(token) && Lib.Utils.isArray(token.points) &&
-          Lib.Utils.isArray(token.splits)) {
+      // Segments: { segments: true, curves: [[t, [x1, y1, x2, y2]], ...] }
+      // This is the format themer.validators.js isValidSegments accepts.
+      // Material writes its emphasized curve this way. React Native runs
+      // them as a sequence of Easing.bezier calls.
+      if (Lib.Utils.isObject(token) && token.segments === true &&
+          Lib.Utils.isArray(token.curves)) {
         return {
           kind: 'segments',
-          easing: _Motion.segments(token.points, token.splits),
+          easing: _Motion.segments(token.curves),
           spring: null
         };
       }
@@ -156,15 +157,19 @@ const createInterface = function (Lib) {
 
 
     /********************************************************************
-    Build a sequenced easing from segments. Each split point divides the
-    timeline; each segment is a bezier between consecutive control points.
+    Build a sequenced easing from segment curves. Each entry is
+    [t, [x1, y1, x2, y2]] where t is the split position in 0..1 and
+    [x1, y1, x2, y2] are the bezier control points for that segment.
 
-    @param {Array} points  - Control points [{ x, y }, ...]
-    @param {Array} splits  - Split positions [t, ...] dividing the timeline
+    @param {Array} curves - Segment curves [[t, [x1, y1, x2, y2]], ...]
 
-    @return {Object|null} - Sequenced easing or null when unavailable
+    @return {Object|null} - Easing.sequence result, or null when
+      Easing.bezier or Easing.sequence is unavailable (pure Node test
+      environment). When available, returns the result of
+      Easing.sequence(bezier1, bezier2, ...) where each bezier is built
+      from the corresponding curve's control points.
     *********************************************************************/
-    segments: function (points, splits) {
+    segments: function (curves) {
 
       try {
         const Easing = _Motion.requireEasing();
@@ -173,24 +178,12 @@ const createInterface = function (Lib) {
           return null;
         }
 
-        // Build a bezier for each segment between consecutive split points.
-        // When splits are provided, each segment spans from one split to the
-        // next; otherwise each segment spans one pair of consecutive points.
+        // Build a bezier for each curve entry. Each entry is
+        // [t, [x1, y1, x2, y2]]; the bezier uses the four control numbers.
         const easings = [];
-        if (Lib.Utils.isArray(splits) && !Lib.Utils.isEmptyArray(splits)) {
-          for (let i = 0; i < splits.length; i++) {
-            const t1 = splits[i];
-            const t2 = (i + 1 < splits.length) ? splits[i + 1] : 1;
-            const p1 = _Motion.samplePoints(points, t1);
-            const p2 = _Motion.samplePoints(points, t2);
-            easings.push(Easing.bezier(p1.x, p1.y, p2.x, p2.y));
-          }
-        } else {
-          for (let i = 0; i < points.length - 1; i++) {
-            const p1 = points[i];
-            const p2 = points[i + 1];
-            easings.push(Easing.bezier(p1.x, p1.y, p2.x, p2.y));
-          }
+        for (let i = 0; i < curves.length; i++) {
+          const curve = curves[i][1];
+          easings.push(Easing.bezier(curve[0], curve[1], curve[2], curve[3]));
         }
 
         return Easing.sequence.apply(null, easings);
@@ -223,38 +216,8 @@ const createInterface = function (Lib) {
       }
 
       return _Motion._easingCache;
-    },
-
-
-    /********************************************************************
-    Sample a point from a list of control points at parameter t in [0, 1].
-    Linear interpolation between the two surrounding control points.
-
-    @param {Array} points - Control points [{ x, y }, ...]
-    @param {Number} t     - Parameter in [0, 1]
-
-    @return {Object} - Sampled { x, y }
-    *********************************************************************/
-    samplePoints: function (points, t) {
-
-      // Clamp t to [0, 1]
-      const clamped = Math.max(0, Math.min(1, t));
-
-      // Find the surrounding segment
-      const idx = clamped * (points.length - 1);
-      const lower = Math.floor(idx);
-      const upper = Math.min(lower + 1, points.length - 1);
-      const frac = idx - lower;
-
-      const p1 = points[lower];
-      const p2 = points[upper];
-
-      return {
-        x: p1.x + (p2.x - p1.x) * frac,
-        y: p1.y + (p2.y - p1.y) * frac
-      };
-
     }
+
 
   };///////////////////////////Private Functions END/////////////////////////////
 

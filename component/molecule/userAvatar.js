@@ -2,7 +2,7 @@
 // and optional fallback initials. Uses A11y for aria-* label.
 //   src         -> string (image URL)
 //   initials    -> string (fallback text, e.g. 'JD')
-//   size        -> 'sm' | 'md' | 'lg' (default 'md')
+//   size        -> number of points (default 40)
 //   label       -> string (accessibility label)
 //   style       -> custom style overrides
 
@@ -44,9 +44,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     const React = Lib.React;
 
-    // Map size token to pixels
-    const sizeMap = { sm: 24, md: 40, lg: 64 };
-    const px = sizeMap[size] || 40;
+    // Validate size (D21 item 2): must be a number of points
+    if (!Lib.Utils.isNullOrUndefined(size) && !Lib.Utils.isNumber(size)) {
+      throw new TypeError('INVALID_LENGTH: ' + ERRORS.INVALID_LENGTH.message + ': UserAvatar.size = ' + String(size));
+    }
+
+    // Map size to pixels (default 40)
+    const px = Lib.Utils.isNumber(size) ? size : 40;
 
     // Container style
     const containerStyle = {

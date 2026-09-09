@@ -664,7 +664,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 |---|---|---|---|
 | `content` | - | - | string or node rendered inside the cell |
 | `type` | String | - | 'default' | 'header' (controls text styling) |
-| `width` | - | - | numeric cell width in pixels |
+| `width` | Number | - | number of points or a percentage string (cell width) |
 | `onPress` | Function | - | optional press handler (makes the cell pressable) |
 | `style` | Object|Array | - | custom style overrides |
 
@@ -1168,7 +1168,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `level` | - | - | 1-6 (default 1, maps to aria-level) |
-| `typeSet` | - | typeSetMap[lvl] || 'heading_01' | type set name (heading_01, heading_02, etc.) |
+| `typeSet` | - | typeSetMap[lvl] || 'heading01' | type set name (heading01 through heading07) |
 | `children` | Node | - | heading text content |
 | `style` | Object|Array | - | custom style overrides |
 
@@ -1179,8 +1179,8 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `name` | - | - | glyph name (vendor-specific, set by the host adapter) |
-| `size` | Number | - | dimension token (xs..xxl) OR a raw number |
-| `color` | - | - | color token (e.g. 'text_primary' / 'icon_primary') OR a raw hex |
+| `size` | Number | - | number of points or a size token (xs..xxl, default md) |
+| `color` | - | - | color.* token name (default icon_primary) |
 | `style` | Object|Array | - | - |
 
 ### IconButton
@@ -1192,7 +1192,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | `name` | - | - | string (icon glyph name) |
 | `onPress` | Function | - | function |
 | `disabled` | Boolean | - | boolean |
-| `size` | - | - | string (icon size token, default 'md') |
+| `size` | - | - | string (icon size token, default 'md'); a CSS unit string is rejected |
 | `color` | - | - | string (icon color token) |
 | `label` | - | - | string (accessibility label, required) |
 | `style` | Object|Array | - | custom style overrides |
@@ -1204,9 +1204,9 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `iconName` | - | - | string (name of the icon to render) |
-| `color` | - | - | string (background color token or hex) |
-| `iconColor` | - | - | string (icon color token or hex, default 'text_on_color') |
-| `size` | Number | - | number (pixels, default 24) |
+| `color` | - | - | color.* token name (background, default interactive) |
+| `iconColor` | - | 'text_on_color' | color.* token name (icon glyph, default text_on_color) |
+| `size` | Number | - | number of points (default 24) |
 | `label` | - | - | string (accessibility label) |
 | `style` | Object|Array | - | custom style overrides |
 
@@ -1357,7 +1357,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `label` | - | - | string (announced to screen readers) |
-| `size` | String | - | 'sm' | 'md' | 'lg' (default 'md') |
+| `size` | String | - | 'sm' | 'md' | 'lg' (default 'md'); a CSS unit string is rejected |
 | `style` | Object|Array | - | custom style overrides |
 
 ### Menu
@@ -1700,9 +1700,9 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `value` | - | - | 0 to 1 for determinate, null for indeterminate |
-| `color` | - | - | background color token for the fill (default interactive) |
-| `trackColor` | - | - | background color token for the track (default layer_02) |
-| `height` | - | - | bar height in pixels (default 4) |
+| `color` | - | - | color.* token name for the fill (default interactive) |
+| `trackColor` | - | - | color.* token name for the track (default layer_02) |
+| `height` | - | - | bar height in points (default 4) |
 | `style` | Object|Array | - | - |
 
 ### ProgressIndicator
@@ -1877,8 +1877,8 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `shape` | String | 'circle' | 'circle' | 'square' | 'triangle' (default 'circle') |
-| `color` | - | - | string (color token or hex, default 'interactive') |
-| `size` | Number | - | number (pixels, default 16) |
+| `color` | - | - | color.* token name (default interactive) |
+| `size` | Number | - | number of points (default 16) |
 | `label` | - | - | string (accessibility label) |
 | `style` | Object|Array | - | custom style overrides |
 
@@ -2022,7 +2022,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | `title` | - | - | string (optional panel header) |
 | `children` | Node | - | panel content |
 | `side` | String | 'right' | 'left' | 'right' (default 'right') |
-| `width` | Number | 320 | number (default 320) |
+| `width` | Number | - | number of points or a percentage string (default 320) |
 | `style` | Object|Array | - | custom style overrides |
 
 ### Skeleton
@@ -2033,8 +2033,8 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 |---|---|---|---|
 | `variant` | String | 'text' | 'text' | 'icon' | 'placeholder' (default 'text') |
 | `lines` | Number | 1 | number (for text variant, default 1) |
-| `width` | Number | '100%' | number or string (default '100%') |
-| `height` | Number | defaultHeight | number or string (default 16 for text, 48 for placeholder) |
+| `width` | Number | - | number of points or a percentage string (default '100%') |
+| `height` | Number | - | number of points or a percentage string (default 16 for text, 48 for placeholder) |
 | `style` | Object|Array | - | custom style overrides |
 
 ### SkeletonIcon
@@ -2328,7 +2328,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `children` | Node | - | content elements |
-| `maxWidth` | - | - | maximum width in pixels (default 1200) |
+| `maxWidth` | Number | - | number of points or a percentage string (default 1200) |
 | `style` | Object|Array | - | custom style overrides |
 
 ### TableDecoratorRow
@@ -2828,7 +2828,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 |---|---|---|---|
 | `src` | - | - | string (image URL) |
 | `initials` | - | - | string (fallback text, e.g. 'JD') |
-| `size` | String | - | 'sm' | 'md' | 'lg' (default 'md') |
+| `size` | Number | - | number of points (default 40) |
 | `label` | - | - | string (accessibility label) |
 | `style` | Object|Array | - | custom style overrides |
 
@@ -2890,6 +2890,10 @@ The focus ring is drawn with the `outline*` style props (React Native 0.77 or la
 ## Runtime floor
 
 This library requires React Native 0.86 or later and React Native for Web 0.21 or later. The floor is the React Native version pinned by the latest Expo SDK and rises with it. Below the floor, `boxShadow` and the `outline*` props do not render.
+
+## Units
+
+Theme values are unit-free numbers. The Themer engine attaches units at emit time; the component library never carries `rem`, `em`, `px`, `vw`, `vh`, or `ms` strings in its theme data or component source. A layout dimension is a number of points or a percentage string; percentage strings are layout units, never theme values, and appear only on the style props in `percent_style_props` (`data/style-contract.json`). The runtime unit audit (L1) walks every rendered component and fails on a percentage string under a prop not in that list or on any unit string under any prop. CI gate G29 enforces the same rule statically. `Parts.Units.isLength(value)` validates a layout dimension: `true` for a number or a percentage string, `false` for a CSS unit string.
 
 ## Where a value came from
 

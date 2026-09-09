@@ -49,23 +49,17 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Resolve field background: layer prop takes precedence, then surface fallback
     const fieldBgKey = layer ? 'background_' + layer : 'background_background';
-    const fieldBg = Object.prototype.hasOwnProperty.call(Style.utilities, fieldBgKey)
-      ? Style.utilities[fieldBgKey]
-      : Style.utilities['background_layer_02'];
+    const fieldBg = Style.utilities[fieldBgKey];
 
     // Resolve type style: typeSet takes precedence, then default type_body01
     const typeKey = typeSet ? 'type_' + typeSet : 'type_body01';
-    const typeStyle = Object.prototype.hasOwnProperty.call(Style.utilities, typeKey)
-      ? Style.utilities[typeKey]
-      : Style.utilities['type_body01'];
+    const typeStyle = Style.utilities[typeKey];
 
     // Resolve border: invalid uses support_error, focused uses primary, else default
     let borderClasses;
     if (isInvalid) {
       const invalidBorderKey = 'border_color_support_error';
-      borderClasses = Object.prototype.hasOwnProperty.call(Style.utilities, invalidBorderKey)
-        ? [Object.assign({}, Style.utilities[invalidBorderKey], Style.utilities['border_w_width_01'])]
-        : [Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01']];
+      borderClasses = [Object.assign({}, Style.utilities[invalidBorderKey], Style.utilities['border_w_width_01'])];
     } else if (focused) {
       borderClasses = [Style.utilities['border_w_width_01'], Style.utilities['border_color_interactive']];
     } else {

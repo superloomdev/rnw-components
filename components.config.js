@@ -20,8 +20,8 @@ export default {
   BREAKPOINT_ORDER: ['sm', 'md', 'lg', 'xlg', 'max'],
 
   // Throw on a utility lookup that names a key the theme did not produce.
-  // Off by default so a server-driven theme degrades rather than crashing;
-  // test tiers and CI turn it on, which is where a dead token must fail.
-  STRICT_TOKENS: false
+  // On by default so a dead token name fails loudly; when false, an unknown
+  // utility read returns undefined and warns once per key (D21 item 1).
+  STRICT_TOKENS: true
 
 };

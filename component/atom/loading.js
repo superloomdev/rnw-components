@@ -2,7 +2,7 @@
 // with role="progressbar" and aria-busy. Uses A11y for aria-* state and
 // useAnnounce for screen reader announcements.
 //   label       -> string (announced to screen readers)
-//   size        -> 'sm' | 'md' | 'lg' (default 'md')
+//   size        -> 'sm' | 'md' | 'lg' (default 'md'); a CSS unit string is rejected
 //   style       -> custom style overrides
 
 
@@ -41,6 +41,11 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
+
+    // Validate size (D21 item 2): a token or number; a CSS unit string is rejected
+    if (!Lib.Utils.isNullOrUndefined(size) && Lib.Utils.isString(size) && /^[0-9]/.test(size)) {
+      throw new TypeError('INVALID_LENGTH: ' + ERRORS.INVALID_LENGTH.message + ': Loading.size = ' + String(size));
+    }
 
     // Map size token to ActivityIndicator size
     const aiSize = size === 'sm' ? 'small' : size === 'lg' ? 'large' : 'small';

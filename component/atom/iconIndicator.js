@@ -2,9 +2,9 @@
 // icon inside, for status display. Uses A11y for aria-*.
 // Uses shared_libs.Svg as an optional injection; degrades to colored View.
 //   iconName    -> string (name of the icon to render)
-//   color       -> string (background color token or hex)
-//   iconColor   -> string (icon color token or hex, default 'text_on_color')
-//   size        -> number (pixels, default 24)
+//   color       -> color.* token name (background, default interactive)
+//   iconColor   -> color.* token name (icon glyph, default text_on_color)
+//   size        -> number of points (default 24)
 //   label       -> string (accessibility label)
 //   style       -> custom style overrides
 
@@ -44,11 +44,18 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
+
+    // Validate size (D21 item 2): must be a number of points
+    if (!Lib.Utils.isNullOrUndefined(size) && !Lib.Utils.isNumber(size)) {
+      throw new TypeError('INVALID_LENGTH: ' + ERRORS.INVALID_LENGTH.message + ': IconIndicator.size = ' + String(size));
+    }
+
     const s = Lib.Utils.isNumber(size) ? size : 24;
 
-    // Resolve colors from token or raw hex
-    const resolvedBg = (Style.tokens.Color[color] || color || Style.tokens.Color.interactive);
-    const resolvedIcon = (Style.tokens.Color[iconColor] || iconColor || Style.tokens.Color.text_on_color);
+    // Resolve background from token name through the utilities (strict proxy guards)
+    const resolvedBg = Style.utilities['background_' + (color || 'interactive')].backgroundColor;
+    // Pass the icon color token name to Icon; Icon resolves it through its own utilities
+    const resolvedIconColor = iconColor || 'text_on_color';
 
     return React.createElement(
       RNView,
@@ -70,7 +77,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         ? React.createElement(Registry.Icon, {
           name: iconName || 'info',
           typeSet: 'label01',
-          color: resolvedIcon
+          color: resolvedIconColor
         })
         : null
     );

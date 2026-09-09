@@ -62,27 +62,19 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Resolve field background: layer prop takes precedence, then disabled, then surface
     const fieldBgKey = layer ? 'background_' + layer : 'background_background';
-    const fieldBg = Object.prototype.hasOwnProperty.call(Style.utilities, fieldBgKey)
-      ? Style.utilities[fieldBgKey]
-      : isDisabled
-        ? { ...Style.utilities['background_layer_01'] }
-        : Style.utilities['background_layer_02'];
+    const fieldBg = isDisabled
+      ? { ...Style.utilities['background_layer_01'] }
+      : Style.utilities[fieldBgKey];
 
     // Resolve type style: typeSet takes precedence, then default type_body01
     const typeKey = typeSet ? 'type_' + typeSet : 'type_body01';
-    const typeStyle = Object.prototype.hasOwnProperty.call(Style.utilities, typeKey)
-      ? Style.utilities[typeKey]
-      : null;
+    const typeStyle = Style.utilities[typeKey];
 
-    // Resolve border: invalid uses support_error when available
+    // Resolve border: invalid uses support_error
     let borderClasses = [Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01']];
     if (isInvalid) {
       const invalidBorderKey = 'border_color_support_error';
-      if (Object.prototype.hasOwnProperty.call(Style.utilities, invalidBorderKey)) {
-        borderClasses = [Object.assign({}, Style.utilities[invalidBorderKey], Style.utilities['border_w_width_01'])];
-      } else {
-        borderClasses = [Style.utilities['border_w_width_01'], Style.utilities['border_color_support_error']];
-      }
+      borderClasses = [Object.assign({}, Style.utilities[invalidBorderKey], Style.utilities['border_w_width_01'])];
     }
 
     // Base styles from tokens

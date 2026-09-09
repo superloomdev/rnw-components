@@ -244,7 +244,7 @@ describe('commonStyles', function () {
     assert.ok(util.marginInlineEnd !== undefined,
       'm_e_spacing_01 should have marginInlineEnd');
     assert.strictEqual(util.marginEnd, undefined,
-      'm_e_spacing_01 should not have legacy marginEnd');
+      'm_e_spacing_01 should not have start/end marginEnd');
 
   });
 
@@ -256,7 +256,7 @@ describe('commonStyles', function () {
     assert.ok(util.marginInlineStart !== undefined,
       'm_s_spacing_01 should have marginInlineStart');
     assert.strictEqual(util.marginStart, undefined,
-      'm_s_spacing_01 should not have legacy marginStart');
+      'm_s_spacing_01 should not have start/end marginStart');
 
   });
 
@@ -268,7 +268,7 @@ describe('commonStyles', function () {
     assert.ok(util.paddingInlineEnd !== undefined,
       'p_e_spacing_01 should have paddingInlineEnd');
     assert.strictEqual(util.paddingEnd, undefined,
-      'p_e_spacing_01 should not have legacy paddingEnd');
+      'p_e_spacing_01 should not have start/end paddingEnd');
 
   });
 
@@ -280,17 +280,17 @@ describe('commonStyles', function () {
     assert.ok(util.paddingInlineStart !== undefined,
       'p_s_spacing_01 should have paddingInlineStart');
     assert.strictEqual(util.paddingStart, undefined,
-      'p_s_spacing_01 should not have legacy paddingStart');
+      'p_s_spacing_01 should not have start/end paddingStart');
 
   });
 
 
-  it('should not use legacy start or end props in any generated utility', function () {
+  it('should not use start or end props in any generated utility', function () {
 
-    // Iterate the whole generated set and assert no key holds a legacy prop.
+    // Iterate the whole generated set and assert no key holds a start/end prop.
     // This is the regression lock for D2.
     const utilityKeys = Object.keys(Style.utilities);
-    const legacyProps = ['marginStart', 'marginEnd', 'paddingStart', 'paddingEnd'];
+    const startEndProps = ['marginStart', 'marginEnd', 'paddingStart', 'paddingEnd'];
     const violations = [];
 
     for (let i = 0; i < utilityKeys.length; i++) {
@@ -300,15 +300,15 @@ describe('commonStyles', function () {
         continue;
       }
 
-      for (let j = 0; j < legacyProps.length; j++) {
-        if (util[legacyProps[j]] !== undefined) {
-          violations.push(utilityKeys[i] + ' has ' + legacyProps[j]);
+      for (let j = 0; j < startEndProps.length; j++) {
+        if (util[startEndProps[j]] !== undefined) {
+          violations.push(utilityKeys[i] + ' has ' + startEndProps[j]);
         }
       }
     }
 
     assert.deepEqual(violations, [],
-      'legacy start/end props found: ' + violations.join(', '));
+      'start/end props found: ' + violations.join(', '));
 
   });
 

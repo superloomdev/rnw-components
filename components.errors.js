@@ -59,6 +59,11 @@ export default Object.freeze({
   THEME_VALUE_UNIT_STRING: {
     type: 'rnw-components/theme-value-unit-string',
     message: 'Theme dimension value contains a CSS unit suffix. Pass the native projection instead of the web projection'
+  },
+
+  INVALID_LENGTH: {
+    type: 'rnw-components/invalid-length',
+    message: 'a layout dimension is a number of points or a percentage string'
   }
 
 });

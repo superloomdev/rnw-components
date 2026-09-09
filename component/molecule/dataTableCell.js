@@ -4,7 +4,7 @@
 // When onPress is provided the cell becomes pressable while keeping role="cell".
 //   content     -> string or node rendered inside the cell
 //   type        -> 'default' | 'header' (controls text styling)
-//   width       -> numeric cell width in pixels
+//   width       -> number of points or a percentage string (cell width)
 //   onPress     -> optional press handler (makes the cell pressable)
 //   style       -> custom style overrides
 
@@ -47,11 +47,16 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const React = Lib.React;
     const isHeader = type === 'header';
 
+    // Validate layout dimension (D21 item 2)
+    if (!Lib.Utils.isNullOrUndefined(width) && !Parts.Units.isLength(width)) {
+      throw new TypeError('INVALID_LENGTH: ' + ERRORS.INVALID_LENGTH.message + ': DataTableCell.width = ' + String(width));
+    }
+
     const cellStyle = [
       Style.utilities['flex_1'],
       Style.utilities['p_h_spacing_05'],
       Style.utilities['p_v_spacing_03'],
-      Lib.Utils.isNumber(width) ? { width: width } : null,
+      Lib.Utils.isNullOrUndefined(width) ? null : { width: width },
       style
     ];
 

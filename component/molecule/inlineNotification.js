@@ -63,7 +63,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       Object.assign({
         accessibilityRole: 'alert',
         style: [
-          Style.utilities[bgKey] || Style.utilities['background_layer_02'],
+          Style.utilities[bgKey],
           Style.utilities['br_radius_08'],
           Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
           Style.utilities['p_a_spacing_05'],

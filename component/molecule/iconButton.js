@@ -4,7 +4,7 @@
 //   name        -> string (icon glyph name)
 //   onPress     -> function
 //   disabled    -> boolean
-//   size        -> string (icon size token, default 'md')
+//   size        -> string (icon size token, default 'md'); a CSS unit string is rejected
 //   color       -> string (icon color token)
 //   label       -> string (accessibility label, required)
 //   style       -> custom style overrides
@@ -46,6 +46,11 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
+
+    // Validate size (D21 item 2): a token or number; a CSS unit string is rejected
+    if (!Lib.Utils.isNullOrUndefined(size) && Lib.Utils.isString(size) && /^[0-9]/.test(size)) {
+      throw new TypeError('INVALID_LENGTH: ' + ERRORS.INVALID_LENGTH.message + ': IconButton.size = ' + String(size));
+    }
 
     // Build aria state props through the a11y translator
     const ariaProps = Parts.A11y.state({

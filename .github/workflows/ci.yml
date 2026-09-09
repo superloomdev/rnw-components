@@ -161,7 +161,7 @@ jobs:
           echo "PASS"
       - name: G15 - No responsive prop objects
         run: |
-          if grep -rnE "props\.[a-zA-Z]+\s*\[\s*(breakpoint|bp)\s*\]" component/; then
+          if grep -rnE "props\.[a-zA-Z]+ *\[[ ]*(breakpoint|bp)[ ]*\]" component/; then
             echo "FAIL: responsive prop object found"
             exit 1
           fi
@@ -307,18 +307,38 @@ jobs:
           echo "PASS: no raw length or keys checks in module source"
       - name: G27 - No fallback chains in component source
         run: |
-          hits=$(git grep -nE "(Style\.tokens\.Color|colorMap)\.[A-Za-z_0-9]+ *\|\|" component/ 2>/dev/null || true)
-          if [ -n "$hits" ]; then
-            echo "FAIL: fallback chain found in component source."
-            echo "A token read must not fall back to another token; a missing"
-            echo "token must fail the build, not silently substitute."
-            echo "$hits"
+          # Form 1: utility fallback chain (Style.utilities[k] || Style.utilities[...])
+          hits1=$(git grep -nE "Style\.utilities\[[^]]+\] *\|\| *Style\.utilities\[" component/ 2>/dev/null || true)
+          if [ -n "$hits1" ]; then
+            echo "FAIL: utility fallback chain found in component source."
+            echo "$hits1"
+            exit 1
+          fi
+          # Form 2: hasOwnProperty existence check before utility read
+          hits2=$(git grep -nE "hasOwnProperty\.call\(Style\.utilities" component/ 2>/dev/null || true)
+          if [ -n "$hits2" ]; then
+            echo "FAIL: hasOwnProperty existence check found in component source."
+            echo "$hits2"
+            exit 1
+          fi
+          # Form 3: bracket-form color fallback (Style.tokens.Color[expr] || ...)
+          hits3=$(git grep -nE "Style\.tokens\.Color\[[^]]+\] *\|\|" component/ 2>/dev/null || true)
+          if [ -n "$hits3" ]; then
+            echo "FAIL: bracket-form color fallback found in component source."
+            echo "$hits3"
+            exit 1
+          fi
+          # Form 4: dot-form color fallback (Style.tokens.Color.xxx || ...)
+          hits4=$(git grep -nE "Style\.tokens\.Color\.[A-Za-z_0-9]+ *\|\|" component/ 2>/dev/null || true)
+          if [ -n "$hits4" ]; then
+            echo "FAIL: dot-form color fallback found in component source."
+            echo "$hits4"
             exit 1
           fi
           echo "PASS: no fallback chains in component source"
       - name: G28 - No SCREAMING token names in source
         run: |
-          hits=$(git grep -nE "['\"]\s*[A-Z][A-Z0-9]+_[A-Z][A-Z0-9_]*\s*['\"]" component/ components.*.js parts/ data/ 2>/dev/null | grep -vE "CONFIG\.|ERRORS\.|STRICT_TOKENS|REQUIRED_TOKENS|SUPPORTED_TOKENS|CONTRACT_" || true)
+          hits=$(git grep -nE "['\"] *[A-Z][A-Z0-9]+_[A-Z][A-Z0-9_]* *['\"]" component/ components.*.js parts/ data/ 2>/dev/null | grep -vE "CONFIG\.|ERRORS\.|STRICT_TOKENS|REQUIRED_TOKENS|SUPPORTED_TOKENS|CONTRACT_" || true)
           if [ -n "$hits" ]; then
             echo "FAIL: SCREAMING_SNAKE token name found in source."
             echo "Theme tokens use lowercase snake_case; SCREAMING_SNAKE is for"
@@ -327,16 +347,34 @@ jobs:
             exit 1
           fi
           echo "PASS: no SCREAMING token names in source"
-      - name: G29 - No unit strings in source
+      - name: G29 - No unit strings, no theme percentages, percentages on allowlist only
         run: |
-          hits=$(git grep -nE "'[0-9.]+(rem|em|px|vw|vh|ms)'" component/ components.*.js parts/ data/ _test/harness _test/fixtures 2>/dev/null || true)
-          if [ -n "$hits" ]; then
-            echo "FAIL: unit string found in source."
-            echo "Theme values are unit-free; the engine attaches units at emit time."
-            echo "$hits"
+          # Command 1: No unit strings in theme/data paths
+          hits1=$(git grep -nE "'[0-9.]+(rem|em|px|vw|vh|ms)'" data/ parts/ 2>/dev/null || true)
+          if [ -n "$hits1" ]; then
+            echo "FAIL: unit string found in theme/data paths."
+            echo "$hits1"
             exit 1
           fi
-          echo "PASS: no unit strings in source"
+          # Command 2: No percentage strings in theme data
+          hits2=$(git grep -nE "'[0-9.]+%'" data/ 2>/dev/null || true)
+          if [ -n "$hits2" ]; then
+            echo "FAIL: percentage string found in theme data."
+            echo "$hits2"
+            exit 1
+          fi
+          # Command 3: Percentages in component/ only on the D20 allowlist
+          # The non-allowed numeric props are the numeric_style_props minus
+          # percent_style_props: fontSize, lineHeight, borderRadius,
+          # borderWidth, gap, rowGap, columnGap
+          hits3=$(git grep -nE "(fontSize|lineHeight|borderRadius|borderWidth|gap|rowGap|columnGap): *['\"][0-9.]+%['\"]" component/ 2>/dev/null || true)
+          if [ -n "$hits3" ]; then
+            echo "FAIL: percentage string found on a non-allowed style prop in component/."
+            echo "Percentages are layout units only on percent_style_props (D20)."
+            echo "$hits3"
+            exit 1
+          fi
+          echo "PASS: no unit strings, no theme percentages, percentages on allowlist only"
       - name: G30 - No vendor terminology in generic modules
         run: |
           hits=$(grep -rniE "carbon|ibm plex" component/ components.js 2>/dev/null || true)

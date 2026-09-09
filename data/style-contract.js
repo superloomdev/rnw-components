@@ -3,8 +3,6 @@
 // sibling is generated from this file by the doc generator if needed.
 
 export default {
-  rem_base_px: 16,
-  decimal_precision: 0,
   line_height_precision: 0,
   numeric_style_props: [
     'fontSize',
@@ -47,6 +45,49 @@ export default {
     'rowGap',
     'columnGap',
     'flexBasis'
+  ],
+  // The list of style props React Native defines a percentage string for,
+  // minus borderRadius* because radius is a shape.* token here. It is read
+  // by the runtime unit audit and mirrored by G29 command 3.
+  percent_style_props: [
+    'width',
+    'height',
+    'minWidth',
+    'minHeight',
+    'maxWidth',
+    'maxHeight',
+    'flexBasis',
+    'margin',
+    'marginTop',
+    'marginBottom',
+    'marginLeft',
+    'marginRight',
+    'marginStart',
+    'marginEnd',
+    'marginHorizontal',
+    'marginVertical',
+    'padding',
+    'paddingTop',
+    'paddingBottom',
+    'paddingLeft',
+    'paddingRight',
+    'paddingStart',
+    'paddingEnd',
+    'paddingHorizontal',
+    'paddingVertical',
+    'top',
+    'bottom',
+    'left',
+    'right',
+    'start',
+    'end',
+    'inset',
+    'insetBlock',
+    'insetBlockEnd',
+    'insetBlockStart',
+    'insetInline',
+    'insetInlineEnd',
+    'insetInlineStart'
   ],
   unit_suffix_pattern: '(rem|em|%|vh|vw|px|pt)$'
 };

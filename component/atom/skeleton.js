@@ -3,8 +3,8 @@
 // for the aria-hidden prop.
 //   variant    -> 'text' | 'icon' | 'placeholder' (default 'text')
 //   lines      -> number (for text variant, default 1)
-//   width      -> number or string (default '100%')
-//   height     -> number or string (default 16 for text, 48 for placeholder)
+//   width      -> number of points or a percentage string (default '100%')
+//   height     -> number of points or a percentage string (default 16 for text, 48 for placeholder)
 //   style      -> custom style overrides
 
 
@@ -45,6 +45,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const React = Lib.React;
     const v = variant || 'text';
 
+    // Validate layout dimensions (D21 item 2)
+    if (!Lib.Utils.isNullOrUndefined(width) && !Parts.Units.isLength(width)) {
+      throw new TypeError('INVALID_LENGTH: ' + ERRORS.INVALID_LENGTH.message + ': Skeleton.width = ' + String(width));
+    }
+    if (!Lib.Utils.isNullOrUndefined(height) && !Parts.Units.isLength(height)) {
+      throw new TypeError('INVALID_LENGTH: ' + ERRORS.INVALID_LENGTH.message + ': Skeleton.height = ' + String(height));
+    }
+
     // Build aria-hidden through the a11y translator
     const ariaProps = Parts.A11y.state({
       hidden: true
@@ -52,8 +60,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Default dimensions per variant
     const defaultHeight = v === 'placeholder' ? 48 : v === 'icon' ? 24 : 16;
-    const resolvedHeight = height || defaultHeight;
-    const resolvedWidth = width || '100%';
+    const resolvedHeight = Lib.Utils.isNullOrUndefined(height) ? defaultHeight : height;
+    const resolvedWidth = Lib.Utils.isNullOrUndefined(width) ? '100%' : width;
     const lineCount = lines || 1;
 
     // Build skeleton box style

@@ -143,6 +143,27 @@ if (gates.length < 1) {
 
 process.stdout.write('extracted ' + gates.length + ' enforcement gates from ci.yml\n');
 
+// Preflight: reject non-portable ERE constructs in -E patterns (rule 34).
+// POSIX ERE does not define \b, \d, \s, \w, or (?...). A gate that uses them
+// passes on GNU grep (which supports them as extensions) but fails on
+// strict POSIX ERE implementations. This check is gate-count-neutral: it
+// never adds or removes a gate, only refuses to run a non-portable one.
+const NON_PORTABLE = ['\\b', '\\d', '\\s', '\\w', '(?'];
+for (const gate of gates) {
+  const lines = gate.script.split('\n');
+  for (const line of lines) {
+    if (line.indexOf('grep') === -1) {
+      continue;
+    }
+    for (const construct of NON_PORTABLE) {
+      if (line.indexOf(construct) !== -1) {
+        process.stdout.write('FAIL ' + gate.name + ': non-portable construct in an -E pattern (rule 34)\n');
+        process.exit(1);
+      }
+    }
+  }
+}
+
 // Every gate is a `git grep`, which searches tracked content only. An untracked
 // file is invisible to all of them, so a clean local run says nothing about a
 // file that has not been staged yet, while CI sees it the moment it is pushed.

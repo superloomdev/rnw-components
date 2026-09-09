@@ -15,6 +15,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { Style, theme, buildFullSystem, Themer } from './loader.js';
+import { createSystem, sharedLibs, React, TestRenderer, act, COMPONENTS, VARIANTS, FREEFORMS } from './loader.js';
+import { buildCarbonWhite } from './harness/themes.js';
 import carbonV11Profile from 'helper-themer-template-carbon';
 
 import { createRequire } from 'node:module';
@@ -377,6 +379,170 @@ describe('L1: Font weight resolution', function () {
     assert.ok(regular);
     assert.strictEqual(regular.fontFamily, 'Poppins');
     assert.strictEqual(regular.fontWeight, undefined);
+
+  });
+
+});
+
+
+// ============================================================================
+// 4. RENDERED UNIT AUDIT (D20, F-R2.4d)
+// ============================================================================
+
+describe('L1: Rendered unit audit', function () {
+
+  // Minimal props for components that require more than { label }.
+  // Mirrors the table in system.test.js roster walk.
+  const MINIMAL_PROPS = {
+    Heading: { children: 'Test' },
+    Text: { children: 'Test' },
+    Button: { children: 'Test' },
+    Link: { children: 'Test' },
+    Tag: { children: 'Test' },
+    Tile: { children: 'Test' },
+    TextInput: { value: 'Test' },
+    TextArea: { value: 'Test' },
+    Checkbox: { checked: false },
+    Toggle: { checked: false },
+    DataTableCell: { content: 'cell' },
+    DataTableRow: { cells: ['a'] },
+    DataTable: { rows: [['a']] },
+    TableContainer: { children: [] },
+    SidePanel: { isOpen: false },
+    Tabs: { tabs: [{ label: 'A' }] },
+    Breadcrumb: { items: [{ label: 'A' }] },
+    Menu: { items: [{ label: 'A' }] },
+    Select: { options: [{ label: 'A', value: 'a' }] },
+    RadioGroup: { options: [{ label: 'A', value: 'a' }] },
+    Pagination: { totalPages: 1, currentPage: 1 },
+    Slider: { value: 0 },
+    ProgressBar: { value: 0.5 },
+    Notification: { title: 'Test', children: 'Body' },
+    InlineNotification: { title: 'Test', children: 'Body' },
+    ToastNotification: { title: 'Test', children: 'Body' },
+    StaticNotification: { title: 'Test', children: 'Body' },
+    Callout: { title: 'Test', children: 'Body' },
+    ErrorState: { title: 'Test' },
+    ActionableNotification: { title: 'Test', children: 'Body' },
+    WebHeader: { title: 'Test' },
+    FormField: { label: 'Test', children: [] },
+    FluidForm: { children: [] }
+  };
+
+  const PERCENT_PROPS = DATA.percent_style_props;
+  const UNIT_RE = /rem|em|px|vw|vh|ms/;
+  const PERCENT_RE = /%$/;
+
+  // Manually flatten a React Native style prop (which may be a number,
+  // an object, or an array of objects) without using StyleSheet.flatten,
+  // which in react-native-web converts numbers to CSS px strings.
+  function rawFlatten (style) {
+    if (!style) { return {}; }
+    if (Array.isArray(style)) {
+      const result = {};
+      for (let i = 0; i < style.length; i++) {
+        Object.assign(result, rawFlatten(style[i]));
+      }
+      return result;
+    }
+    if (typeof style === 'object') { return style; }
+    return {};
+  }
+
+  // Walk a test instance tree and collect style violations from every node.
+  // Uses render.root (not toJSON) and rawFlatten (not StyleSheet.flatten)
+  // so styles keep their React Native values (numbers), not CSS-serialized
+  // strings with px units from react-native-web. Only inspects React Native
+  // component nodes (function/object type), skipping HTML elements (string
+  // type like 'div') whose styles are already CSS-serialized.
+  function collectViolations (instance, name, violations) {
+    if (!instance) { return; }
+
+    // Only inspect component library nodes (function type). Skip React Native
+    // primitives (forwardRef objects) and HTML elements (string type) whose
+    // styles are platform-level, not from the component library source.
+    if (typeof instance.type === 'function') {
+      if (instance.props && instance.props.style) {
+        const flat = rawFlatten(instance.props.style);
+        const propNames = Object.keys(flat);
+        for (let i = 0; i < propNames.length; i++) {
+          const prop = propNames[i];
+          const value = flat[prop];
+          if (typeof value !== 'string') { continue; }
+
+          // Any rem/em/px/vw/vh/ms string under any prop is a violation
+          if (UNIT_RE.test(value)) {
+            violations.push(name + '.' + prop + '=' + value);
+          }
+
+          // A percentage string under a prop not in percent_style_props is a violation
+          if (PERCENT_RE.test(value) && PERCENT_PROPS.indexOf(prop) === -1) {
+            violations.push(name + '.' + prop + '=' + value);
+          }
+        }
+      }
+    }
+
+    // Recurse into children
+    const children = instance.children || [];
+    for (let i = 0; i < children.length; i++) {
+      collectViolations(children[i], name, violations);
+    }
+  }
+
+  it('should place percentage strings only on percentage-capable layout props in every rendered component', function () {
+
+    const sys = createSystem(sharedLibs, { STRICT_TOKENS: true }, buildCarbonWhite(), 'sm');
+    sys.addComponents(COMPONENTS);
+    const variantNs = sys.addVariants(VARIANTS);
+    const freeformNs = sys.addFreeforms(FREEFORMS);
+
+    const violations = [];
+    const allRosters = [
+      { map: COMPONENTS, ns: sys.Component, label: 'component' },
+      { map: VARIANTS, ns: variantNs, label: 'variant' },
+      { map: FREEFORMS, ns: freeformNs, label: 'freeform' }
+    ];
+
+    for (let r = 0; r < allRosters.length; r++) {
+      const roster = allRosters[r];
+      const names = Object.keys(roster.map);
+      for (let i = 0; i < names.length; i++) {
+        const name = names[i];
+        const factory = roster.ns[name];
+        if (typeof factory !== 'function') { continue; }
+
+        const props = Object.assign({ label: name }, MINIMAL_PROPS[name] || {});
+        let render;
+        act(function () {
+          render = TestRenderer.create(React.createElement(factory, props));
+        });
+        // Walk the test instance tree, not toJSON, to avoid react-native-web
+        // CSS serialization that adds px to every numeric value.
+        collectViolations(render.root, name, violations);
+        render.unmount();
+      }
+    }
+
+    assert.deepEqual(violations, []);
+
+  });
+
+  it('should keep percent_style_props equal to the D20 list', function () {
+
+    // The 38-name literal from D20 item 2
+    const D20_LIST = [
+      'width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight',
+      'flexBasis', 'margin', 'marginTop', 'marginBottom', 'marginLeft',
+      'marginRight', 'marginStart', 'marginEnd', 'marginHorizontal',
+      'marginVertical', 'padding', 'paddingTop', 'paddingBottom',
+      'paddingLeft', 'paddingRight', 'paddingStart', 'paddingEnd',
+      'paddingHorizontal', 'paddingVertical', 'top', 'bottom', 'left',
+      'right', 'start', 'end', 'inset', 'insetBlock', 'insetBlockEnd',
+      'insetBlockStart', 'insetInline', 'insetInlineEnd', 'insetInlineStart'
+    ];
+
+    assert.deepEqual(DATA.percent_style_props, D20_LIST);
 
   });
 

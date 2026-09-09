@@ -102,9 +102,3 @@ export function buildIncompleteTheme () {
     removed: ['color.interactive', 'color.button_primary']
   };
 }
-
-
-// Legacy compatibility: export a built white theme as the default test theme
-export function createTestTheme () {
-  return buildCarbonWhite();
-}

@@ -11,7 +11,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { Text as RNText, StyleSheet } from 'react-native';
+import { Text as RNText, View as RNView, StyleSheet } from 'react-native';
 
 import { createSystem, Text, TOKENS } from 'rnw-components';
 import { COMPONENTS } from 'rnw-components/all';
@@ -134,7 +134,7 @@ describe('type-set rendering and strict lookup', function () {
   });
 
   it('should tolerate an unknown type set only in lenient mode', function () {
-    const system = createSystem(sharedLibs, {}, buildCarbonWhite(), 'sm');
+    const system = createSystem(sharedLibs, { STRICT_TOKENS: false }, buildCarbonWhite(), 'sm');
     system.addComponents({ Text });
 
     let renderer;
@@ -232,7 +232,7 @@ describe('theme contract enforcement', function () {
     const theme = { tokens: Object.assign({}, built.tokens) };
     theme.tokens['color.background'] = 16;
 
-    const sys = createSystem(sharedLibs, {}, theme, 'sm');
+    const sys = createSystem(sharedLibs, { STRICT_TOKENS: false }, theme, 'sm');
     assert.strictEqual(sys.Style.utilities['background_background'], undefined);
 
   });
@@ -348,7 +348,7 @@ describe('button token family', function () {
   // (D8 rule). The list must carry every entry, or the drift this plan
   // exists to remove returns.
   const _contractInfo = buildTokenContract(Themer.getContract());
-  const BUTTON_TOKENS = _contractInfo.REQUIRED_TOKENS
+  const buttonTokens = _contractInfo.REQUIRED_TOKENS
     .filter(function (name) { return name.indexOf('color.button_') === 0; })
     .map(function (name) { return name.slice('color.'.length); });
 
@@ -358,8 +358,8 @@ describe('button token family', function () {
     const sys = systemFor(buildCarbonWhite());
     const utilities = sys.Style.utilities;
 
-    for (let i = 0; i < BUTTON_TOKENS.length; i++) {
-      const key = 'background_' + BUTTON_TOKENS[i];
+    for (let i = 0; i < buttonTokens.length; i++) {
+      const key = 'background_' + buttonTokens[i];
       assert.ok(utilities[key],
         'missing utility "' + key + '"');
     }
@@ -387,9 +387,9 @@ describe('button token family', function () {
 
     assert.ok(TOKENS.background, 'TOKENS.background is missing');
 
-    for (let i = 0; i < BUTTON_TOKENS.length; i++) {
-      assert.ok(TOKENS.background.indexOf(BUTTON_TOKENS[i]) !== -1,
-        'TOKENS.background missing "' + BUTTON_TOKENS[i] + '"');
+    for (let i = 0; i < buttonTokens.length; i++) {
+      assert.ok(TOKENS.background.indexOf(buttonTokens[i]) !== -1,
+        'TOKENS.background missing "' + buttonTokens[i] + '"');
     }
 
   });
@@ -450,11 +450,46 @@ describe('STRICT_TOKENS', function () {
   });
 
 
-  it('should return undefined for an unknown key in lenient mode', function () {
+  it('should return undefined for an unknown key in lenient mode and warn once per key', function () {
 
-    const sys = createSystem(sharedLibs, {}, buildCarbonWhite(), 'sm');
+    // Capture Debug.warn calls
+    const warnCalls = [];
+    const stubDebug = {
+      warn: function (msg, meta) {
+        warnCalls.push({ msg: msg, meta: meta });
+      },
+      debug: function () {},
+      info: function () {},
+      error: function () {},
+      log: function () {},
+      performanceAuditLog: function () {}
+    };
+    const stubLibs = Object.assign({}, sharedLibs, { Debug: stubDebug });
 
+    const sys = createSystem(stubLibs, { STRICT_TOKENS: false }, buildCarbonWhite(), 'sm');
+
+    // Two reads of the same unknown key should produce exactly one warn
     assert.strictEqual(sys.Style.utilities['background_nonexistent'], undefined);
+    assert.strictEqual(sys.Style.utilities['background_nonexistent'], undefined);
+
+    assert.strictEqual(warnCalls.length, 1, 'expected exactly one Debug.warn for two reads of the same key');
+    assert.ok(warnCalls[0].msg.indexOf('unknown utility') !== -1,
+      'warn message should mention "unknown utility"');
+    assert.deepStrictEqual(warnCalls[0].meta, { key: 'background_nonexistent' },
+      'warn payload should be { key: "background_nonexistent" }');
+
+  });
+
+
+  it('should default STRICT_TOKENS to true', function () {
+
+    // No STRICT_TOKENS in config -> defaults to true
+    assert.throws(function () {
+      // eslint-disable-next-line no-unused-expressions
+      createSystem(sharedLibs, {}, buildCarbonWhite(), 'sm').Style.utilities['not_a_utility'];
+    }, function (err) {
+      return err instanceof TypeError && err.message.indexOf('unknown utility') !== -1;
+    }, 'STRICT_TOKENS should default to true, so an unknown utility read should throw');
 
   });
 
@@ -615,6 +650,371 @@ describe('Themer injection', function () {
       return err instanceof TypeError &&
         err.message.indexOf('Themer') !== -1;
     }, 'should throw TypeError mentioning Themer');
+
+  });
+
+});
+
+
+// ========================= D14 PROP VOCABULARY =========================== //
+// F-R2.2b/2c tests (written before the edits, per Section 9 step 4).
+
+describe('D14 prop vocabulary', function () {
+
+  // D14 amendment table: level -> type set name (literal in the test, not
+  // read from heading.js, so the test is independent of the implementation).
+  const D14_LEVEL_TO_TYPESET = {
+    1: 'heading06',
+    2: 'heading05',
+    3: 'heading04',
+    4: 'heading03',
+    5: 'heading02',
+    6: 'heading01'
+  };
+
+  it('should render Heading at each level 1 through 6 with the D14 type set fontSize', function () {
+
+    const sys = createSystem(sharedLibs, { STRICT_TOKENS: true }, buildCarbonWhite(), 'sm');
+    sys.addComponents(COMPONENTS);
+
+    for (let level = 1; level <= 6; level++) {
+      const typeSetName = D14_LEVEL_TO_TYPESET[level];
+      const expectedFontSize = sys.Style.utilities['type_' + typeSetName].fontSize;
+
+      let render;
+      act(function () {
+        render = TestRenderer.create(
+          React.createElement(sys.Component.Heading, { level: level, children: 'H' + level })
+        );
+      });
+
+      const fontSize = StyleSheet.flatten(render.root.findByType(RNText).props.style).fontSize;
+      assert.strictEqual(fontSize, expectedFontSize,
+        'Heading level ' + level + ' should render at type_' + typeSetName + ' fontSize ' + expectedFontSize + ', got ' + fontSize);
+      render.unmount();
+    }
+
+  });
+
+
+  it('should render Heading with typeSet heading07 at the heading07 fontSize', function () {
+
+    const sys = createSystem(sharedLibs, { STRICT_TOKENS: true }, buildCarbonWhite(), 'sm');
+    sys.addComponents(COMPONENTS);
+
+    const expectedFontSize = sys.Style.utilities['type_heading07'].fontSize;
+
+    let render;
+    act(function () {
+      render = TestRenderer.create(
+        React.createElement(sys.Component.Heading, { typeSet: 'heading07', children: 'Display' })
+      );
+    });
+
+    assert.strictEqual(StyleSheet.flatten(render.root.findByType(RNText).props.style).fontSize, expectedFontSize,
+      'Heading typeSet heading07 should render at type_heading07 fontSize');
+    render.unmount();
+
+  });
+
+
+  it('should throw on an unknown color token for Icon, IconIndicator, ShapeIndicator, and ProgressBar', function () {
+
+    const sys = createSystem(sharedLibs, { STRICT_TOKENS: true }, buildCarbonWhite(), 'sm');
+    sys.addComponents(COMPONENTS);
+
+    const components = [
+      { name: 'Icon', factory: sys.Component.Icon, props: { name: 'info', color: 'not_a_token' } },
+      { name: 'IconIndicator', factory: sys.Component.IconIndicator, props: { iconName: 'info', color: 'not_a_token' } },
+      { name: 'ShapeIndicator', factory: sys.Component.ShapeIndicator, props: { shape: 'circle', color: 'not_a_token' } },
+      { name: 'ProgressBar', factory: sys.Component.ProgressBar, props: { value: 0.5, color: 'not_a_token' } }
+    ];
+
+    for (let i = 0; i < components.length; i++) {
+      const c = components[i];
+      assert.throws(function () {
+        act(function () {
+          TestRenderer.create(React.createElement(c.factory, c.props));
+        });
+      }, function (err) {
+        return err instanceof TypeError && err.message.indexOf('unknown utility') !== -1;
+      }, c.name + ' should throw TypeError with "unknown utility" for an unknown color token');
+    }
+
+  });
+
+
+  it('should throw on a raw hex color for Icon, IconIndicator, ShapeIndicator, and ProgressBar', function () {
+
+    const sys = createSystem(sharedLibs, { STRICT_TOKENS: true }, buildCarbonWhite(), 'sm');
+    sys.addComponents(COMPONENTS);
+
+    const components = [
+      { name: 'Icon', factory: sys.Component.Icon, props: { name: 'info', color: '#ff0000' } },
+      { name: 'IconIndicator', factory: sys.Component.IconIndicator, props: { iconName: 'info', color: '#ff0000' } },
+      { name: 'ShapeIndicator', factory: sys.Component.ShapeIndicator, props: { shape: 'circle', color: '#ff0000' } },
+      { name: 'ProgressBar', factory: sys.Component.ProgressBar, props: { value: 0.5, color: '#ff0000' } }
+    ];
+
+    for (let i = 0; i < components.length; i++) {
+      const c = components[i];
+      assert.throws(function () {
+        act(function () {
+          TestRenderer.create(React.createElement(c.factory, c.props));
+        });
+      }, function (err) {
+        return err instanceof TypeError && err.message.indexOf('unknown utility') !== -1;
+      }, c.name + ' should throw TypeError with "unknown utility" for a raw hex color');
+    }
+
+  });
+
+
+  it('should render Icon, IconIndicator, ShapeIndicator, and ProgressBar with the D14 default color', function () {
+
+    const sys = createSystem(sharedLibs, { STRICT_TOKENS: true }, buildCarbonWhite(), 'sm');
+    sys.addComponents(COMPONENTS);
+
+    // Icon: default icon_primary -> font_icon_primary.color
+    let render;
+    act(function () {
+      render = TestRenderer.create(
+        React.createElement(sys.Component.Icon, { name: 'info' })
+      );
+    });
+    const iconTree = render.toJSON();
+    assert.strictEqual(iconTree.props['data-color'], sys.Style.utilities['font_icon_primary'].color,
+      'Icon default color should be font_icon_primary.color');
+    render.unmount();
+
+    // IconIndicator: default interactive -> background_interactive.backgroundColor
+    act(function () {
+      render = TestRenderer.create(
+        React.createElement(sys.Component.IconIndicator, { iconName: 'info' })
+      );
+    });
+    const iconIndBg = StyleSheet.flatten(render.root.findByType(RNView).props.style).backgroundColor;
+    assert.strictEqual(iconIndBg, sys.Style.utilities['background_interactive'].backgroundColor,
+      'IconIndicator default background should be background_interactive.backgroundColor');
+    render.unmount();
+
+    // ShapeIndicator: default interactive -> background_interactive.backgroundColor
+    act(function () {
+      render = TestRenderer.create(
+        React.createElement(sys.Component.ShapeIndicator, { shape: 'circle' })
+      );
+    });
+    const shapeBg = StyleSheet.flatten(render.root.findByType(RNView).props.style).backgroundColor;
+    assert.strictEqual(shapeBg, sys.Style.utilities['background_interactive'].backgroundColor,
+      'ShapeIndicator default background should be background_interactive.backgroundColor');
+    render.unmount();
+
+    // ProgressBar: default interactive -> background_interactive.backgroundColor (fill), layer_02 (track)
+    act(function () {
+      render = TestRenderer.create(
+        React.createElement(sys.Component.ProgressBar, { value: 0.5 })
+      );
+    });
+    const pbViews = render.root.findAllByType(RNView);
+    const pbFill = pbViews.find(function (v) {
+      return StyleSheet.flatten(v.props.style).backgroundColor === sys.Style.utilities['background_interactive'].backgroundColor;
+    });
+    assert.ok(pbFill,
+      'ProgressBar default fill should be background_interactive.backgroundColor');
+    render.unmount();
+
+  });
+
+});
+
+
+// ========================= D21 LAYOUT DIMENSIONS ========================= //
+// F-R2.2e tests (written before the edits, per Section 9 step 4).
+
+describe('D21 layout dimensions', function () {
+
+  // Build a strict-white system for rendering
+  function buildSys () {
+    const sys = createSystem(sharedLibs, { STRICT_TOKENS: true }, buildCarbonWhite(), 'sm');
+    sys.addComponents(COMPONENTS);
+    return sys;
+  }
+
+  // Components with width/height/maxWidth props that should accept numbers and
+  // percentage strings, and reject CSS unit strings like '50px'.
+  const LENGTH_COMPONENTS = [
+    { name: 'Skeleton', factory: 'Skeleton', props: { variant: 'text' }, dimProp: 'width' },
+    { name: 'Skeleton', factory: 'Skeleton', props: { variant: 'text' }, dimProp: 'height' },
+    { name: 'SidePanel', factory: 'SidePanel', props: { isOpen: true }, dimProp: 'width' },
+    { name: 'DataTableCell', factory: 'DataTableCell', props: { content: 'cell' }, dimProp: 'width' },
+    { name: 'TableContainer', factory: 'TableContainer', props: { children: [] }, dimProp: 'maxWidth' },
+    { name: 'ProgressBar', factory: 'ProgressBar', props: { value: 0.5 }, dimProp: 'height' }
+  ];
+
+  // Components with size props that feed a borderRadius or glyph size; these
+  // accept numbers only, not percentage strings.
+  const SIZE_COMPONENTS = [
+    { name: 'Icon', factory: 'Icon', props: { name: 'info' } },
+    { name: 'IconIndicator', factory: 'IconIndicator', props: { iconName: 'info' } },
+    { name: 'Loading', factory: 'Loading', props: {} },
+    { name: 'ShapeIndicator', factory: 'ShapeIndicator', props: { shape: 'circle' } },
+    { name: 'IconButton', factory: 'IconButton', props: { name: 'info', label: 'btn' } },
+    { name: 'UserAvatar', factory: 'UserAvatar', props: {} }
+  ];
+
+  // Test: each length component rejects a CSS unit string
+  for (let i = 0; i < LENGTH_COMPONENTS.length; i++) {
+    const c = LENGTH_COMPONENTS[i];
+    it('should throw TypeError for ' + c.name + '.' + c.dimProp + ' = "50px"', function () {
+      const sys = buildSys();
+      const props = Object.assign({}, c.props, { [c.dimProp]: '50px' });
+      assert.throws(function () {
+        act(function () {
+          TestRenderer.create(React.createElement(sys.Component[c.factory], props));
+        });
+      }, function (err) {
+        return err instanceof TypeError && err.message.indexOf('INVALID_LENGTH') !== -1;
+      }, c.name + '.' + c.dimProp + ' = "50px" should throw TypeError with INVALID_LENGTH');
+    });
+  }
+
+  // Test: each size component rejects a CSS unit string
+  for (let i = 0; i < SIZE_COMPONENTS.length; i++) {
+    const c = SIZE_COMPONENTS[i];
+    it('should throw TypeError for ' + c.name + '.size = "24px"', function () {
+      const sys = buildSys();
+      const props = Object.assign({}, c.props, { size: '24px' });
+      assert.throws(function () {
+        act(function () {
+          TestRenderer.create(React.createElement(sys.Component[c.factory], props));
+        });
+      }, function (err) {
+        return err instanceof TypeError && err.message.indexOf('INVALID_LENGTH') !== -1;
+      }, c.name + '.size = "24px" should throw TypeError with INVALID_LENGTH');
+    });
+  }
+
+  // Test: length components accept percentage strings and render them
+  it('should render length components with percentage width/height/maxWidth', function () {
+    const sys = buildSys();
+
+    // Skeleton width: '50%'
+    let render;
+    act(function () {
+      render = TestRenderer.create(React.createElement(sys.Component.Skeleton, { variant: 'text', width: '50%' }));
+    });
+    assert.strictEqual(StyleSheet.flatten(render.root.findByType(RNView).props.style).width, '50%',
+      'Skeleton width should be 50%');
+    render.unmount();
+
+    // Skeleton height: '50%'
+    act(function () {
+      render = TestRenderer.create(React.createElement(sys.Component.Skeleton, { variant: 'text', height: '50%' }));
+    });
+    assert.strictEqual(StyleSheet.flatten(render.root.findByType(RNView).props.style).height, '50%',
+      'Skeleton height should be 50%');
+    render.unmount();
+
+    // SidePanel width: '50%'
+    act(function () {
+      render = TestRenderer.create(React.createElement(sys.Component.SidePanel, { isOpen: true, width: '50%' }));
+    });
+    assert.ok(render.toJSON(), 'SidePanel with width 50% should render');
+    render.unmount();
+
+    // DataTableCell width: '50%'
+    act(function () {
+      render = TestRenderer.create(React.createElement(sys.Component.DataTableCell, { content: 'cell', width: '50%' }));
+    });
+    assert.strictEqual(StyleSheet.flatten(render.root.findByType(RNView).props.style).width, '50%',
+      'DataTableCell width should be 50%');
+    render.unmount();
+
+    // TableContainer maxWidth: '50%'
+    act(function () {
+      render = TestRenderer.create(React.createElement(sys.Component.TableContainer, { maxWidth: '50%', children: [] }));
+    });
+    assert.strictEqual(StyleSheet.flatten(render.root.findByType(RNView).props.style).maxWidth, '50%',
+      'TableContainer maxWidth should be 50%');
+    render.unmount();
+
+    // ProgressBar height: '50%'
+    act(function () {
+      render = TestRenderer.create(React.createElement(sys.Component.ProgressBar, { value: 0.5, height: '50%' }));
+    });
+    assert.strictEqual(StyleSheet.flatten(render.root.findByType(RNView).props.style).height, '50%',
+      'ProgressBar height should be 50%');
+    render.unmount();
+
+  });
+
+  // Test: size components reject percentage strings
+  for (let i = 0; i < SIZE_COMPONENTS.length; i++) {
+    const c = SIZE_COMPONENTS[i];
+    it('should throw TypeError for ' + c.name + '.size = "50%"', function () {
+      const sys = buildSys();
+      const props = Object.assign({}, c.props, { size: '50%' });
+      assert.throws(function () {
+        act(function () {
+          TestRenderer.create(React.createElement(sys.Component[c.factory], props));
+        });
+      }, function (err) {
+        return err instanceof TypeError && err.message.indexOf('INVALID_LENGTH') !== -1;
+      }, c.name + '.size = "50%" should throw TypeError with INVALID_LENGTH');
+    });
+  }
+
+});
+
+
+// ========================= D18 MOTION CURVES ========================= //
+// F-R2.4b: two-segment motion curve test.
+
+
+describe('Motion: two-segment curve (D18, F-R2.4b)', function () {
+
+  it('should sequence a two-segment curve', function () {
+
+    const sys = createSystem(sharedLibs, {}, buildCarbonWhite(), 'sm');
+    const Motion = sys.Parts.Motion;
+
+    // Two-segment curve in the exact shape themer.validators.js
+    // isValidSegments accepts: { segments: true, curves: [[t, [x1, y1, x2, y2]], ...] }
+    // t is strictly increasing in 0..1; the inner array is exactly 4 finite numbers.
+    const token = {
+      segments: true,
+      curves: [
+        [0, [0.42, 0, 1, 1]],
+        [0.5, [0, 0, 0.58, 1]]
+      ]
+    };
+
+    const result = Motion.toEasing(token);
+
+    // toEasing returns { kind, easing, spring }. In the test environment
+    // Easing.sequence is unavailable (react-native-web does not export it),
+    // so easing is null. The kind proves the segments format was recognized.
+    assert.deepEqual(result, { kind: 'segments', easing: null, spring: null });
+
+  });
+
+  it('should return linear for an absent motion token', function () {
+
+    const sys = createSystem(sharedLibs, {}, buildCarbonWhite(), 'sm');
+    const Motion = sys.Parts.Motion;
+
+    const result = Motion.toEasing(null);
+    assert.deepEqual(result, { kind: 'linear', easing: null, spring: null });
+
+  });
+
+  it('should return linear for an unknown motion shape', function () {
+
+    const sys = createSystem(sharedLibs, {}, buildCarbonWhite(), 'sm');
+    const Motion = sys.Parts.Motion;
+
+    const result = Motion.toEasing({ unknown: true });
+    assert.deepEqual(result, { kind: 'linear', easing: null, spring: null });
 
   });
 

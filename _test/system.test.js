@@ -65,7 +65,7 @@ function buildSystem () {
 }
 
 
-// ========================= TIER 1 - SYSTEM SURFACE ======================== //
+// ========================= TIER 1 - SYSTEM API ======================== //
 
 describe('createSystem surface', function () {
 
@@ -800,56 +800,121 @@ describe('createSystem color token contract', function () {
 
 describe('strict roster walk', function () {
 
-  // Render every component in all.js under both the Carbon white theme
-  // and the contrast theme. STRICT_TOKENS is on, so any undefined utility
-  // read inside a component throws. This proves the whole roster consumes
-  // only declared utilities and carries no hardcoded fallback.
+  // Render every component, variant, and freeform in all.js under both
+  // the Carbon white theme and the contrast theme. STRICT_TOKENS is on,
+  // so any undefined utility read inside a component throws. This proves
+  // the whole roster consumes only declared utilities and carries no
+  // hardcoded fallback. No try/catch: every throw fails the walk.
+
+  // Minimal props for components that require more than { label }.
+  // Only add an entry when the component throws with { label } alone.
+  const MINIMAL_PROPS = {
+    Heading: { children: 'Test' },
+    Text: { children: 'Test' },
+    Button: { children: 'Test' },
+    Link: { children: 'Test' },
+    Tag: { children: 'Test' },
+    Tile: { children: 'Test' },
+    TextInput: { value: 'Test' },
+    TextArea: { value: 'Test' },
+    Checkbox: { checked: false },
+    Toggle: { checked: false },
+    DataTableCell: { content: 'cell' },
+    DataTableRow: { cells: ['a'] },
+    DataTable: { rows: [['a']] },
+    TableContainer: { children: [] },
+    SidePanel: { isOpen: false },
+    Tabs: { tabs: [{ label: 'A' }] },
+    Breadcrumb: { items: [{ label: 'A' }] },
+    Menu: { items: [{ label: 'A' }] },
+    Select: { options: [{ label: 'A', value: 'a' }] },
+    RadioGroup: { options: [{ label: 'A', value: 'a' }] },
+    Pagination: { totalPages: 1, currentPage: 1 },
+    Slider: { value: 0 },
+    ProgressBar: { value: 0.5 },
+    Notification: { title: 'Test', children: 'Body' },
+    InlineNotification: { title: 'Test', children: 'Body' },
+    ToastNotification: { title: 'Test', children: 'Body' },
+    StaticNotification: { title: 'Test', children: 'Body' },
+    Callout: { title: 'Test', children: 'Body' },
+    ErrorState: { title: 'Test' },
+    ActionableNotification: { title: 'Test', children: 'Body' },
+    WebHeader: { title: 'Test' },
+    FormField: { label: 'Test', children: [] },
+    FluidForm: { children: [] }
+  };
 
   function rosterWalk (theme, label) {
 
     const sys = createSystem(sharedLibs, { STRICT_TOKENS: true }, theme, 'sm');
     sys.addComponents(COMPONENTS);
+    const variantNs = sys.addVariants(VARIANTS);
+    const freeformNs = sys.addFreeforms(FREEFORMS);
 
-    const names = Object.keys(COMPONENTS);
-    assert.ok(names.length > 0, 'roster must not be empty');
+    let rendered = 0;
 
-    for (let i = 0; i < names.length; i++) {
-      const name = names[i];
+    // Walk components
+    const compNames = Object.keys(COMPONENTS);
+    for (let i = 0; i < compNames.length; i++) {
+      const name = compNames[i];
       const factory = sys.Component[name];
       assert.ok(typeof factory === 'function', label + ': ' + name + ' must be a function');
 
-      // Render the component with minimal props. A throw here means the
-      // component read an undeclared utility under STRICT_TOKENS.
+      const props = Object.assign({ label: name }, MINIMAL_PROPS[name] || {});
       let render;
       act(function () {
-        try {
-          render = TestRenderer.create(React.createElement(factory, { label: name }));
-        } catch (err) {
-          // Components that require specific props may throw a TypeError
-          // for missing required props; that is not a utility violation.
-          // A STRICT_TOKENS violation throws with "unknown utility" in the
-          // message; re-throw it so the roster walk fails.
-          if (err.message && err.message.indexOf('unknown utility') !== -1) {
-            throw err;
-          }
-          // Other errors are acceptable for the roster walk; the goal is
-          // to catch undeclared utility reads, not prop validation.
-        }
+        render = TestRenderer.create(React.createElement(factory, props));
       });
-      if (render) {
-        render.unmount();
-      }
+      rendered++;
+      if (render) { render.unmount(); }
     }
+
+    // Walk variants
+    const varNames = Object.keys(VARIANTS);
+    for (let i = 0; i < varNames.length; i++) {
+      const name = varNames[i];
+      const factory = variantNs[name];
+      assert.ok(typeof factory === 'function', label + ': variant ' + name + ' must be a function');
+
+      const props = Object.assign({ label: name }, MINIMAL_PROPS[name] || {});
+      let render;
+      act(function () {
+        render = TestRenderer.create(React.createElement(factory, props));
+      });
+      rendered++;
+      if (render) { render.unmount(); }
+    }
+
+    // Walk freeforms
+    const ffNames = Object.keys(FREEFORMS);
+    for (let i = 0; i < ffNames.length; i++) {
+      const name = ffNames[i];
+      const factory = freeformNs[name];
+      assert.ok(typeof factory === 'function', label + ': freeform ' + name + ' must be a function');
+
+      const props = Object.assign({ label: name }, MINIMAL_PROPS[name] || {});
+      let render;
+      act(function () {
+        render = TestRenderer.create(React.createElement(factory, props));
+      });
+      rendered++;
+      if (render) { render.unmount(); }
+    }
+
+    // Assert every entry was rendered
+    const expected = compNames.length + varNames.length + ffNames.length;
+    assert.strictEqual(rendered, expected,
+      label + ': rendered ' + rendered + ' of ' + expected + ' roster entries');
 
   }
 
-  it('should render every component under buildCarbonWhite without a strict violation', function () {
+  it('should render every component, variant, and freeform under buildCarbonWhite without a strict violation', function () {
 
     rosterWalk(buildCarbonWhite(), 'white');
 
   });
 
-  it('should render every component under buildContrastTheme without a strict violation', function () {
+  it('should render every component, variant, and freeform under buildContrastTheme without a strict violation', function () {
 
     rosterWalk(buildContrastTheme(), 'contrast');
 

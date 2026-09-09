@@ -6,7 +6,7 @@
 //   title       -> string (optional panel header)
 //   children    -> panel content
 //   side        -> 'left' | 'right' (default 'right')
-//   width       -> number (default 320)
+//   width       -> number of points or a percentage string (default 320)
 //   style       -> custom style overrides
 
 
@@ -49,7 +49,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     const React = Lib.React;
     const panelSide = side || 'right';
-    const panelWidth = width || 320;
+
+    // Validate layout dimension (D21 item 2)
+    if (!Lib.Utils.isNullOrUndefined(width) && !Parts.Units.isLength(width)) {
+      throw new TypeError('INVALID_LENGTH: ' + ERRORS.INVALID_LENGTH.message + ': SidePanel.width = ' + String(width));
+    }
+
+    const panelWidth = Lib.Utils.isNullOrUndefined(width) ? 320 : width;
 
     // Focus trap
     const focusTrap = Parts.FocusTrap({

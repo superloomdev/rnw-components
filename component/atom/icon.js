@@ -1,8 +1,8 @@
 // Info: Icon atom [S1 presentational]. Wraps an injected glyph component
 // (Lib.Icons.Glyph).
 //   name  -> glyph name (vendor-specific, set by the host adapter)
-//   size  -> dimension token (xs..xxl) OR a raw number
-//   color -> color token (e.g. 'text_primary' / 'icon_primary') OR a raw hex
+//   size  -> number of points or a size token (xs..xxl, default md)
+//   color -> color.* token name (default icon_primary)
 // The icon source is injected as shared_libs.Icons (capability-named, never
 // vendor-named) so the library does not couple to a specific icon set.
 
@@ -38,14 +38,20 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     // Destructure token props from pass-through props
     const { name, size, color, style, ...rest } = props;
 
+    // Validate size (D21 item 2): a number of points or a dimension token; a
+    // CSS unit string such as '24px' or '50%' is not a valid size
+    if (!Lib.Utils.isNullOrUndefined(size) && Lib.Utils.isString(size) && /^[0-9]/.test(size)) {
+      throw new TypeError('INVALID_LENGTH: ' + ERRORS.INVALID_LENGTH.message + ': Icon.size = ' + String(size));
+    }
+
     // Guard: Icons must be injected by the host
     if (!Lib.Icons || !Lib.Icons.Glyph) {
       Lib.Debug.warn('Icons not injected; pass shared_libs.Icons with a Glyph component');
       return null;
     }
 
-    // Resolve size: token -> px, number -> px, default md
-    // Map fallback size names to type sets for the pixel value
+    // Resolve size: token -> type set, number -> px, default md
+    // Map size tokens to type sets for the pixel value
     const SIZE_TO_TYPE_SET = {
       xs: 'caption01',
       sm: 'label02',
@@ -65,8 +71,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       }
     }
 
-    // Resolve color: hex -> as-is, token -> palette, default text_primary
-    const hex = _Icon.resolveColorToken(color, Style.tokens.Color);
+    // Resolve color through the utilities so the strict proxy guards the name
+    const hex = Style.utilities['font_' + (color || 'icon_primary')].color;
 
     return Lib.React.createElement(
       Lib.Icons.Glyph,
@@ -78,27 +84,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
 
   ////////////////////////// Private Functions START ///////////////////////////
-  const _Icon = {
-
-    // Resolve a color prop to a hex value: hex -> as-is, token -> palette,
-    // default icon_primary
-    resolveColorToken: function (color, Color) {
-
-      // Raw hex value: use as-is
-      if (color && color.charAt(0) === '#') {
-        return color;
-      }
-
-      // Contract color tokens: icon_primary, icon_on_color, etc.
-      if (color && Color[color]) {
-        return Color[color];
-      }
-
-      // Default: icon_primary
-      return Color.icon_primary;
-
-    }
-
+  const _Icon = { // eslint-disable-line no-unused-vars
+    // None.
   };////////////////////////// Private Functions END ///////////////////////////
 
 

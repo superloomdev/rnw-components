@@ -4,9 +4,9 @@
 // Uses aria-valuenow / aria-valuemin / aria-valuemax for screen reader
 // state announcement.
 //   value       -> 0 to 1 for determinate, null for indeterminate
-//   color       -> background color token for the fill (default interactive)
-//   trackColor  -> background color token for the track (default layer_02)
-//   height      -> bar height in pixels (default 4)
+//   color       -> color.* token name for the fill (default interactive)
+//   trackColor  -> color.* token name for the track (default layer_02)
+//   height      -> bar height in points (default 4)
 
 
 // Imports
@@ -41,12 +41,17 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     // Destructure props
     const { value, color, trackColor, height, style, ...rest } = props;
 
-    // Resolve colors from tokens
-    const fillColor = _ProgressBar.resolveColorToken(color, Style.tokens.Color, Style.tokens.Color.interactive);
-    const trackFillColor = _ProgressBar.resolveColorToken(trackColor, Style.tokens.Color, Style.tokens.Color.layer_02);
+    // Resolve colors from token names through the utilities (strict proxy guards)
+    const fillColor = Style.utilities['background_' + (color || 'interactive')].backgroundColor;
+    const trackFillColor = Style.utilities['background_' + (trackColor || 'layer_02')].backgroundColor;
+
+    // Validate layout dimension (D21 item 2)
+    if (!Lib.Utils.isNullOrUndefined(height) && !Parts.Units.isLength(height)) {
+      throw new TypeError('INVALID_LENGTH: ' + ERRORS.INVALID_LENGTH.message + ': ProgressBar.height = ' + String(height));
+    }
 
     // Resolve height
-    const barHeight = Lib.Utils.isNumber(height) ? height : 4;
+    const barHeight = Lib.Utils.isNullOrUndefined(height) ? 4 : height;
 
     // Build aria value props through the a11y translator
     const ariaProps = Parts.A11y.value({
@@ -142,19 +147,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
 
   ////////////////////////// Private Functions START ///////////////////////////
-  const _ProgressBar = {
-
-    // Resolve a color token name from the Color group, else fallback
-    resolveColorToken: function (color, Color, fallback) {
-
-      if (color && Color[color]) {
-        return Color[color];
-      }
-
-      return fallback;
-
-    }
-
+  const _ProgressBar = { // eslint-disable-line no-unused-vars
+    // None.
   };////////////////////////// Private Functions END ///////////////////////////
 
 

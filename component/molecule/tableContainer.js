@@ -2,7 +2,7 @@
 // Uses role="group" for screen reader semantics. Constrains children to
 // a configurable maximum width.
 //   children    -> content elements
-//   maxWidth    -> maximum width in pixels (default 1200)
+//   maxWidth    -> number of points or a percentage string (default 1200)
 //   style       -> custom style overrides
 
 
@@ -42,7 +42,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const maxW = Lib.Utils.isNumber(maxWidth) ? maxWidth : 1200;
+
+    // Validate layout dimension (D21 item 2)
+    if (!Lib.Utils.isNullOrUndefined(maxWidth) && !Parts.Units.isLength(maxWidth)) {
+      throw new TypeError('INVALID_LENGTH: ' + ERRORS.INVALID_LENGTH.message + ': TableContainer.maxWidth = ' + String(maxWidth));
+    }
+
+    const maxW = Lib.Utils.isNullOrUndefined(maxWidth) ? 1200 : maxWidth;
 
     return React.createElement(
       RNView,

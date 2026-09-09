@@ -11,7 +11,7 @@ All keys can be overridden by passing a config object to the loader.
 | `DEFAULT_FONT_FAMILY` | String | `'sans'` | non-empty string | Default font family role when a component receives no `family` prop |
 | `MIN_HIT_TARGET` | Number | `44` | positive number | Minimum accessible hit target in points (iOS HIG 44, Android Material 48) |
 | `BREAKPOINT_ORDER` | Array | `['sm','md','lg','xlg','max']` | non-empty array of strings | Breakpoint keys in ascending order |
-| `STRICT_TOKENS` | Boolean | `false` | boolean | Throw on a utility lookup that names a key the theme did not produce |
+| `STRICT_TOKENS` | Boolean | `true` | boolean | Unknown utility read throws `TypeError`; when `false`, returns `undefined` and warns once per key |
 | `DEBUG_FROM_BASE` | Boolean | `false` | boolean | When true, `createSystem` reports at debug level every key it read that the theme took from the base template. This is information, not an error: leaving a key to Superloom's base is a legitimate choice. |
 
 ## Validation

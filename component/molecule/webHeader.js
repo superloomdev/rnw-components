@@ -50,7 +50,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['align_center'],
           Style.utilities['p_h_spacing_05'],
           Style.utilities['p_v_spacing_05'],
-          Style.utilities['background_background'] || Style.utilities['background_layer_02'],
+          Style.utilities['background_background'],
           style
         ]
       }, rest),

@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { execFileSync } from 'node:child_process';
 import * as rnw from 'react-native-web';
 
 import { Style, Themer } from './loader.js';
@@ -510,57 +511,199 @@ describe('L4-R10: BORDER tokens not used as font color', function () {
 
 describe('L4-PROOF: G27/G28/G29/G30/G31/G32 violation detection', function () {
 
-  it('G27 should detect a fallback chain in a sample string', function () {
+  // Parse ci.yml once and extract the grep patterns from each gate.
+  // The test proves the gates fire by running the extracted pattern with
+  // grep -E against a planted line (must match) and a legitimate line
+  // (must not match). Hand-copying the regexes is banned (rule 35).
+  const __dirname2 = path.dirname(fileURLToPath(import.meta.url));
+  const CI_YML = path.resolve(__dirname2, '..', '.github', 'workflows', 'ci.yml');
+  const ciText = fs.readFileSync(CI_YML, 'utf8');
+  const ciLines = ciText.split('\n');
 
-    const sample = 'const c = Style.tokens.Color.interactive || Color.blue60;';
-    assert.ok(/(Style\.tokens\.Color|colorMap)\.[A-Za-z_0-9]+ *\|\|/.test(sample),
-      'G27 proof: should detect a fallback chain');
+  // Extract the script block for a named gate (e.g. "G27")
+  function getGateScript (gateName) {
+    const headerRe = new RegExp('^\\s+- name: (' + gateName + '\\b.*)$');
+    for (let i = 0; i < ciLines.length; i++) {
+      const m = ciLines[i].match(headerRe);
+      if (!m) { continue; }
+      // The run block must be the next non-blank line
+      const runLine = ciLines[i + 1];
+      if (!runLine || !/^\s+run: \|/.test(runLine)) { continue; }
+      const runIndent = runLine.match(/^(\s+)/)[1].length;
+      const body = [];
+      for (let j = i + 2; j < ciLines.length; j++) {
+        const line = ciLines[j];
+        if (!line.trim()) { body.push(''); continue; }
+        const indent = line.match(/^(\s*)/)[1].length;
+        if (indent <= runIndent) { break; }
+        body.push(line);
+      }
+      return body.join('\n');
+    }
+    return null;
+  }
 
+  // Extract every grep -E pattern from a script block. Returns an array of
+  // { pattern, flags } objects in the order they appear. Excludes grep -vE
+  // exclusion patterns (flags containing v) since those are filters, not
+  // detectors. Handles escaped double quotes (\" inside the YAML pattern)
+  // by allowing backslash-escaped characters inside the quoted body and
+  // applying bash double-quote unescaping after extraction.
+  function extractPatterns (script) {
+    const patterns = [];
+    const lines = script.split('\n');
+    for (const line of lines) {
+      const re = /grep\s+(-\w+)\s+"((?:[^"\\]|\\.)*)"/g;
+      let m;
+      while ((m = re.exec(line)) !== null) {
+        if (m[1].indexOf('v') === -1) {
+          // Bash double-quote unescaping: \" -> ", \\ -> \, \$ -> $.
+          // Other backslash sequences (\., \[, \|, etc.) are passed through
+          // unchanged by bash inside double quotes.
+          const raw = m[2];
+          const unescaped = raw
+            .replace(/\\(["\\$])/g, '$1');
+          patterns.push({ pattern: unescaped, flags: m[1] });
+        }
+      }
+    }
+    return patterns;
+  }
+
+  // Run grep -E with a pattern against a single line of text. Returns true
+  // when the pattern matches the line. Passes -i when the gate flags include
+  // case-insensitive matching.
+  function grepMatches (entry, line) {
+    const pattern = typeof entry === 'string' ? entry : entry.pattern;
+    const flags = typeof entry === 'string' ? '' : entry.flags;
+    const args = ['-E'];
+    if (flags.indexOf('i') !== -1) {
+      args.push('-i');
+    }
+    args.push(pattern);
+    try {
+      execFileSync('grep', args, {
+        input: line + '\n',
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe']
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // G27: four command proofs (one per fallback form)
+  const g27Patterns = extractPatterns(getGateScript('G27') || '');
+  assert.ok(g27Patterns.length >= 4, 'G27 should have at least 4 grep patterns, got ' + g27Patterns.length);
+
+  it('G27 form 1 should detect a utility fallback chain', function () {
+    assert.ok(grepMatches(g27Patterns[0], "Style.utilities[bgKey] || Style.utilities['background_layer_02']"),
+      'G27 form 1 should detect utility fallback chain');
+    assert.ok(!grepMatches(g27Patterns[0], "Style.utilities[bgKey]"),
+      'G27 form 1 should not match a clean utility read');
   });
 
-
-  it('G28 should detect a SCREAMING_SNAKE token name in a sample string', function () {
-
-    const sample = 'const util = Style.utilities["BACKGROUND_PRIMARY"];';
-    assert.ok(/['\"]\s*[A-Z][A-Z0-9]+_[A-Z][A-Z0-9_]*\s*['\"]/.test(sample),
-      'G28 proof: should detect BACKGROUND_PRIMARY SCREAMING token');
-
+  it('G27 form 2 should detect a hasOwnProperty existence check', function () {
+    assert.ok(grepMatches(g27Patterns[1], 'hasOwnProperty.call(Style.utilities, key)'),
+      'G27 form 2 should detect hasOwnProperty check');
+    assert.ok(!grepMatches(g27Patterns[1], 'Style.utilities[key]'),
+      'G27 form 2 should not match a clean utility read');
   });
 
-
-  it('G29 should detect a unit string in a sample string', function () {
-
-    const sample = "const w = '16px';";
-    assert.ok(/'[0-9.]+(rem|em|px|vw|vh|ms)'/.test(sample),
-      'G29 proof: should detect 16px unit string');
-
+  it('G27 form 3 should detect a bracket-form color fallback', function () {
+    assert.ok(grepMatches(g27Patterns[2], 'Style.tokens.Color[color] || color'),
+      'G27 form 3 should detect bracket color fallback');
+    assert.ok(!grepMatches(g27Patterns[2], 'Style.utilities[bgKey]'),
+      'G27 form 3 should not match a utility read');
   });
 
-
-  it('G30 should detect vendor terminology in a sample string', function () {
-
-    const sample = 'const color = Carbon.blue60;';
-    assert.ok(/carbon/i.test(sample),
-      'G30 proof: should detect "Carbon" in source');
-
+  it('G27 form 4 should detect a dot-form color fallback', function () {
+    assert.ok(grepMatches(g27Patterns[3], 'Style.tokens.Color.interactive || fallback'),
+      'G27 form 4 should detect dot color fallback');
+    assert.ok(!grepMatches(g27Patterns[3], 'Style.tokens.Color.interactive'),
+      'G27 form 4 should not match a clean color read');
   });
 
+  // G28: one proof
+  const g28Patterns = extractPatterns(getGateScript('G28') || '');
+  assert.ok(g28Patterns.length >= 1, 'G28 should have at least 1 grep pattern');
 
-  it('G31 should detect dead token names in a sample string', function () {
-
-    const sample = 'const util = Style.utilities["font_size_md"];';
-    assert.ok(/font_size_md/.test(sample),
-      'G31 proof: should detect font_size_md dead token');
-
+  it('G28 should detect a SCREAMING_SNAKE token name', function () {
+    assert.ok(grepMatches(g28Patterns[0], 'const util = Style.utilities["BACKGROUND_PRIMARY"];'),
+      'G28 should detect BACKGROUND_PRIMARY SCREAMING token');
+    assert.ok(!grepMatches(g28Patterns[0], 'const util = Style.utilities["background_primary"];'),
+      'G28 should not match a lowercase token name');
   });
 
+  // G29: three command proofs
+  const g29Patterns = extractPatterns(getGateScript('G29') || '');
+  assert.ok(g29Patterns.length >= 3, 'G29 should have at least 3 grep patterns, got ' + g29Patterns.length);
+
+  it('G29 command 1 should detect a unit string in theme/data', function () {
+    assert.ok(grepMatches(g29Patterns[0], "const w = '16px';"),
+      'G29 command 1 should detect 16px unit string');
+    assert.ok(!grepMatches(g29Patterns[0], "const w = 16;"),
+      'G29 command 1 should not match a plain number');
+  });
+
+  it('G29 command 2 should detect a percentage string in theme data', function () {
+    assert.ok(grepMatches(g29Patterns[1], "const w = '50%';"),
+      'G29 command 2 should detect 50% percentage string');
+    assert.ok(!grepMatches(g29Patterns[1], "const w = 50;"),
+      'G29 command 2 should not match a plain number');
+  });
+
+  it('G29 command 3 should detect a percentage on a non-allowed prop', function () {
+    assert.ok(grepMatches(g29Patterns[2], "fontSize: '120%'"),
+      'G29 command 3 should detect fontSize percentage');
+    assert.ok(!grepMatches(g29Patterns[2], "width: '50%'"),
+      'G29 command 3 should not match width percentage (allowed)');
+  });
+
+  // G30: one proof
+  const g30Patterns = extractPatterns(getGateScript('G30') || '');
+  assert.ok(g30Patterns.length >= 1, 'G30 should have at least 1 grep pattern');
+
+  it('G30 should detect vendor terminology', function () {
+    assert.ok(grepMatches(g30Patterns[0], 'const color = Carbon.blue60;'),
+      'G30 should detect "Carbon" in source');
+    assert.ok(!grepMatches(g30Patterns[0], 'const color = interactive;'),
+      'G30 should not match a generic token name');
+  });
+
+  // G31: one proof
+  const g31Patterns = extractPatterns(getGateScript('G31') || '');
+  assert.ok(g31Patterns.length >= 1, 'G31 should have at least 1 grep pattern');
+
+  it('G31 should detect dead token names', function () {
+    assert.ok(grepMatches(g31Patterns[0], 'const util = Style.utilities["font_size_md"];'),
+      'G31 should detect font_size_md dead token');
+    assert.ok(!grepMatches(g31Patterns[0], 'const util = Style.utilities["font_heading01"];'),
+      'G31 should not match a live token name');
+  });
+
+  // G32: one proof
+  const g32Patterns = extractPatterns(getGateScript('G32') || '');
+  assert.ok(g32Patterns.length >= 1, 'G32 should have at least 1 grep pattern');
 
   it('G32 should detect removed ./theme export reference', function () {
+    assert.ok(grepMatches(g32Patterns[0], "import theme from 'rnw-components/theme';"),
+      'G32 should detect rnw-components/theme reference');
+    assert.ok(!grepMatches(g32Patterns[0], "import { createSystem } from 'rnw-components';"),
+      'G32 should not match a valid import');
+  });
 
-    const sample = "import theme from 'rnw-components/theme';";
-    assert.ok(/rnw-components\/theme/.test(sample),
-      'G32 proof: should detect rnw-components/theme reference');
-
+  // Proof that the G29 percentage filter matches every percent_style_props entry.
+  // For each allowed prop, a percentage string on that prop should NOT be caught
+  // by the G29 command 3 filter. This proves the allowlist is complete.
+  it('G29 command 3 should not match any percent_style_props entry', function () {
+    const allowed = DATA.percent_style_props;
+    for (const prop of allowed) {
+      const line = prop + ": '50%'";
+      assert.ok(!grepMatches(g29Patterns[2], line),
+        'G29 command 3 should not match allowed prop ' + prop + ' (it is in percent_style_props)');
+    }
   });
 
 });
@@ -572,7 +715,7 @@ describe('L4-PROOF: G27/G28/G29/G30/G31/G32 violation detection', function () {
 // Computed from the contract through the same D8 rule the library uses.
 const _contract = Themer.getContract();
 const _contractInfo = buildTokenContract(_contract);
-const REQUIRED_COLOR_TOKENS = _contractInfo.REQUIRED_TOKENS
+const requiredColorTokens = _contractInfo.REQUIRED_TOKENS
   .filter(function (name) { return name.indexOf('color.') === 0; })
   .map(function (name) { return name.slice('color.'.length); });
 
@@ -627,21 +770,34 @@ test('every Style.tokens.Color read by a component is in the required list', fun
   }
 
   const missing = Array.from(read).filter(function (t) {
-    return REQUIRED_COLOR_TOKENS.indexOf(t) === -1;
+    return requiredColorTokens.indexOf(t) === -1;
   });
 
   assert.deepEqual(missing, []);
 });
 
 test('the required color list matches the contract D8 rule', function () {
-  // Recompute the required color tokens from the contract using the same
-  // D8 rule the library uses, and verify the test list matches.
+  // Compute the expected required color tokens directly from the contract
+  // by the D8 words alone, without calling buildTokenContract. The rule:
+  // every structure-tier token, plus every value-tier token except
+  // color.tag_* and color.ai_*. Then filter for color tokens only.
   const contract = Themer.getContract();
-  const contractInfo = buildTokenContract(contract);
-  const expected = contractInfo.REQUIRED_TOKENS
+  const expected = Object.keys(contract.tokens)
+    .filter(function (name) {
+      const group = name.slice(0, name.indexOf('.'));
+      const tier = contract.groups[group].tier;
+      if (tier === 'structure') { return true; }
+      if (tier === 'value') {
+        if (name.indexOf('color.tag_') === 0 || name.indexOf('color.ai_') === 0) {
+          return false;
+        }
+        return true;
+      }
+      return false;
+    })
     .filter(function (name) { return name.indexOf('color.') === 0; })
     .map(function (name) { return name.slice('color.'.length); })
     .sort();
-  const actual = REQUIRED_COLOR_TOKENS.slice().sort();
+  const actual = requiredColorTokens.slice().sort();
   assert.deepEqual(actual, expected);
 });

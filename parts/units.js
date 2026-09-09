@@ -2,9 +2,9 @@
 //
 // Owns every numeric conversion the components need, so that no component
 // calls Math.*, parseFloat, or parseInt directly. Every magic number the
-// conversions depend on (rem base, rounding precision, which style props
-// must be numeric) comes from data/style-contract.json by injection, so
-// nothing is hardcoded in this file.
+// conversions depend on (rounding precision, which style props must be
+// numeric) comes from data/style-contract.json by injection, so nothing is
+// hardcoded in this file.
 //
 // Loader pattern: FACTORY part. The components package hands out independent
 // instances per build() so two registries can hold different themes at once;
@@ -78,43 +78,6 @@ const createInterface = function (Lib, DATA, UNIT_PATTERN, BACKGROUND_IMAGE_PROP
     // platform. A well-formed native projection needs none of this; these exist
     // so a third-party theme cannot put a unit string into a style prop.
 
-    /********************************************************************
-    Convert a dimension value to a finite pixel number.
-
-    @param {Number|String} value - Raw token value, e.g. 16 or a unit-suffixed string
-
-    @return {Number|null} - Pixel number, or null when unconvertible
-    *********************************************************************/
-    toPx: function (value) {
-
-      // Already numeric: the native projection path, and the common case
-      if (Lib.Utils.isNumber(value)) {
-        return value;
-      }
-
-      // Anything non-string has no unit to strip
-      if (!Lib.Utils.isString(value)) {
-        return null;
-      }
-
-      // Only rem converts without a layout context; em and % need one
-      if (value.indexOf('rem') === -1) {
-        return null;
-      }
-
-      // Scale by the contract's rem base and round to its stated precision
-      const parsed = _Units.parseLeadingFloat(value);
-
-      // A malformed string such as 'rem' yields nothing usable
-      if (Lib.Utils.isNullOrUndefined(parsed)) {
-        return null;
-      }
-
-      // Convert rem to pixels using the contract's base and precision
-      return Lib.Utils.round(parsed * DATA.rem_base_px, DATA.decimal_precision);
-
-    },
-
 
     /********************************************************************
     Derive a line height from a font size and a ratio.
@@ -161,6 +124,30 @@ const createInterface = function (Lib, DATA, UNIT_PATTERN, BACKGROUND_IMAGE_PROP
 
       // Value is within bounds or above max, so cap at max otherwise pass through
       return value > max ? max : value;
+
+    },
+
+
+    /********************************************************************
+    Report whether a value is a valid layout dimension.
+
+    A layout dimension is a number of points or a percentage string
+    (D20 item 2). CSS unit strings (px, rem, em, vw, vh, ms) are not
+    valid on React Native and are rejected.
+
+    @param {Number|String} value - Candidate layout dimension
+
+    @return {Boolean} - True when the value is a number or a percentage string
+    *********************************************************************/
+    isLength: function (value) {
+
+      // A number is a dimension in points
+      if (Lib.Utils.isNumber(value)) {
+        return true;
+      }
+
+      // A percentage string is a dimension relative to the parent
+      return Lib.Utils.isString(value) && /^-?[0-9]+(\.[0-9]+)?%$/.test(value);
 
     },
 
@@ -274,26 +261,8 @@ const createInterface = function (Lib, DATA, UNIT_PATTERN, BACKGROUND_IMAGE_PROP
 
 
   ///////////////////////////Private Functions START////////////////////////////
-  const _Units = {
-
-    /********************************************************************
-    Parse the leading float from a unit-suffixed string.
-
-    @param {String} value - Unit-suffixed string, e.g. a rem value
-
-    @return {Number|null} - The parsed number, or null when absent
-    *********************************************************************/
-    parseLeadingFloat: function (value) {
-
-      // Number.parseFloat is the one permitted use in the package; every
-      // other module reaches this behavior through Units
-      const parsed = Number.parseFloat(value);
-
-      // isNumber rejects NaN, which is what parseFloat returns on failure
-      return Lib.Utils.isNumber(parsed) ? parsed : null;
-
-    }
-
+  const _Units = { // eslint-disable-line no-unused-vars
+    // None.
   };///////////////////////////Private Functions END/////////////////////////////
 
 
