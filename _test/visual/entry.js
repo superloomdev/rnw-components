@@ -12,6 +12,8 @@ import React from 'react';
 import * as ReactDOM from 'react-dom/client';
 import UtilsFactory from 'helper-utils';
 import DebugFactory from 'helper-debug';
+import ThemerFactory from 'helper-themer';
+import carbonV11Profile from 'helper-themer-template-carbon';
 import {
   createSystem,
   // The sixteen interactive components the gallery renders
@@ -55,13 +57,26 @@ const HINT_PROPS = {
 };
 
 // Carbon is square by specification; the contrast theme is rounded and warm.
-// Both are declared here rather than imported so the bundle stays standalone.
-const THEME_RADIUS = { carbon: 0, contrast: 10 };
-const THEME_PRIMARY = { carbon: '#0f62fe', contrast: '#7c3aed' };
+// Both are built through the real Themer engine from the Carbon reference
+// template, so the L3 bundle proves a browser render with the same contract
+// the unit tests use. The contrast theme applies a purple brand layer over
+// the Carbon white scheme to prove the components carry no baked-in color.
+const CONTRAST_LAYER = {
+  name: 'contrast',
+  tokens: {
+    'color.interactive': '#7c3aed',
+    'color.button_primary': '#7c3aed',
+    'color.button_primary_hover': '#6d28d9',
+    'color.button_primary_active': '#5b21b6',
+    'color.link_primary': '#7c3aed',
+    'color.focus': '#7c3aed'
+  }
+};
 
 function buildRegistry(themeName) {
   const Utils = UtilsFactory();
   const Debug = DebugFactory({ Utils: Utils });
+  const Themer = ThemerFactory({ Utils: Utils, Debug: Debug });
   const Device = {
     getPlatform: function () { return { success: true, platform: 'web', error: null }; },
     getViewport: function () { return { success: true, width: 1280, height: 800, error: null }; },
@@ -73,48 +88,14 @@ function buildRegistry(themeName) {
     }
   };
 
-  const theme = {
-    Color: {
-      APP_PRIMARY: THEME_PRIMARY[themeName || 'carbon'], APP_PRIMARY_HOVERED: '#0353e9',
-      APP_PRIMARY_PRESSED: '#0043d9', APP_PRIMARY_DISABLED: '#a6c8ff',
-      APP_PRIMARY_SUBTLE: '#edf5ff', TEXT_PRIMARY: '#161616',
-      TEXT_SECONDARY: '#525252', TEXT_MUTED: '#8d8d8d',
-      TEXT_DISABLED: '#c6c6c6',
-      TEXT_ON_PRIMARY: '#ffffff', BACKGROUND_PRIMARY: '#ffffff',
-      BACKGROUND_SECONDARY: '#f4f4f4', SURFACE: '#ffffff',
-      BORDER: '#e0e0e0', STATUS_SUCCESS: '#198038',
-      STATUS_SUCCESS_SUBTLE: '#e8f5e9', STATUS_DANGER: '#da1e28',
-      STATUS_DANGER_SUBTLE: '#fff1f1', STATUS_WARNING: '#f1c21b',
-      STATUS_WARNING_SUBTLE: '#fcf4d6', STATUS_INFO: '#0043ce',
-      STATUS_INFO_SUBTLE: '#edf5ff',
-      BUTTON_PRIMARY: '#0f62fe', BUTTON_PRIMARY_HOVER: '#0353e9',
-      BUTTON_PRIMARY_ACTIVE: '#0043d9', BUTTON_SECONDARY: '#393939',
-      BUTTON_SECONDARY_HOVER: '#4c4c4c', BUTTON_SECONDARY_ACTIVE: '#636363',
-      BUTTON_TERTIARY: '#0f62fe', BUTTON_TERTIARY_HOVER: '#0353e9',
-      BUTTON_TERTIARY_ACTIVE: '#0043d9', BUTTON_DANGER_PRIMARY: '#da1e28',
-      BUTTON_DANGER_HOVER: '#b0191f', BUTTON_DANGER_ACTIVE: '#8a1116',
-      BUTTON_DANGER_SECONDARY: '#da1e28', BUTTON_DISABLED: '#c6c6c6',
-      BUTTON_SEPARATOR: '#e0e0e0'
-    },
-    Dimension: {
-      fontSize: { xs: 12, sm: 14, md: 16, lg: 18, xl: 20, xxl: 24 },
-      space: { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 },
-      radius: (function () {
-        const r = THEME_RADIUS[themeName || 'carbon'];
-        return { none: 0, sm: r, md: r, lg: r, xl: r, pill: 999 };
-      })(),
-      lineHeightRatio: 1.4
-    },
-    Font: {
-      family: { primary: 'system-ui', secondary: 'system-ui' },
-      weight: { regular: '400', medium: '500', semibold: '600', bold: '700' }
-    },
-    Breakpoint: { base: 0, sm: 480, md: 768, lg: 1024, xl: 1280 }
-  };
+  const isContrast = themeName === 'contrast';
+  const layers = isContrast ? [CONTRAST_LAYER] : [];
+  const built = Themer.buildTheme(carbonV11Profile.schemes.white, layers, 'native');
 
   const system = createSystem({
-    Utils: Utils, Debug: Debug, React: React, Device: Device, Icons: Icons
-  }, {}, theme, 'base');
+    Utils: Utils, Debug: Debug, React: React, Device: Device, Icons: Icons,
+    Themer: Themer
+  }, {}, built, 'sm');
 
   // Register the interactive set plus the siblings it renders
   system.addComponents({
