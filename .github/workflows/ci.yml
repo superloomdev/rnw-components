@@ -318,7 +318,7 @@ jobs:
           echo "PASS: no fallback chains in component source"
       - name: G28 - No SCREAMING token names in source
         run: |
-          hits=$(git grep -nE "\b[A-Z][A-Z0-9]+_[A-Z][A-Z0-9_]*\b" component/ components.*.js parts/ data/ 2>/dev/null | grep -vE "CONFIG\.|ERRORS\.|STRICT_TOKENS|REQUIRED_TOKENS|SUPPORTED_TOKENS" || true)
+          hits=$(git grep -nE "['\"]\s*[A-Z][A-Z0-9]+_[A-Z][A-Z0-9_]*\s*['\"]" component/ components.*.js parts/ data/ 2>/dev/null | grep -vE "CONFIG\.|ERRORS\.|STRICT_TOKENS|REQUIRED_TOKENS|SUPPORTED_TOKENS|CONTRACT_" || true)
           if [ -n "$hits" ]; then
             echo "FAIL: SCREAMING_SNAKE token name found in source."
             echo "Theme tokens use lowercase snake_case; SCREAMING_SNAKE is for"

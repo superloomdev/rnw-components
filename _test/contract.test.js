@@ -522,7 +522,7 @@ describe('L4-PROOF: G27/G28/G29/G30/G31/G32 violation detection', function () {
   it('G28 should detect a SCREAMING_SNAKE token name in a sample string', function () {
 
     const sample = 'const util = Style.utilities["BACKGROUND_PRIMARY"];';
-    assert.ok(/\b[A-Z][A-Z0-9]+_[A-Z][A-Z0-9_]*\b/.test(sample),
+    assert.ok(/['\"]\s*[A-Z][A-Z0-9]+_[A-Z][A-Z0-9_]*\s*['\"]/.test(sample),
       'G28 proof: should detect BACKGROUND_PRIMARY SCREAMING token');
 
   });
