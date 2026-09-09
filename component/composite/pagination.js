@@ -117,7 +117,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             Style.utilities['m_r_spacing_03'],
             {
               backgroundColor: prevDisabled
-                ? (Style.tokens.Color.layer_01)
+                ? Style.utilities['background_layer_01'].backgroundColor
                 : 'transparent'
             }
           ]
@@ -150,7 +150,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             Style.utilities['m_l_spacing_03'],
             {
               backgroundColor: nextDisabled
-                ? (Style.tokens.Color.layer_01)
+                ? Style.utilities['background_layer_01'].backgroundColor
                 : 'transparent'
             }
           ]

@@ -78,12 +78,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['br_radius_08'],
           Style.utilities['p_a_spacing_05'],
           {
-            borderWidth: 2,
-            borderColor: selected
-              ? (Style.tokens.Color.interactive)
-              : (Style.tokens.Color.border_subtle_01),
+            ...Style.utilities['border_w_width_02'],
+            ...(selected
+              ? Style.utilities['border_color_interactive']
+              : Style.utilities['border_color_border_subtle_01']),
             backgroundColor: selected
-              ? (Style.tokens.Color.layer_01)
+              ? Style.utilities['background_layer_01'].backgroundColor
               : 'transparent'
           },
           style

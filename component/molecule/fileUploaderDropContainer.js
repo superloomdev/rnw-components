@@ -74,9 +74,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['p_a_spacing_06'],
           Style.utilities['br_radius_08'],
           {
-            borderWidth: 2,
+            ...Style.utilities['border_w_width_02'],
             borderStyle: 'dashed',
-            borderColor: Style.tokens.Color.border_subtle_01
+            ...Style.utilities['border_color_border_subtle_01']
           },
           style
         ]

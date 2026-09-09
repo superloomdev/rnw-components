@@ -35,6 +35,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
   const KIND_BACKGROUND = {
     primary: 'button_primary',
     secondary: 'button_secondary',
+    tertiary: 'button_tertiary',
     danger: 'button_danger_primary',
     ghost: undefined
   };
@@ -44,6 +45,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
   const KIND_FONT = {
     primary: 'text_on_color',
     secondary: 'text_on_color',
+    tertiary: 'interactive',
     danger: 'text_on_color',
     ghost: 'interactive'
   };

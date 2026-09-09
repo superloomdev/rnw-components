@@ -45,7 +45,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     }
 
     // Resolve size: token -> px, number -> px, default md
-    // Map legacy size names to type sets for the pixel value
+    // Map fallback size names to type sets for the pixel value
     const SIZE_TO_TYPE_SET = {
       xs: 'caption01',
       sm: 'label02',

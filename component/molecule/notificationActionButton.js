@@ -67,10 +67,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['br_radius_08'],
           {
             backgroundColor: kind === 'primary'
-              ? Style.tokens.Color.interactive
+              ? Style.utilities['background_interactive'].backgroundColor
               : 'transparent',
             borderWidth: kind === 'primary' ? 0 : 1,
-            borderColor: Style.tokens.Color.border_subtle_01
+            ...Style.utilities['border_color_border_subtle_01']
           },
           style
         ]

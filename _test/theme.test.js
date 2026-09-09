@@ -16,10 +16,12 @@ import { Text as RNText, StyleSheet } from 'react-native';
 import { createSystem, Text, TOKENS } from 'rnw-components';
 import { COMPONENTS } from 'rnw-components/all';
 
-import { sharedLibs, React, TestRenderer, act } from './loader.js';
+import { sharedLibs, React, TestRenderer, act, Themer } from './loader.js';
+import buildTokenContract from 'rnw-components/data/token-contract.js';
 import {
   buildCarbonWhite,
   buildContrastTheme,
+  buildBrandOverWhite,
   buildIncompleteTheme
 } from './harness/themes.js';
 
@@ -342,16 +344,13 @@ describe('theme agnosticism', function () {
 
 describe('button token family', function () {
 
-  // The 15-token Carbon button family. Both REQUIRED_COLOR_TOKENS and
-  // BACKGROUND_COLOR_TOKENS must carry every entry, or the drift this plan
+  // The button token family, computed from the contract REQUIRED_TOKENS
+  // (D8 rule). The list must carry every entry, or the drift this plan
   // exists to remove returns.
-  const BUTTON_TOKENS = [
-    'button_primary', 'button_primary_hover', 'button_primary_active',
-    'button_secondary', 'button_secondary_hover', 'button_secondary_active',
-    'button_tertiary', 'button_tertiary_hover', 'button_tertiary_active',
-    'button_danger_primary', 'button_danger_hover', 'button_danger_active',
-    'button_danger_secondary', 'button_disabled', 'button_separator'
-  ];
+  const _contractInfo = buildTokenContract(Themer.getContract());
+  const BUTTON_TOKENS = _contractInfo.REQUIRED_TOKENS
+    .filter(function (name) { return name.indexOf('color.button_') === 0; })
+    .map(function (name) { return name.slice('color.'.length); });
 
 
   it('should generate a background utility for every button token', function () {
@@ -456,6 +455,166 @@ describe('STRICT_TOKENS', function () {
     const sys = createSystem(sharedLibs, {}, buildCarbonWhite(), 'sm');
 
     assert.strictEqual(sys.Style.utilities['background_nonexistent'], undefined);
+
+  });
+
+});
+
+
+// ========================= F-R.4 NEW TEST CASES ========================== //
+
+describe('unsupported token warnings', function () {
+
+  it('should produce exactly one Debug.warn with the sorted token list', function () {
+
+    // Build a theme with extra unsupported tokens
+    const built = buildCarbonWhite();
+    const tokens = Object.assign({}, built.tokens, {
+      'color.unsupported_c': '#0000ff',
+      'color.unsupported_a': '#ff0000',
+      'color.unsupported_b': '#00ff00'
+    });
+
+    // Capture Debug.warn calls
+    const warnCalls = [];
+    const stubDebug = {
+      warn: function (msg, meta) {
+        warnCalls.push({ msg: msg, meta: meta });
+      },
+      debug: function () {},
+      info: function () {},
+      error: function () {},
+      log: function () {},
+      performanceAuditLog: function () {}
+    };
+    const stubLibs = Object.assign({}, sharedLibs, { Debug: stubDebug });
+
+    const sys = createSystem(stubLibs, {}, { tokens: tokens }, 'sm');
+
+    // Exactly one warn call
+    assert.strictEqual(warnCalls.length, 1, 'expected exactly one Debug.warn');
+    assert.ok(warnCalls[0].msg.indexOf('unsupported') !== -1,
+      'warn message should mention unsupported tokens');
+
+    // The token list should be sorted
+    const warnedTokens = warnCalls[0].meta.tokens;
+    assert.deepStrictEqual(warnedTokens, ['color.unsupported_a', 'color.unsupported_b', 'color.unsupported_c'],
+      'warned tokens should be sorted');
+
+  });
+
+});
+
+
+describe('contrast theme rendering', function () {
+
+  it('should render Button, Text, TextInput, and Tile with values equal to the theme', function () {
+
+    const theme = buildContrastTheme();
+    const sys = createSystem(sharedLibs, {}, theme, 'sm');
+    sys.addComponents(COMPONENTS);
+
+    // Utility values must equal the theme's token values, proving no
+    // hardcoded design language leaks through the component system.
+    assert.strictEqual(sys.Style.utilities['background_button_primary'].backgroundColor,
+      theme.tokens['color.button_primary'],
+      'background_button_primary utility should equal the theme button_primary');
+    assert.strictEqual(sys.Style.utilities['font_text_primary'].color,
+      theme.tokens['color.text_primary'],
+      'font_text_primary utility should equal the theme text_primary');
+    assert.strictEqual(sys.Style.utilities['background_interactive'].backgroundColor,
+      theme.tokens['color.interactive'],
+      'background_interactive utility should equal the theme interactive');
+
+    // Render Button, Text, TextInput, Tile under the contrast theme and
+    // verify each renders without crashing (proves the components consume
+    // the contrast theme without error).
+    let render;
+    act(function () {
+      render = TestRenderer.create(
+        React.createElement(sys.Component.Button, { kind: 'primary', label: 'OK' })
+      );
+    });
+    assert.ok(render.toJSON(), 'Button should render under the contrast theme');
+    render.unmount();
+
+    act(function () {
+      render = TestRenderer.create(
+        React.createElement(sys.Component.Text, { color: 'text_primary' }, 'Hello')
+      );
+    });
+    assert.ok(render.toJSON(), 'Text should render under the contrast theme');
+    render.unmount();
+
+    act(function () {
+      render = TestRenderer.create(
+        React.createElement(sys.Component.TextInput, { label: 'Field' })
+      );
+    });
+    assert.ok(render.toJSON(), 'TextInput should render under the contrast theme');
+    render.unmount();
+
+    act(function () {
+      render = TestRenderer.create(
+        React.createElement(sys.Component.Tile, { label: 'Tile' })
+      );
+    });
+    assert.ok(render.toJSON(), 'Tile should render under the contrast theme');
+    render.unmount();
+
+  });
+
+});
+
+
+describe('brand-over-white rendering', function () {
+
+  it('should render Button with radius 8 and background #4f46e5', function () {
+
+    const theme = buildBrandOverWhite();
+    const sys = createSystem(sharedLibs, {}, theme, 'sm');
+    sys.addComponents(COMPONENTS);
+
+    // The brand layer sets shape.radius_04 to 8 and color.button_primary to #4f46e5.
+    // The utilities must reflect the brand overrides, proving the brand layer
+    // reaches the component system without being shadowed by the base theme.
+    assert.strictEqual(sys.Style.utilities['br_radius_04'].borderRadius, 8,
+      'br_radius_04 should be 8 under the tasks brand');
+    assert.strictEqual(sys.Style.utilities['background_button_primary'].backgroundColor, '#4f46e5',
+      'background_button_primary should be #4f46e5 under the tasks brand');
+
+    // Render a primary Button with the brand radius and verify it renders
+    let render;
+    act(function () {
+      render = TestRenderer.create(
+        React.createElement(sys.Component.Button, {
+          kind: 'primary',
+          radius: 'radius_04',
+          label: 'OK'
+        })
+      );
+    });
+    assert.ok(render.toJSON(), 'Button should render under the tasks brand');
+    render.unmount();
+
+  });
+
+});
+
+
+describe('Themer injection', function () {
+
+  it('should throw THEMER_UNAVAILABLE when Themer is absent', function () {
+
+    const libsWithoutThemer = Object.assign({}, sharedLibs);
+    delete libsWithoutThemer.Themer;
+
+    assert.throws(function () {
+      createSystem(libsWithoutThemer, {}, buildCarbonWhite(), 'sm');
+    }, function (err) {
+      return err instanceof TypeError &&
+        err.message.indexOf('Themer') !== -1;
+    }, 'should throw TypeError mentioning Themer');
 
   });
 

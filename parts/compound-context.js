@@ -1,6 +1,6 @@
 // Info: Context factory for compound components.
 //
-// Carbon has 14 Context modules. A naive "render children in a View" port
+// The upstream design system has 14 Context modules. A naive "render children in a View" port
 // breaks the parent-child contract for Tabs, Accordion, RadioButtonGroup,
 // Menu, TreeView, DataTable, ContentSwitcher, ComposedModal, Card, Layer,
 // FluidForm.
@@ -15,7 +15,7 @@
 // outside its Provider. That turns "AccordionItem rendered outside
 // Accordion" from a blank render into a clear boot-time error.
 //
-// Do not port Carbon's React.Children.map plus cloneElement pattern.
+// Do not port the upstream React.Children.map plus cloneElement pattern.
 // It inspects child.type and breaks the moment a child is wrapped in
 // React.memo or forwardRef, which our HOC does. Use Context for every
 // parent-child coordination.

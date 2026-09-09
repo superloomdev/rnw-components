@@ -4,7 +4,7 @@ The standard Superloom component system for React Native Web. Component anatomy 
 
 ## Overview
 
-This module provides a themed component registry for React Native Web applications. It consumes a built theme from the Superloom Themer engine and produces a set of atoms, molecules, variants, and freeform components that all drive their visuals from tokens. The library ships no color of its own: a theme supplies all 38 required color tokens or
+This module provides a themed component registry for React Native Web applications. It consumes a built theme from the Superloom Themer engine and produces a set of atoms, molecules, variants, and freeform components that all drive their visuals from tokens. The library ships no color of its own: a theme supplies all required tokens or
 `createSystem` refuses to build, naming every absent one. That keeps the component set free
 of any single design language - the same components render IBM Carbon or anything else,
 depending entirely on the theme handed in.
@@ -351,6 +351,22 @@ See [docs/platform-support.md](docs/platform-support.md) for the full platform s
 ## Carbon Parity
 
 See [docs/carbon-parity.md](docs/carbon-parity.md) for what we ship and what Carbon has that we deliberately do not.
+
+## Motion
+
+Every animation in this library reads its curve and duration from the theme and runs it through `parts/motion.js`, which implements the three curve kinds of the Superloom contract: a bezier (`Easing.bezier`), a spring (`Animated.spring` parameters), and segments (a sequenced list of beziers). Components decide what animates and in which order; the theme decides how fast and along which curve. A theme can change every curve without a release of this library. Adding a fourth curve kind is a release of this library and a new contract version.
+
+## Stacking
+
+Which surface sits above which is the same in every design system, so it is not a theme value. `data/stacking.js` is the one table: `hidden -1`, `overflow_hidden -1`, `header 8000`, `footer 8000`, `overlay 8000`, `modal 9000`, `dropdown 9100`, `floating 10000`. Every `zIndex` in this library reads it.
+
+## Focus ring
+
+The focus ring is drawn with the `outline*` style props (React Native 0.77 or later), so it never changes layout. `feedback.focus` selects `outline`, `inset`, or `underline`; `focus.width`, `focus.offset`, and `color.focus` size and color it.
+
+## Runtime floor
+
+This library requires React Native 0.86 or later and React Native for Web 0.21 or later. The floor is the React Native version pinned by the latest Expo SDK and rises with it. Below the floor, `boxShadow` and the `outline*` props do not render.
 
 ## API
 

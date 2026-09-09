@@ -64,7 +64,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             Style.utilities['br_radius_04'],
             Style.utilities['p_h_spacing_01'],
             Style.utilities['p_v_spacing_01'],
-            { backgroundColor: Style.tokens.Color.layer_01 }
+            { ...Style.utilities['background_layer_01'] }
           ]
         }, ariaProps),
         React.createElement(Registry.Text, {

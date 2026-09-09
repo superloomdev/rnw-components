@@ -121,7 +121,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             placeholder: placeholder || 'Search',
             style: [
               isInvalid
-                ? { borderColor: Style.tokens.Color.support_error }
+                ? { ...Style.utilities['border_color_support_error'] }
                 : null,
               style
             ]

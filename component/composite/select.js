@@ -134,10 +134,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             Style.utilities['p_v_spacing_03'],
             Style.utilities['background_layer_02'],
             isInvalid
-              ? { borderColor: Style.tokens.Color.support_error }
+              ? { ...Style.utilities['border_color_support_error'] }
               : null,
             isDisabled
-              ? { backgroundColor: Style.tokens.Color.layer_01 }
+              ? { ...Style.utilities['background_layer_01'] }
               : null,
             style
           ]
@@ -184,7 +184,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
                 Style.utilities['p_h_spacing_05'],
                 Style.utilities['p_v_spacing_01'],
                 isSelected
-                  ? { backgroundColor: Style.tokens.Color.background }
+                  ? { ...Style.utilities['background_background'] }
                   : null
               ]
             }, Parts.A11y.state({ selected: isSelected })),

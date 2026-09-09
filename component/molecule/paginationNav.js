@@ -93,7 +93,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
               alignItems: 'center',
               marginHorizontal: 2,
               backgroundColor: isActive
-                ? (Style.tokens.Color.interactive)
+                ? Style.utilities['background_interactive'].backgroundColor
                 : 'transparent'
             }
           ]

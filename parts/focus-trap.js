@@ -2,7 +2,7 @@
 // Popover, ComposedModal, SidePanel).
 //
 // Implements the six obligations of a managed overlay:
-//   1. On open: record the previously focused element and move focus into the overlay
+//   1. On open: record the last focused element and move focus into the overlay
 //   2. While open: trap focus so Tab cycles within the overlay (when trap=true)
 //   3. On Escape (web) or hardware back (Android): close
 //   4. On outside press: close
@@ -80,7 +80,7 @@ const createInterface = function (Lib) {
     // Ref to the overlay container element
     const containerRef = Lib.React.useRef(null);
 
-    // Record the previously focused element for restoration on close
+    // Record the last focused element for restoration on close
     const previousFocusRef = Lib.React.useRef(null);
 
 
@@ -242,7 +242,7 @@ const createInterface = function (Lib) {
     }, [isOpen, trap]);
 
 
-    // On close: restore focus to the previously focused element
+    // On close: restore focus to the last focused element
     Lib.React.useEffect(function () {
 
       // Bail out when the overlay is still open

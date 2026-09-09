@@ -69,9 +69,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['p_v_spacing_03'],
           Style.utilities['m_r_spacing_03'],
           {
-            borderBottomWidth: 2,
-            borderBottomColor: isActive
-              ? (Style.tokens.Color.interactive)
+            ...Style.utilities['border_w_b_width_02'],
+            borderColor: isActive
+              ? Style.utilities['border_color_interactive'].borderColor
               : 'transparent'
           },
           style

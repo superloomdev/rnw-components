@@ -53,7 +53,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       width: px,
       height: px,
       borderRadius: px / 2,
-      backgroundColor: Style.tokens.Color.layer_01,
+      ...Style.utilities['background_layer_01'],
       justifyContent: 'center',
       alignItems: 'center',
       overflow: 'hidden'

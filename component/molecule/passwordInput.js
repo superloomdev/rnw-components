@@ -73,10 +73,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['br_radius_08'],
           Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
           isInvalid
-            ? { borderColor: Style.tokens.Color.support_error }
+            ? { ...Style.utilities['border_color_support_error'] }
             : null,
           isDisabled
-            ? { backgroundColor: Style.tokens.Color.layer_01 }
+            ? { ...Style.utilities['background_layer_01'] }
             : Style.utilities['background_layer_02'],
           style
         ]

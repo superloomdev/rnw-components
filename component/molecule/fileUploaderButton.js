@@ -72,9 +72,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['p_v_spacing_03'],
           Style.utilities['br_radius_04'],
           {
-            backgroundColor: disabled
-              ? (Style.tokens.Color.icon_disabled)
-              : (Style.tokens.Color.interactive)
+            ...(disabled
+              ? Style.utilities['background_icon_disabled']
+              : Style.utilities['background_interactive'])
           },
           style
         ]

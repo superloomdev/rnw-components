@@ -24,7 +24,7 @@ Factory part loader. Uniform parts signature.
 
 @return {Object} - Public Tokens interface
 *********************************************************************/
-export default function (shared_libs, config, errors) {
+export default function createTokens (shared_libs, config, errors) {
 
   const Lib = {
     Utils: shared_libs.Utils,
@@ -61,8 +61,7 @@ const createInterface = function (Lib, ERRORS) {
     breakpoint: 'Breakpoint',
     grid: 'Grid',
     state: 'State',
-    tint: 'Tint',
-    easing: 'Easing'
+    tint: 'Tint'
   };
 
   // Segments that must never appear as object keys (prototype pollution)

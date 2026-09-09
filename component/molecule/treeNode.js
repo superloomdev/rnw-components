@@ -111,7 +111,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             {
               marginLeft: (nodeLevel - 1) * 20,
               backgroundColor: isSelected
-                ? (Style.tokens.Color.background)
+                ? Style.utilities['background_background'].backgroundColor
                 : 'transparent'
             }
           ]

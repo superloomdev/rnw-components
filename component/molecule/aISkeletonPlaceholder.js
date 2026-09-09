@@ -49,8 +49,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           {
             height: 48,
             width: '100%',
-            borderRadius: 4,
-            backgroundColor: Style.tokens.Color.layer_01
+            ...Style.utilities['br_radius_04'],
+            ...Style.utilities['background_layer_01']
           },
           style
         ]

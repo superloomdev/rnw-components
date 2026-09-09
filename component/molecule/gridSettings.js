@@ -51,7 +51,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['align_center'],
           {
             gridTemplateColumns: 'repeat(' + (columns || 12) + ', 1fr)',
-            gap: gap || '16px'
+            gap: gap || 16
           },
           style
         ]

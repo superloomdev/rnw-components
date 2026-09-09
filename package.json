@@ -14,6 +14,7 @@
     ".": "./components.js",
     "./all": "./all.js",
     "./data/style-contract.json": "./data/style-contract.json",
+    "./data/token-contract.js": "./data/token-contract.js",
     "./package.json": "./package.json"
   },
   "engines": {

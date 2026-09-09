@@ -52,8 +52,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['p_v_spacing_05'],
           Style.utilities['background_layer_02'],
           {
-            borderBottomWidth: 1,
-            borderBottomColor: Style.tokens.Color.border_subtle_01
+            ...Style.utilities['border_w_b_width_01'],
+            ...Style.utilities['border_color_border_subtle_01']
           },
           style
         ]

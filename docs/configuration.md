@@ -12,6 +12,7 @@ All keys can be overridden by passing a config object to the loader.
 | `MIN_HIT_TARGET` | Number | `44` | positive number | Minimum accessible hit target in points (iOS HIG 44, Android Material 48) |
 | `BREAKPOINT_ORDER` | Array | `['sm','md','lg','xlg','max']` | non-empty array of strings | Breakpoint keys in ascending order |
 | `STRICT_TOKENS` | Boolean | `false` | boolean | Throw on a utility lookup that names a key the theme did not produce |
+| `DEBUG_FROM_BASE` | Boolean | `false` | boolean | When true, `createSystem` reports at debug level every key it read that the theme took from the base template. This is information, not an error: leaving a key to Superloom's base is a legitimate choice. |
 
 ## Validation
 
@@ -48,7 +49,7 @@ The `package.json` peer dependencies must match the injections:
 | Package | Range | Injection |
 |---|---|---|
 | `react` | `>=18` | `shared_libs.React` |
-| `react-native` | `>=0.74` | Direct import (not injected) |
+| `react-native` | `>=0.86.0` | Direct import (not injected) |
 | `helper-utils` | `^1.0.0` | `shared_libs.Utils` |
 | `helper-debug` | `^1.0.0` | `shared_libs.Debug` |
 | `helper-themer` | `^1.0.0` | `shared_libs.Themer` |
@@ -72,8 +73,9 @@ The `BREAKPOINT_ORDER` config key must match the keys in the contract's `breakpo
 
 The theme is not configuration, but `createSystem` rejects an incomplete one, so it belongs
 in the same boot-time checklist. The built theme (from `Themer.buildTheme(...)`) must carry all
-38 required color tokens in its `.tokens` map; see
-[api.md](api.md#required-color-tokens) for the list. Every value is a non-empty string.
+required tokens in its `.tokens` map; the required list is computed by the D8 rule in
+`data/token-contract.js` (every value-tier token except `color.tag_*` and `color.ai_*`, plus
+every structure-tier token). Every value is a non-empty string.
 
 The library ships no color of its own. There is no default palette and no fallback: a
-theme supplies every color, or the system refuses to build.
+theme supplies every required token, or the system refuses to build.

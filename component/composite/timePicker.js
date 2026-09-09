@@ -151,10 +151,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             Style.utilities['p_v_spacing_03'],
             Style.utilities['background_layer_02'],
             isInvalid
-              ? { borderColor: Style.tokens.Color.support_error }
+              ? { ...Style.utilities['border_color_support_error'] }
               : null,
             isDisabled
-              ? { backgroundColor: Style.tokens.Color.layer_01 }
+              ? { ...Style.utilities['background_layer_01'] }
               : null,
             style
           ]
@@ -188,9 +188,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             accessibilityRole: 'option',
             accessibilityLabel: h + ' hours',
             style: [
-              { paddingVertical: 4, paddingHorizontal: 8, borderRadius: 4 },
+              { paddingVertical: 4, paddingHorizontal: 8, ...Style.utilities['br_radius_04'] },
               h === selectedHour
-                ? { backgroundColor: Style.tokens.Color.interactive }
+                ? { ...Style.utilities['background_interactive'] }
                 : null
             ]
           },
@@ -213,9 +213,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             accessibilityRole: 'option',
             accessibilityLabel: m + ' minutes',
             style: [
-              { paddingVertical: 4, paddingHorizontal: 8, borderRadius: 4 },
+              { paddingVertical: 4, paddingHorizontal: 8, ...Style.utilities['br_radius_04'] },
               m === selectedMinute
-                ? { backgroundColor: Style.tokens.Color.interactive }
+                ? { ...Style.utilities['background_interactive'] }
                 : null
             ]
           },
@@ -252,7 +252,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           // Hour column
           React.createElement(
             RNView,
-            { style: [Style.utilities['flex_1'], { borderRightWidth: 1, borderRightColor: Style.tokens.Color.border_subtle_01 }] },
+            { style: [Style.utilities['flex_1'], Style.utilities['border_w_r_width_01'], Style.utilities['border_color_border_subtle_01']] },
             hourOptions
           ),
           // Minute column
@@ -272,7 +272,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             style: [
               Style.utilities['br_radius_08'],
               Style.utilities['p_v_spacing_01'],
-              { backgroundColor: Style.tokens.Color.interactive, alignItems: 'center', marginTop: 8 }
+              { ...Style.utilities['background_interactive'], alignItems: 'center', marginTop: 8 }
             ]
           },
           React.createElement(Registry.Text, {

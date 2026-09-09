@@ -65,7 +65,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const fieldBg = Object.prototype.hasOwnProperty.call(Style.utilities, fieldBgKey)
       ? Style.utilities[fieldBgKey]
       : isDisabled
-        ? { backgroundColor: Style.tokens.Color.layer_01 }
+        ? { ...Style.utilities['background_layer_01'] }
         : Style.utilities['background_layer_02'];
 
     // Resolve type style: typeSet takes precedence, then default type_body01
@@ -79,9 +79,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     if (isInvalid) {
       const invalidBorderKey = 'border_color_support_error';
       if (Object.prototype.hasOwnProperty.call(Style.utilities, invalidBorderKey)) {
-        borderClasses = [Object.assign({}, Style.utilities[invalidBorderKey], { borderWidth: 1 })];
+        borderClasses = [Object.assign({}, Style.utilities[invalidBorderKey], Style.utilities['border_w_width_01'])];
       } else {
-        borderClasses = [{ borderColor: Style.tokens.Color.support_error, borderWidth: 1 }];
+        borderClasses = [Style.utilities['border_w_width_01'], Style.utilities['border_color_support_error']];
       }
     }
 

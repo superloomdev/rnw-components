@@ -6,7 +6,7 @@
 //   style       -> custom style overrides
 //
 // When typeSet is provided, the full type style is used. Otherwise,
-// the legacy size map is used as a fallback.
+// the fallback size map is used as a fallback.
 
 
 // Imports
@@ -49,7 +49,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const typeSetMap = { 1: 'heading_01', 2: 'heading_02', 3: 'heading_03', 4: 'heading_04', 5: 'heading_05', 6: 'heading_06' };
     const resolvedTypeSet = typeSet || typeSetMap[lvl] || 'heading_01';
 
-    // Legacy size map as fallback when type set utility is not available
+    // Fallback size map when type set utility is not available
     const sizeMap = { 1: 'xxl', 2: 'xl', 3: 'lg', 4: 'md', 5: 'sm', 6: 'xs' };
     const sizeToken = sizeMap[lvl] || 'xl';
 
@@ -58,7 +58,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       level: lvl
     });
 
-    // Check if the type set utility exists; if not, fall back to legacy size
+    // Check if the type set utility exists; if not, fall back to fallback size
     const typeKey = 'type_' + resolvedTypeSet;
     const hasTypeSet = Object.prototype.hasOwnProperty.call(Style.utilities, typeKey);
     const textProps = hasTypeSet

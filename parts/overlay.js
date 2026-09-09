@@ -1,6 +1,6 @@
 // Info: Overlay provider and useOverlay hook.
 //
-// Replaces Carbon's Portal. A provider plus a hook, owning a stack of
+// Replaces the upstream Portal. A provider plus a hook, owning a stack of
 // overlay layers. Maintains an ordered stack so a Popover opened from
 // inside a Modal paints above it. Assigns zIndex from the stack position.
 // Only the topmost trapping layer traps focus. Escape dismisses the

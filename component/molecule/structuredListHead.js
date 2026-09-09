@@ -48,8 +48,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_col'],
           {
-            borderBottomWidth: 1,
-            borderBottomColor: Style.tokens.Color.border_subtle_01
+            ...Style.utilities['border_w_b_width_01'],
+            ...Style.utilities['border_color_border_subtle_01']
           },
           style
         ]

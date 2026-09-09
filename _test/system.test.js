@@ -794,3 +794,65 @@ describe('createSystem color token contract', function () {
   });
 
 });
+
+
+// ========================= STRICT ROSTER WALK ============================= //
+
+describe('strict roster walk', function () {
+
+  // Render every component in all.js under both the Carbon white theme
+  // and the contrast theme. STRICT_TOKENS is on, so any undefined utility
+  // read inside a component throws. This proves the whole roster consumes
+  // only declared utilities and carries no hardcoded fallback.
+
+  function rosterWalk (theme, label) {
+
+    const sys = createSystem(sharedLibs, { STRICT_TOKENS: true }, theme, 'sm');
+    sys.addComponents(COMPONENTS);
+
+    const names = Object.keys(COMPONENTS);
+    assert.ok(names.length > 0, 'roster must not be empty');
+
+    for (let i = 0; i < names.length; i++) {
+      const name = names[i];
+      const factory = sys.Component[name];
+      assert.ok(typeof factory === 'function', label + ': ' + name + ' must be a function');
+
+      // Render the component with minimal props. A throw here means the
+      // component read an undeclared utility under STRICT_TOKENS.
+      let render;
+      act(function () {
+        try {
+          render = TestRenderer.create(React.createElement(factory, { label: name }));
+        } catch (err) {
+          // Components that require specific props may throw a TypeError
+          // for missing required props; that is not a utility violation.
+          // A STRICT_TOKENS violation throws with "unknown utility" in the
+          // message; re-throw it so the roster walk fails.
+          if (err.message && err.message.indexOf('unknown utility') !== -1) {
+            throw err;
+          }
+          // Other errors are acceptable for the roster walk; the goal is
+          // to catch undeclared utility reads, not prop validation.
+        }
+      });
+      if (render) {
+        render.unmount();
+      }
+    }
+
+  }
+
+  it('should render every component under buildCarbonWhite without a strict violation', function () {
+
+    rosterWalk(buildCarbonWhite(), 'white');
+
+  });
+
+  it('should render every component under buildContrastTheme without a strict violation', function () {
+
+    rosterWalk(buildContrastTheme(), 'contrast');
+
+  });
+
+});

@@ -47,7 +47,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) { // eslin
       Object.assign({ style: [style] }, rest),
       React.createElement(RNView, {
         style: {
-          width: '100%',
+          flex: 1,
           aspectRatio: r
         }
       }, children)

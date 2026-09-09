@@ -140,10 +140,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             Style.utilities['p_v_spacing_03'],
             Style.utilities['background_layer_02'],
             isInvalid
-              ? { borderColor: Style.tokens.Color.support_error }
+              ? { ...Style.utilities['border_color_support_error'] }
               : null,
             isDisabled
-              ? { backgroundColor: Style.tokens.Color.layer_01 }
+              ? { ...Style.utilities['background_layer_01'] }
               : null,
             style
           ]

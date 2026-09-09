@@ -3,7 +3,7 @@
 // Uses Overlay (M4) for stacking and useFocusTrap for focus management.
 //
 // S3 obligations (all six, from the plan):
-//   1. On open: record the previously focused element and move focus into the overlay
+//   1. On open: record the last focused element and move focus into the overlay
 //   2. While open: trap focus so Tab cycles within the overlay
 //   3. On Escape (web) or hardware back (Android): close
 //   4. On outside press: close
@@ -78,7 +78,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: {
           position: 'absolute',
           top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)'
+          ...Style.utilities['background_overlay']
         }
       });
     };

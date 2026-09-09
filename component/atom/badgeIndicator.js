@@ -50,8 +50,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityLabel: displayCount + ' items',
         style: [
           {
-            backgroundColor: Style.tokens.Color.interactive,
-            borderRadius: 10,
+            ...Style.utilities['background_interactive'],
+            ...Style.utilities['br_radius_max'],
             minWidth: 20,
             height: 20,
             paddingHorizontal: 6,

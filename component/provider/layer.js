@@ -30,7 +30,7 @@ Build the Layer provider.
 
 @return {Object} - The Layer provider interface
 *********************************************************************/
-export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) { // eslint-disable-line no-unused-vars
+export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
   /////////////////////////// Static Constants START ////////////////////////////
   // None.
@@ -46,18 +46,32 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) { // eslin
   const LayerContext = createContext(0);
   LayerContext.displayName = 'LayerContext';
 
-  // Mapping from layer numbers to token name suffixes
-  const LAYER_TOKEN_SUFFIXES = ['background', 'layer_01', 'layer_02', 'layer_03'];
-
   // Hook for descendants to read the current layer
   const useLayer = function () {
     return React.useContext(LayerContext);
   };
 
-  // Hook for descendants to get the token suffix for the current layer
+  // Hook for descendants to get the token suffix for the current layer.
+  // Reads the available layer keys from Style.tokens.Color so the layer
+  // prop accepts background, layer_01, layer_02, layer_03 by reading the
+  // contract, not a hardcoded list (D14).
   const useLayerToken = function () {
     const level = React.useContext(LayerContext);
-    return LAYER_TOKEN_SUFFIXES[level] || LAYER_TOKEN_SUFFIXES[0];
+
+    // Read the layer keys from the contract: the `background` token plus
+    // every `layer_*` color token, in the order the contract declares them.
+    const colorKeys = Object.keys(Style.tokens.Color);
+    const keys = [];
+    for (let i = 0; i < colorKeys.length; i++) {
+      const k = colorKeys[i];
+      if (k === 'background' || k.indexOf('layer_') === 0) {
+        keys.push(k);
+      }
+    }
+    if (Lib.Utils.isEmptyArray(keys)) {
+      keys.push('background');
+    }
+    return keys[level] || keys[0];
   };
 
   // Provider component
@@ -97,8 +111,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) { // eslin
     Layer: Layer,
     useLayer: useLayer,
     useLayerToken: useLayerToken,
-    LayerContext: LayerContext,
-    LAYER_TOKEN_SUFFIXES: LAYER_TOKEN_SUFFIXES
+    LayerContext: LayerContext
   };
 
 }/////////////////////////// Component Factory END /////////////////////////////

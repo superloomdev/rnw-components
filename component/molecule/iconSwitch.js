@@ -77,10 +77,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           {
             width: 48,
             height: 28,
-            borderRadius: 14,
-            backgroundColor: isChecked
-              ? (Style.tokens.Color.interactive)
-              : (Style.tokens.Color.layer_01),
+            ...Style.utilities['br_radius_max'],
+            ...(isChecked
+              ? Style.utilities['background_interactive']
+              : Style.utilities['background_layer_01']),
             padding: 2
           },
           style

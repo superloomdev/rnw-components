@@ -102,9 +102,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['m_r_spacing_03'],
           Style.utilities['br_radius_04'],
           {
-            backgroundColor: isSelected
-              ? (Style.tokens.Color.interactive)
-              : (Style.tokens.Color.layer_01)
+            ...(isSelected
+              ? Style.utilities['background_interactive']
+              : Style.utilities['background_layer_01'])
           },
           style
         ]

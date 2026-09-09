@@ -47,7 +47,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['flex_row'],
           Style.utilities['justify_end'],
           Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
-          { borderTopWidth: 1 },
+          { ...Style.utilities['border_w_t_width_01'] },
           style
         ]
       }, rest),

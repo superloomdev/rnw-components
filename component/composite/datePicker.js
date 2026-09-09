@@ -193,10 +193,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             Style.utilities['p_v_spacing_03'],
             Style.utilities['background_layer_02'],
             isInvalid
-              ? { borderColor: Style.tokens.Color.support_error }
+              ? { ...Style.utilities['border_color_support_error'] }
               : null,
             isDisabled
-              ? { backgroundColor: Style.tokens.Color.layer_01 }
+              ? { ...Style.utilities['background_layer_01'] }
               : null,
             style
           ]
@@ -241,9 +241,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             accessibilityRole: 'option',
             accessibilityLabel: day + ' ' + (monthNames[viewMonth] || '') + ' ' + viewYear,
             style: [
-              { width: 32, height: 32, justifyContent: 'center', alignItems: 'center', borderRadius: 4 },
+              { width: 32, height: 32, justifyContent: 'center', alignItems: 'center', ...Style.utilities['br_radius_04'] },
               isSelected
-                ? { backgroundColor: Style.tokens.Color.interactive }
+                ? { ...Style.utilities['background_interactive'] }
                 : null
             ]
           },

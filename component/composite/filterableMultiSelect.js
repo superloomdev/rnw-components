@@ -151,7 +151,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             Style.utilities['p_v_spacing_03'],
             Style.utilities['background_layer_02'],
             isDisabled
-              ? { backgroundColor: Style.tokens.Color.layer_01 }
+              ? { ...Style.utilities['background_layer_01'] }
               : null,
             style
           ]

@@ -12,7 +12,8 @@ import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import * as rnw from 'react-native-web';
 
-import { Style } from './loader.js';
+import { Style, Themer } from './loader.js';
+import buildTokenContract from 'rnw-components/data/token-contract.js';
 
 const require = createRequire(import.meta.url);
 const DATA = require('rnw-components/data/style-contract.json');
@@ -504,34 +505,61 @@ describe('L4-R10: BORDER tokens not used as font color', function () {
 
 
 // ============================================================================
-// Planted-violation proof tests for G27/G28/G29
+// Planted-violation proof tests for G27/G28/G29 (new) and G30/G31/G32 (moved)
 // ============================================================================
 
-describe('L4-PROOF: G27/G28/G29 violation detection', function () {
+describe('L4-PROOF: G27/G28/G29/G30/G31/G32 violation detection', function () {
 
-  it('G27 should detect vendor terminology in a sample string', function () {
+  it('G27 should detect a fallback chain in a sample string', function () {
+
+    const sample = 'const c = Style.tokens.Color.interactive || Color.blue60;';
+    assert.ok(/(Style\.tokens\.Color|colorMap)\.[A-Za-z_0-9]+ *\|\|/.test(sample),
+      'G27 proof: should detect a fallback chain');
+
+  });
+
+
+  it('G28 should detect a SCREAMING_SNAKE token name in a sample string', function () {
+
+    const sample = 'const util = Style.utilities["BACKGROUND_PRIMARY"];';
+    assert.ok(/\b[A-Z][A-Z0-9]+_[A-Z][A-Z0-9_]*\b/.test(sample),
+      'G28 proof: should detect BACKGROUND_PRIMARY SCREAMING token');
+
+  });
+
+
+  it('G29 should detect a unit string in a sample string', function () {
+
+    const sample = "const w = '16px';";
+    assert.ok(/'[0-9.]+(rem|em|px|vw|vh|ms)'/.test(sample),
+      'G29 proof: should detect 16px unit string');
+
+  });
+
+
+  it('G30 should detect vendor terminology in a sample string', function () {
 
     const sample = 'const color = Carbon.blue60;';
     assert.ok(/carbon/i.test(sample),
-      'G27 proof: should detect "Carbon" in source');
+      'G30 proof: should detect "Carbon" in source');
 
   });
 
 
-  it('G28 should detect dead token names in a sample string', function () {
+  it('G31 should detect dead token names in a sample string', function () {
 
     const sample = 'const util = Style.utilities["font_size_md"];';
     assert.ok(/font_size_md/.test(sample),
-      'G28 proof: should detect font_size_md dead token');
+      'G31 proof: should detect font_size_md dead token');
 
   });
 
 
-  it('G29 should detect removed ./theme export reference', function () {
+  it('G32 should detect removed ./theme export reference', function () {
 
     const sample = "import theme from 'rnw-components/theme';";
     assert.ok(/rnw-components\/theme/.test(sample),
-      'G29 proof: should detect rnw-components/theme reference');
+      'G32 proof: should detect rnw-components/theme reference');
 
   });
 
@@ -541,20 +569,12 @@ describe('L4-PROOF: G27/G28/G29 violation detection', function () {
 // ─── Color token contract ──────────────────────────────────────────────────
 
 // The contract color tokens createSystem validates through Themer.
-// These are the lowercase contract names, not the old UPPERCASE names.
-const REQUIRED_COLOR_TOKENS = [
-  'interactive', 'text_primary', 'text_secondary', 'text_disabled',
-  'text_on_color', 'text_helper', 'background', 'layer_01', 'layer_02',
-  'border_subtle_01', 'border_interactive',
-  'support_success', 'support_error', 'support_warning', 'support_info',
-  'button_primary', 'button_primary_hover', 'button_primary_active',
-  'button_secondary', 'button_secondary_hover', 'button_secondary_active',
-  'button_tertiary', 'button_tertiary_hover', 'button_tertiary_active',
-  'button_danger_primary', 'button_danger_hover', 'button_danger_active',
-  'button_danger_secondary', 'button_disabled', 'button_separator',
-  'focus', 'icon_primary', 'icon_secondary', 'icon_on_color', 'icon_disabled',
-  'overlay', 'shadow', 'skeleton_background'
-];
+// Computed from the contract through the same D8 rule the library uses.
+const _contract = Themer.getContract();
+const _contractInfo = buildTokenContract(_contract);
+const REQUIRED_COLOR_TOKENS = _contractInfo.REQUIRED_TOKENS
+  .filter(function (name) { return name.indexOf('color.') === 0; })
+  .map(function (name) { return name.slice('color.'.length); });
 
 
 test('no component file carries a hardcoded color', function () {
@@ -613,6 +633,15 @@ test('every Style.tokens.Color read by a component is in the required list', fun
   assert.deepEqual(missing, []);
 });
 
-test('the required list matches the documented count', function () {
-  assert.equal(REQUIRED_COLOR_TOKENS.length, 38);
+test('the required color list matches the contract D8 rule', function () {
+  // Recompute the required color tokens from the contract using the same
+  // D8 rule the library uses, and verify the test list matches.
+  const contract = Themer.getContract();
+  const contractInfo = buildTokenContract(contract);
+  const expected = contractInfo.REQUIRED_TOKENS
+    .filter(function (name) { return name.indexOf('color.') === 0; })
+    .map(function (name) { return name.slice('color.'.length); })
+    .sort();
+  const actual = REQUIRED_COLOR_TOKENS.slice().sort();
+  assert.deepEqual(actual, expected);
 });

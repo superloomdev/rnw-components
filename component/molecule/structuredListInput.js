@@ -80,11 +80,11 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           {
             width: 20,
             height: 20,
-            borderRadius: 10,
-            borderWidth: 2,
-            borderColor: isChecked
-              ? (Style.tokens.Color.interactive)
-              : (Style.tokens.Color.border_subtle_01)
+            ...Style.utilities['br_radius_max'],
+            ...Style.utilities['border_w_width_02'],
+            ...(isChecked
+              ? Style.utilities['border_color_interactive']
+              : Style.utilities['border_color_border_subtle_01'])
           },
           style
         ]
@@ -94,8 +94,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           style: {
             width: 8,
             height: 8,
-            borderRadius: 4,
-            backgroundColor: Style.tokens.Color.interactive
+            ...Style.utilities['br_radius_04'],
+            ...Style.utilities['background_interactive']
           }
         })
         : null

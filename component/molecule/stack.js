@@ -43,7 +43,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     const React = Lib.React;
     const dir = direction || 'vertical';
-    const gapToken = gap || 'md';
+    const gapToken = gap || 'spacing_03';
 
     // Map gap token to margin utility
     const gapStyle = dir === 'horizontal'

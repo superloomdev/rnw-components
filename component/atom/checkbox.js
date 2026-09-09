@@ -67,16 +67,16 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     });
 
     // Resolve the checkbox box style based on checked state,
-    const interactiveColor = Style.tokens.Color.interactive;
-    const borderInteractiveColor = Style.tokens.Color.border_interactive;
-    const iconDisabledColor = Style.tokens.Color.icon_disabled;
-    const borderSubtleColor = Style.tokens.Color.border_subtle_01;
+    const interactiveColor = Style.utilities['background_interactive'].backgroundColor;
+    const borderInteractiveColor = Style.utilities['border_color_border_interactive'].borderColor;
+    const iconDisabledColor = Style.utilities['border_color_icon_disabled'].borderColor;
+    const borderSubtleColor = Style.utilities['border_color_border_subtle_01'].borderColor;
 
     const boxBase = {
       width: 20,
       height: 20,
-      borderRadius: 2,
-      borderWidth: 2,
+      ...Style.utilities['br_radius_02'],
+      ...Style.utilities['border_w_width_02'],
       justifyContent: 'center',
       alignItems: 'center'
     };
@@ -116,7 +116,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: {
           width: 10,
           height: 2,
-          backgroundColor: Style.tokens.Color.text_on_color
+          ...Style.utilities['background_text_on_color']
         }
       });
     }

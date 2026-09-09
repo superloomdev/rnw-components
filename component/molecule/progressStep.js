@@ -47,10 +47,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Determine the indicator color based on status
     const indicatorColor = currentStatus === 'complete'
-      ? (Style.tokens.Color.support_success)
+      ? Style.utilities['background_support_success'].backgroundColor
       : currentStatus === 'current'
-        ? (Style.tokens.Color.interactive)
-        : (Style.tokens.Color.border_subtle_01);
+        ? Style.utilities['background_interactive'].backgroundColor
+        : Style.utilities['background_border_subtle_01'].backgroundColor;
 
     // Build aria state props
     const ariaProps = Parts.A11y.state({
@@ -78,7 +78,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: {
           width: 24,
           height: 24,
-          borderRadius: 12,
+          ...Style.utilities['br_radius_max'],
           backgroundColor: indicatorColor,
           justifyContent: 'center',
           alignItems: 'center',

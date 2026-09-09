@@ -73,9 +73,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Resolve track and thumb colors
     const activeColor = isDisabled
-      ? Style.tokens.Color.icon_disabled
-      : Style.tokens.Color.interactive;
-    const inactiveColor = Style.tokens.Color.border_subtle_01;
+      ? Style.utilities['background_icon_disabled'].backgroundColor
+      : Style.utilities['background_interactive'].backgroundColor;
+    const inactiveColor = Style.utilities['background_border_subtle_01'].backgroundColor;
 
     // Build aria state and value props through the a11y translator
     const ariaStateProps = Parts.A11y.state({

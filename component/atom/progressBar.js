@@ -70,7 +70,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       const animation = Animated.loop(
         Animated.timing(animatedValue, {
           toValue: 1,
-          duration: 1200,
+          duration: Style.tokens.Motion.duration_slow_02,
           useNativeDriver: false
         })
       );
@@ -113,7 +113,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     // Indeterminate mode: animated sliding bar
     const translateX = animatedValue.interpolate({
       inputRange: [0, 1],
-      outputRange: ['-100%', '100%']
+      outputRange: [-1, 1],
+      extrapolate: 'extend'
     });
 
     return Lib.React.createElement(

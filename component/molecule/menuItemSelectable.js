@@ -90,13 +90,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             width: 16,
             height: 16,
             marginRight: 8,
-            borderWidth: 2,
-            borderRadius: 2,
-            borderColor: checked
-              ? (Style.tokens.Color.interactive)
-              : (Style.tokens.Color.border_subtle_01),
+            ...Style.utilities['border_w_width_02'],
+            ...Style.utilities['br_radius_02'],
+            ...(checked
+              ? Style.utilities['border_color_interactive']
+              : Style.utilities['border_color_border_subtle_01']),
             backgroundColor: checked
-              ? (Style.tokens.Color.interactive)
+              ? Style.utilities['background_interactive'].backgroundColor
               : 'transparent',
             justifyContent: 'center',
             alignItems: 'center'

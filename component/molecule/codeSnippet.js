@@ -49,8 +49,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       Object.assign({
         style: [
           {
-            backgroundColor: Style.tokens.Color.layer_01,
-            borderRadius: 6,
+            ...Style.utilities['background_layer_01'],
+            ...Style.utilities['br_radius_04'],
             padding: 12,
             fontFamily: 'monospace'
           },

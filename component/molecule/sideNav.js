@@ -52,8 +52,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['background_layer_02'],
           {
             width: expanded === false ? 0 : 256,
-            borderRightWidth: 1,
-            borderRightColor: Style.tokens.Color.border_subtle_01
+            ...Style.utilities['border_w_r_width_01'],
+            ...Style.utilities['border_color_border_subtle_01']
           },
           style
         ]

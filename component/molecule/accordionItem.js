@@ -86,7 +86,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       Object.assign({
         style: [
           Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
-          { borderBottomWidth: 1 },
+          { ...Style.utilities['border_w_b_width_01'] },
           style
         ]
       }, rest),
@@ -125,7 +125,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             style: [
               Style.utilities['p_h_spacing_05'],
               Style.utilities['p_v_spacing_05'],
-              { backgroundColor: Style.tokens.Color.layer_01 }
+              { ...Style.utilities['background_layer_01'] }
             ]
           },
           children

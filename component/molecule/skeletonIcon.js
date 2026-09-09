@@ -49,8 +49,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           {
             width: 24,
             height: 24,
-            borderRadius: 4,
-            backgroundColor: Style.tokens.Color.layer_01
+            ...Style.utilities['br_radius_04'],
+            ...Style.utilities['background_layer_01']
           },
           style
         ]

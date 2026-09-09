@@ -49,7 +49,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_col'],
           Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
-          { borderRightWidth: 1 },
+          { ...Style.utilities['border_w_r_width_01'] },
           style
         ]
       }, rest),

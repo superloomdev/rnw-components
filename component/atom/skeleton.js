@@ -58,7 +58,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Build skeleton box style
     const boxStyle = {
-      backgroundColor: Style.tokens.Color.layer_01,
+      ...Style.utilities['background_layer_01'],
       borderRadius: v === 'text' ? 2 : 4,
       height: resolvedHeight,
       width: resolvedWidth

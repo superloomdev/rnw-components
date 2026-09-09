@@ -75,7 +75,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['br_radius_04'],
           {
             backgroundColor: isActive
-              ? (Style.tokens.Color.layer_01)
+              ? Style.utilities['background_layer_01'].backgroundColor
               : 'transparent'
           },
           style

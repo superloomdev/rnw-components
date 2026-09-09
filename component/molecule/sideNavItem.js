@@ -71,7 +71,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['p_v_spacing_03'],
           {
             backgroundColor: isActive
-              ? (Style.tokens.Color.background)
+              ? Style.utilities['background_background'].backgroundColor
               : 'transparent'
           },
           style

@@ -64,7 +64,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     if (isInvalid) {
       const invalidBorderKey = 'border_color_support_error';
       borderClasses = Object.prototype.hasOwnProperty.call(Style.utilities, invalidBorderKey)
-        ? [Object.assign({}, Style.utilities[invalidBorderKey], { borderWidth: 1 })]
+        ? [Object.assign({}, Style.utilities[invalidBorderKey], Style.utilities['border_w_width_01'])]
         : [Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01']];
     } else if (focused) {
       borderClasses = [Style.utilities['border_w_width_01'], Style.utilities['border_color_interactive']];

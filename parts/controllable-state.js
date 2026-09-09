@@ -1,6 +1,6 @@
 // Info: Controlled/uncontrolled state hook.
 //
-// Every Carbon form component supports both controlled and uncontrolled
+// Every form component supports both controlled and uncontrolled
 // use. This hook implements the pattern once. Controlled when `value` is
 // not undefined, uncontrolled otherwise. Warns once through Lib.Debug.warn
 // when a component switches modes between renders. Never warns on every

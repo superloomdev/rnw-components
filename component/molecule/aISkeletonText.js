@@ -50,9 +50,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: {
           width: isLast ? '60%' : '100%',
           height: 16,
-          borderRadius: 2,
+          ...Style.utilities['br_radius_02'],
           marginBottom: isLast ? 0 : 8,
-          backgroundColor: Style.tokens.Color.layer_01
+          ...Style.utilities['background_layer_01']
         }
       }));
     }

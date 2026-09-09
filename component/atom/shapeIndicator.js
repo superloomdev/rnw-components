@@ -62,7 +62,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     if (sh === 'circle') {
       shapeStyle = { borderRadius: s / 2 };
     } else if (sh === 'square') {
-      shapeStyle = { borderRadius: 2 };
+      shapeStyle = Style.utilities['br_radius_02'];
     } else {
       // Triangle: use border trick (no SVG needed for a simple triangle)
       shapeStyle = {

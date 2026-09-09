@@ -41,7 +41,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const gapToken = spacing || 'md';
+    const gapToken = spacing || 'spacing_03';
 
     // Map gap token to margin utility
     const gapStyle = Style.utilities['m_b_' + gapToken];

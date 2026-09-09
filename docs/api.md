@@ -20,7 +20,7 @@ const system = createSystem(shared_libs, config?, built, breakpoint?)
 | `shared_libs.Icons` | Object | No | Icon source with a `Glyph` component |
 | `shared_libs.Font` | Object | No | `helper-font` instance |
 | `config` | Object | No | Overrides merged over defaults |
-| `built` | Object | Yes | Result of `Themer.buildTheme(...)`; must carry a `.tokens` flat map with all 38 required color tokens |
+| `built` | Object | Yes | Result of `Themer.buildTheme(...)`; must carry a `.tokens` flat map with all required tokens |
 | `breakpoint` | String | No | Active breakpoint key, default `'sm'` |
 
 The system carries the validated container, the mechanism parts, the
@@ -30,25 +30,11 @@ imported.
 
 Re-theming builds a new system. A system is never mutated in place.
 
-### Required Color tokens
+### Token Contract
 
-`createSystem` throws a `TypeError` when `built.tokens` omits any of these, naming every
-absent token in one message. The component set holds no color of its own, so an absent
-token has nothing to resolve to and would render as `undefined`.
+A component system requires its tokens from the Superloom token contract and declares the subset it requires and the subset it supports as exported data. `createSystem` calls `Themer.validateContract` with both lists: missing required tokens are one `TypeError` naming them all; unsupported provided tokens are one warning naming them all. No component source contains a color literal, reads a token by a name outside the contract, or falls back from one token to another; CI gates G24, G27, G28, and G29 enforce this. A hardcoded fallback would make an incomplete theme look complete while substituting the library's own design decisions; the correct behavior is to refuse to build so the theme author sees the gap.
 
-| Group | Tokens |
-|---|---|
-| Interactive | `interactive` |
-| Text | `text_primary`, `text_secondary`, `text_disabled`, `text_on_color`, `text_helper` |
-| Surface | `background`, `layer_01`, `layer_02` |
-| Border | `border_subtle_01`, `border_interactive` |
-| Support | `support_success`, `support_error`, `support_warning`, `support_info` |
-| Button | `button_primary`, `button_primary_hover`, `button_primary_active`, `button_secondary`, `button_secondary_hover`, `button_secondary_active`, `button_tertiary`, `button_tertiary_hover`, `button_tertiary_active`, `button_danger_primary`, `button_danger_hover`, `button_danger_active`, `button_danger_secondary`, `button_disabled`, `button_separator` |
-| Focus | `focus` |
-| Icon | `icon_primary`, `icon_secondary`, `icon_on_color`, `icon_disabled` |
-| Misc | `overlay`, `shadow`, `skeleton_background` |
-
-Each value must be a non-empty string. Tokens beyond this set are allowed and ignored.
+Signature `createSystem(shared_libs, config, built, breakpoint)`; `shared_libs.Themer` required; `built` is `Themer.buildTheme(...)` output; breakpoints `sm md lg xlg max` from `breakpoint.*`; utility families: `background_<name>`, `font_<name>`, `border_color_<name>`, `br_radius_<name>`, `border_w_<side>_width_<name>`, `p_<dir>_spacing_<name>`, `m_<dir>_spacing_<name>`, `type_<name>`, `flex_<name>`, `align_<name>`, `justify_<name>`, `focus_ring`; prop vocabulary: `kind` (`primary` `secondary` `tertiary` `danger` `ghost`), `size` (`sm` `md` `lg`), `color` (font color token), `background` (background color token), `radius` (radius token), `spacing` (spacing token); required and supported lists in `data/token-contract.js`.
 
 ## Module Exports
 
@@ -1063,7 +1049,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
-| `spacing` | - | 'md' | string (space token, default 'md') |
+| `spacing` | - | 'spacing_03' | string (space token, default 'md') |
 | `children` | Node | - | content to stack |
 | `style` | Object|Array | - | custom style overrides |
 
@@ -2110,7 +2096,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `direction` | String | 'vertical' | 'vertical' | 'horizontal' (default 'vertical') |
-| `gap` | - | 'md' | string (space token, default 'md') |
+| `gap` | - | 'spacing_03' | string (space token, default 'md') |
 | `children` | Node | - | content to stack |
 | `style` | Object|Array | - | custom style overrides |
 
@@ -2852,7 +2838,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
-| `spacing` | - | 'md' | string (space token, default 'md') |
+| `spacing` | - | 'spacing_03' | string (space token, default 'md') |
 | `children` | Node | - | content to stack |
 | `style` | Object|Array | - | custom style overrides |
 
@@ -2888,3 +2874,23 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | `style` | Object|Array | - | custom style overrides |
 
 <!-- END GENERATED: component-sections -->
+
+## Motion
+
+Every animation in this library reads its curve and duration from the theme and runs it through `parts/motion.js`, which implements the three curve kinds of the Superloom contract: a bezier (`Easing.bezier`), a spring (`Animated.spring` parameters), and segments (a sequenced list of beziers). Components decide what animates and in which order; the theme decides how fast and along which curve. A theme can change every curve without a release of this library. Adding a fourth curve kind is a release of this library and a new contract version.
+
+## Stacking
+
+Which surface sits above which is the same in every design system, so it is not a theme value. `data/stacking.js` is the one table: `hidden -1`, `overflow_hidden -1`, `header 8000`, `footer 8000`, `overlay 8000`, `modal 9000`, `dropdown 9100`, `floating 10000`. Every `zIndex` in this library reads it.
+
+## Focus ring
+
+The focus ring is drawn with the `outline*` style props (React Native 0.77 or later), so it never changes layout. `feedback.focus` selects `outline`, `inset`, or `underline`; `focus.width`, `focus.offset`, and `color.focus` size and color it.
+
+## Runtime floor
+
+This library requires React Native 0.86 or later and React Native for Web 0.21 or later. The floor is the React Native version pinned by the latest Expo SDK and rises with it. Below the floor, `boxShadow` and the `outline*` props do not render.
+
+## Where a value came from
+
+A reference theme package lists in `from_base` the keys its design system did not define. When `config.DEBUG_FROM_BASE` is true, `createSystem` reports at debug level every key it read that the theme took from the base template. This is information, not an error: leaving a key to Superloom's base is a legitimate choice.

@@ -52,7 +52,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['p_h_spacing_06'],
           Style.utilities['p_v_spacing_05'],
           Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
-          { borderBottomWidth: 1 },
+          { ...Style.utilities['border_w_b_width_01'] },
           style
         ]
       }, rest),

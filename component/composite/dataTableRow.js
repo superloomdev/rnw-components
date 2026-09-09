@@ -70,7 +70,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       Style.utilities['align_center'],
       Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
       selected
-        ? { backgroundColor: (Style.tokens.Color.layer_01) }
+        ? { ...Style.utilities['background_layer_01'] }
         : null,
       style
     ];

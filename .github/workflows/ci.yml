@@ -305,7 +305,39 @@ jobs:
             exit 1
           fi
           echo "PASS: no raw length or keys checks in module source"
-      - name: G27 - No vendor terminology in generic modules
+      - name: G27 - No fallback chains in component source
+        run: |
+          hits=$(git grep -nE "(Style\.tokens\.Color|colorMap)\.[A-Za-z_0-9]+ *\|\|" component/ 2>/dev/null || true)
+          if [ -n "$hits" ]; then
+            echo "FAIL: fallback chain found in component source."
+            echo "A token read must not fall back to another token; a missing"
+            echo "token must fail the build, not silently substitute."
+            echo "$hits"
+            exit 1
+          fi
+          echo "PASS: no fallback chains in component source"
+      - name: G28 - No SCREAMING token names in source
+        run: |
+          hits=$(git grep -nE "\b[A-Z][A-Z0-9]+_[A-Z][A-Z0-9_]*\b" component/ components.*.js parts/ data/ 2>/dev/null | grep -vE "CONFIG\.|ERRORS\.|STRICT_TOKENS|REQUIRED_TOKENS|SUPPORTED_TOKENS" || true)
+          if [ -n "$hits" ]; then
+            echo "FAIL: SCREAMING_SNAKE token name found in source."
+            echo "Theme tokens use lowercase snake_case; SCREAMING_SNAKE is for"
+            echo "config keys only, never for theme tokens."
+            echo "$hits"
+            exit 1
+          fi
+          echo "PASS: no SCREAMING token names in source"
+      - name: G29 - No unit strings in source
+        run: |
+          hits=$(git grep -nE "'[0-9.]+(rem|em|px|vw|vh|ms)'" component/ components.*.js parts/ data/ _test/harness _test/fixtures 2>/dev/null || true)
+          if [ -n "$hits" ]; then
+            echo "FAIL: unit string found in source."
+            echo "Theme values are unit-free; the engine attaches units at emit time."
+            echo "$hits"
+            exit 1
+          fi
+          echo "PASS: no unit strings in source"
+      - name: G30 - No vendor terminology in generic modules
         run: |
           hits=$(grep -rniE "carbon|ibm plex" component/ components.js 2>/dev/null || true)
           if [ -n "$hits" ]; then
@@ -316,7 +348,7 @@ jobs:
             exit 1
           fi
           echo "PASS: no vendor terminology in generic modules"
-      - name: G28 - No dead token names in component source
+      - name: G31 - No dead token names in component source
         run: |
           hits=$(grep -rnE "background_surface|background_app_primary|background_app_secondary|background_app_primary_subtle|background_background_primary|background_background_secondary|background_status_danger|background_status_success|background_status_warning|background_status_info|font_size_xs|font_size_sm|font_size_md|font_size_lg|font_size_xl|font_size_xxl|font_family_secondary|br_sm|br_md|br_lg|br_xl|br_pill|p_a_xs|p_a_sm|p_a_md|p_a_lg|p_a_xl|p_a_xxl|border_default|border_top|border_primary|border_focused|app_primary|text_on_primary|text_muted|status_danger" component/ 2>/dev/null || true)
           if [ -n "$hits" ]; then
@@ -327,7 +359,7 @@ jobs:
             exit 1
           fi
           echo "PASS: no dead token names in component source"
-      - name: G29 - No removed ./theme export reference
+      - name: G32 - No removed ./theme export reference
         run: |
           hits=$(grep -rnE "rnw-components/theme|from ['\"]\./theme['\"]" component/ components.js all.js parts/ 2>/dev/null || true)
           if [ -n "$hits" ]; then

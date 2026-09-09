@@ -57,10 +57,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Tag container style
     const tagStyle = {
-      backgroundColor: isOperational
-        ? (Style.tokens.Color.interactive)
-        : (Style.tokens.Color.layer_01),
-      borderRadius: 12,
+      ...(isOperational
+        ? Style.utilities['background_interactive']
+        : Style.utilities['background_layer_01']),
+      ...Style.utilities['br_radius_max'],
       paddingHorizontal: 10,
       paddingVertical: 4,
       flexDirection: 'row',

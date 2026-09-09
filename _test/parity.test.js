@@ -1,15 +1,12 @@
-// Info: Carbon parity test (Plan 0149, Step 4.1).
+// Info: Carbon parity test.
 //
-// This test compares Superloom's Carbon profile output against the
-// independent parity oracle generated from pinned @carbon/react@1.115.0
-// upstream sources. The oracle is NOT generated from Superloom output.
+// Compares Superloom's Carbon profile output against the independent
+// parity oracle generated from pinned @carbon/react@1.115.0 upstream
+// sources. The oracle is NOT generated from Superloom output.
 //
-// During Step 4.1, the Carbon profile data does not yet exist (Step 4.2
-// creates it). This test records the expected state: the profile is not
-// yet available, so the oracle exists but the comparison is blocked.
-//
-// After Step 4.2 ships the profile, this test will compare actual emitted
-// values against the oracle and report mismatches.
+// For each of the four Carbon schemes, the test builds the theme through
+// the real Themer engine, creates a system through createSystem with
+// STRICT_TOKENS, and asserts that the utility values match the oracle.
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -20,6 +17,9 @@ import themerLoader from 'helper-themer';
 import utilsLoader from 'helper-utils';
 import debugLoader from 'helper-debug';
 import carbonV11Profile from 'helper-themer-template-carbon';
+
+import { createSystem, sharedLibs } from './loader.js';
+import { COMPONENTS } from 'rnw-components/all';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -141,91 +141,106 @@ describe('parity oracle - negative controls', () => {
 });
 
 
-describe('parity oracle - Superloom profile comparison', () => {
+// Build the Themer engine for scheme building
+const Utils = utilsLoader();
+const Debug = debugLoader({ Utils });
+const Themer = themerLoader({ Utils, Debug });
 
-  // Info: Build themes through the real Themer engine from the Carbon
-  // reference template. The ./theme export was removed in Wave F.1, so
-  // we construct the Themer instance directly from the helper modules
-  // and build each scheme via Themer.buildTheme().
-  const Utils = utilsLoader();
-  const Debug = debugLoader({ Utils });
-  const Themer = themerLoader({ Utils, Debug });
+// Build all four schemes through the real engine
+const schemes = {
+  white: Themer.buildTheme(carbonV11Profile.schemes.white, [], 'native'),
+  g10: Themer.buildTheme(carbonV11Profile.schemes.g10, [], 'native'),
+  g90: Themer.buildTheme(carbonV11Profile.schemes.g90, [], 'native'),
+  g100: Themer.buildTheme(carbonV11Profile.schemes.g100, [], 'native')
+};
 
-  const white = Themer.buildTheme(carbonV11Profile.schemes.white, [], 'native');
-  const g10 = Themer.buildTheme(carbonV11Profile.schemes.g10, [], 'native');
-  const g90 = Themer.buildTheme(carbonV11Profile.schemes.g90, [], 'native');
-  const g100 = Themer.buildTheme(carbonV11Profile.schemes.g100, [], 'native');
+// Build a strict system for a scheme
+function systemForScheme (schemeName) {
+  const sys = createSystem(sharedLibs, { STRICT_TOKENS: true }, schemes[schemeName], 'sm');
+  sys.addComponents(COMPONENTS);
+  return sys;
+}
 
-  it('should build all four Carbon schemes through the Themer engine', () => {
 
-    assert.ok(white, 'white theme must build');
-    assert.ok(g10, 'g10 theme must build');
-    assert.ok(g90, 'g90 theme must build');
-    assert.ok(g100, 'g100 theme must build');
+describe('parity - utility values through createSystem', () => {
 
-  });
+  // Test each of the four schemes
+  for (const schemeName of ['white', 'g10', 'g90', 'g100']) {
 
-  it('should match white profile background values against the oracle', () => {
+    describe(schemeName + ' scheme', () => {
 
-    const w = white.tokens;
-    assert.equal(w['color.background'], oracle.themes.white.background.background);
-    assert.equal(w['color.layer_01'], oracle.themes.white.layers.layer01);
-    assert.equal(w['color.layer_02'], oracle.themes.white.layers.layer02);
-    assert.equal(w['color.layer_03'], oracle.themes.white.layers.layer03);
+      it('should match background_layer_01 against the oracle', () => {
 
-  });
+        const sys = systemForScheme(schemeName);
+        assert.equal(
+          sys.Style.utilities['background_layer_01'].backgroundColor,
+          oracle.themes[schemeName].layers.layer01,
+          schemeName + ' background_layer_01 should match oracle layers.layer01'
+        );
 
-  it('should match white profile text values against the oracle', () => {
+      });
 
-    const w = white.tokens;
-    assert.equal(w['color.text_primary'], oracle.themes.white.text.textPrimary);
-    assert.equal(w['color.text_secondary'], oracle.themes.white.text.textSecondary);
-    assert.equal(w['color.text_on_color'], oracle.themes.white.text.textOnColor);
+      it('should match font_text_primary against the oracle', () => {
 
-  });
+        const sys = systemForScheme(schemeName);
+        assert.equal(
+          sys.Style.utilities['font_text_primary'].color,
+          oracle.themes[schemeName].text.textPrimary,
+          schemeName + ' font_text_primary should match oracle text.textPrimary'
+        );
 
-  it('should match white profile interactive values against the oracle', () => {
+      });
 
-    const w = white.tokens;
-    assert.equal(w['color.interactive'], oracle.themes.white.interactive.interactive);
-    assert.equal(w['color.focus'], oracle.themes.white.interactive.focus);
+      it('should match background_button_primary against the theme token', () => {
 
-  });
+        const sys = systemForScheme(schemeName);
+        // The utility must reflect the theme's button_primary token exactly
+        assert.equal(
+          sys.Style.utilities['background_button_primary'].backgroundColor,
+          schemes[schemeName].tokens['color.button_primary'],
+          schemeName + ' background_button_primary should match the theme button_primary token'
+        );
 
-  it('should match white profile border values against the oracle', () => {
+      });
 
-    const w = white.tokens;
-    assert.equal(w['color.border_subtle_01'], oracle.themes.white.border.borderSubtle01);
-    assert.equal(w['color.border_interactive'], oracle.themes.white.border.borderInteractive);
+      it('should match type_body01 against the expected type set', () => {
 
-  });
+        const sys = systemForScheme(schemeName);
+        // IBM Plex Sans is a per-weight-face family, so L4-R8 excludes
+        // fontWeight from the utility (the platform selects the face by
+        // family name suffix, not by the fontWeight property).
+        assert.deepEqual(
+          sys.Style.utilities['type_body01'],
+          { fontSize: 14, lineHeight: 20, letterSpacing: 0.16, fontFamily: 'IBM Plex Sans' },
+          schemeName + ' type_body01 should match the expected type set'
+        );
 
-  it('should match g100 profile values against the oracle', () => {
+      });
 
-    const g = g100.tokens;
-    assert.equal(g['color.background'], oracle.themes.g100.background.background);
-    assert.equal(g['color.layer_01'], oracle.themes.g100.layers.layer01);
-    assert.equal(g['color.text_primary'], oracle.themes.g100.text.textPrimary);
-    assert.equal(g['color.interactive'], oracle.themes.g100.interactive.interactive);
+      it('should match br_radius_04 against 4', () => {
 
-  });
+        const sys = systemForScheme(schemeName);
+        assert.equal(
+          sys.Style.utilities['br_radius_04'].borderRadius,
+          4,
+          schemeName + ' br_radius_04 should be 4'
+        );
 
-  it('should match g10 profile values against the oracle', () => {
+      });
 
-    const t = g10.tokens;
-    assert.equal(t['color.background'], oracle.themes.g10.background.background);
-    assert.equal(t['color.layer_01'], oracle.themes.g10.layers.layer01);
-    assert.equal(t['color.text_primary'], oracle.themes.g10.text.textPrimary);
+      it('should match focus_ring outlineWidth against 2', () => {
 
-  });
+        const sys = systemForScheme(schemeName);
+        assert.equal(
+          sys.Style.utilities['focus_ring'].outlineWidth,
+          2,
+          schemeName + ' focus_ring outlineWidth should be 2'
+        );
 
-  it('should match g90 profile values against the oracle', () => {
+      });
 
-    const t = g90.tokens;
-    assert.equal(t['color.background'], oracle.themes.g90.background.background);
-    assert.equal(t['color.layer_01'], oracle.themes.g90.layers.layer01);
-    assert.equal(t['color.text_primary'], oracle.themes.g90.text.textPrimary);
+    });
 
-  });
+  }
 
 });

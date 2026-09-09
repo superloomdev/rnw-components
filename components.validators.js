@@ -117,18 +117,27 @@ export default function (Lib, ERRORS) {
         supported: contractInfo.SUPPORTED_TOKENS
       });
 
-      // Filter to structural errors only (missing/unknown tokens).
+      // Filter to structural errors only (missing required tokens).
       // CONTRACT_INVALID_VALUE is skipped because validateContract checks
       // raw contract values, but built.tokens contains platform-projected
       // values (e.g. type sets emitted as {fontSize,lineHeight,...} instead
       // of {type_set:true,font_size,...}). Value validation already ran
       // inside buildTheme before projection.
+      // CONTRACT_UNKNOWN_TOKEN is collected separately for a warning,
+      // not a throw: a theme may carry extra tokens the component system
+      // does not know about, and those are ignored, not fatal.
       const structuralErrors = [];
+      const unknownTokens = [];
       if (!Lib.Utils.isEmptyArray(result.errors)) {
         for (let i = 0; i < result.errors.length; i++) {
-          if (result.errors[i].code !== 'CONTRACT_INVALID_VALUE') {
-            structuralErrors.push(result.errors[i]);
+          if (result.errors[i].code === 'CONTRACT_INVALID_VALUE') {
+            continue;
           }
+          if (result.errors[i].code === 'CONTRACT_UNKNOWN_TOKEN') {
+            unknownTokens.push(result.errors[i].token);
+            continue;
+          }
+          structuralErrors.push(result.errors[i]);
         }
       }
 
@@ -157,7 +166,12 @@ export default function (Lib, ERRORS) {
         );
       }
 
-      // Warn once for unsupported tokens (not errors, just warnings)
+      // Warn once for unsupported tokens (not errors, just warnings).
+      // Unknown tokens (not in the contract) are sorted and warned together.
+      if (!Lib.Utils.isEmptyArray(unknownTokens)) {
+        unknownTokens.sort();
+        Lib.Debug.warn('rnw-components: unsupported tokens ignored', { tokens: unknownTokens });
+      }
       if (!Lib.Utils.isEmptyArray(result.warnings)) {
         const tokens = result.warnings.map(function (w) {
           return w.token;

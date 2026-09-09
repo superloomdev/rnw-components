@@ -81,7 +81,7 @@ const createInterface = function (Lib, DATA, UNIT_PATTERN, BACKGROUND_IMAGE_PROP
     /********************************************************************
     Convert a dimension value to a finite pixel number.
 
-    @param {Number|String} value - Raw token value, e.g. 16 or '0.75rem'
+    @param {Number|String} value - Raw token value, e.g. 16 or a unit-suffixed string
 
     @return {Number|null} - Pixel number, or null when unconvertible
     *********************************************************************/
@@ -279,7 +279,7 @@ const createInterface = function (Lib, DATA, UNIT_PATTERN, BACKGROUND_IMAGE_PROP
     /********************************************************************
     Parse the leading float from a unit-suffixed string.
 
-    @param {String} value - Unit-suffixed string, e.g. '0.75rem'
+    @param {String} value - Unit-suffixed string, e.g. a rem value
 
     @return {Number|null} - The parsed number, or null when absent
     *********************************************************************/

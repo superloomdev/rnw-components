@@ -48,7 +48,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           {
             height: 1,
             width: '100%',
-            backgroundColor: Style.tokens.Color.border_subtle_01
+            ...Style.utilities['background_border_subtle_01']
           },
           style
         ]
