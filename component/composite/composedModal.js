@@ -9,7 +9,7 @@
 
 
 // Imports
-import { View as RNView, Pressable, Modal as RNModal, Platform } from 'react-native';
+import { View as RNView, Pressable, Modal as RNModal, Platform, Animated } from 'react-native';
 
 
 /////////////////////////// Component Factory START ////////////////////////////
@@ -20,7 +20,7 @@ Build the ComposedModal composite.
 @param {Object} Lib      - { Utils, Debug, React }
 @param {Object} CONFIG   - Package configuration
 @param {Object} ERRORS   - Frozen error catalog
-@param {Object} Parts    - Mechanisms: { A11y, PressKeys, ControllableState, Units, Overlay, AnchoredPosition }
+@param {Object} Parts    - Mechanisms: { A11y, PressKeys, ControllableState, Units, Overlay, AnchoredPosition, Motion }
 @param {Object} Registry - Component registry (for atom composition)
 @param {Object} Style   - { utilities, tokens, breakpoint }
 
@@ -47,6 +47,20 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     const React = Lib.React;
 
+    // Entrance animation driven by motion tokens (D18)
+    const animatedOpacity = React.useRef(new Animated.Value(0)).current;
+
+    React.useEffect(function () {
+      if (isOpen) {
+        Animated.timing(animatedOpacity, {
+          toValue: 1,
+          duration: Style.tokens.Motion.duration_moderate_02,
+          easing: Parts.Motion.toEasing(Style.tokens.Motion.easing_entrance_productive).easing || undefined,
+          useNativeDriver: true
+        }).start();
+      }
+    }, [isOpen]);
+
     // Focus trap with trap: true for modal,
     const focusTrap = Parts.FocusTrap({
       isOpen: isOpen,
@@ -58,18 +72,22 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     // Render the modal content,
     const renderContent = function () {
       return React.createElement(
-        RNView,
-        Object.assign({
-          ref: focusTrap.containerRef,
-          accessibilityRole: 'dialog',
-          style: [
-            Style.utilities['background_layer_02'],
-            Style.utilities['br_radius_12'],
-            { margin: 24, maxWidth: 600, alignSelf: 'center' },
-            style
-          ]
-        }, focusTrap.accessibilityProps, rest),
-        children
+        Animated.View,
+        { style: { opacity: animatedOpacity } },
+        React.createElement(
+          RNView,
+          Object.assign({
+            ref: focusTrap.containerRef,
+            accessibilityRole: 'dialog',
+            style: [
+              Style.utilities['background_layer_02'],
+              Style.utilities['br_radius_12'],
+              { margin: 24, maxWidth: 600, alignSelf: 'center' },
+              style
+            ]
+          }, focusTrap.accessibilityProps, rest),
+          children
+        )
       );
     };
 
@@ -92,7 +110,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       }
       return React.createElement(
         RNModal,
-        { visible: true, transparent: true, animationType: 'fade', onRequestClose: onClose },
+        { visible: true, transparent: true, animationType: 'none', onRequestClose: onClose },
         renderBackdrop(),
         renderContent()
       );

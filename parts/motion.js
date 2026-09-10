@@ -106,8 +106,8 @@ const createInterface = function (Lib) {
 
       // Segments: { segments: true, curves: [[t, [x1, y1, x2, y2]], ...] }
       // This is the format themer.validators.js isValidSegments accepts.
-      // Material writes its emphasized curve this way. React Native runs
-      // them as a sequence of Easing.bezier calls.
+      // Some design systems express emphasized curves as multi-segment
+      // beziers. React Native runs them as a sequence of Easing.bezier calls.
       if (Lib.Utils.isObject(token) && token.segments === true &&
           Lib.Utils.isArray(token.curves)) {
         return {

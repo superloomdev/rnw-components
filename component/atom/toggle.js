@@ -80,8 +80,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Resolve the current thumb color for both active and inactive states.
     // RNW's Switch uses activeThumbColor when value is true and thumbColor
-    // when value is false; omitting activeThumbColor lets the RNW default
-    // (a Material teal) show through.
+    // when value is false; omitting activeThumbColor lets the platform
+    // default thumb color show through.
     const resolvedThumbColor = disabled ? disabledThumbColor : thumbColor;
 
     return React.createElement(

@@ -1167,6 +1167,84 @@ describe('Modal', function () {
 
   });
 
+  it('should consume motion tokens for entrance animation', function () {
+
+    // Verify the theme provides the motion tokens the component reads
+    assert.ok(Style.tokens.Motion.duration_moderate_02, 'theme must provide motion.duration_moderate_02');
+    assert.ok(Style.tokens.Motion.easing_entrance_productive, 'theme must provide motion.easing_entrance_productive');
+
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.Modal, { isOpen: true, onClose: function () {} }, 'content')
+      );
+    });
+
+    // The component should render (animation runs via Animated.timing in the
+    // test environment with no animation loop, but the component must not crash)
+    assert.ok(tree.toJSON());
+    tree.unmount();
+
+  });
+
+});
+
+
+describe('SidePanel motion', function () {
+
+  it('should consume motion tokens for slide entrance', function () {
+
+    assert.ok(Style.tokens.Motion.duration_moderate_02, 'theme must provide motion.duration_moderate_02');
+    assert.ok(Style.tokens.Motion.easing_entrance_expressive, 'theme must provide motion.easing_entrance_expressive');
+
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.SidePanel, { isOpen: true, onClose: function () {} }, 'content')
+      );
+    });
+
+    assert.ok(tree.toJSON());
+    tree.unmount();
+
+  });
+
+  it('should fall back to opacity for percentage widths', function () {
+
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.SidePanel, { isOpen: true, onClose: function () {}, width: '50%' }, 'content')
+      );
+    });
+
+    assert.ok(tree.toJSON(), 'SidePanel with percentage width should render with opacity fallback');
+    tree.unmount();
+
+  });
+
+});
+
+
+describe('ComposedModal motion', function () {
+
+  it('should consume motion tokens for fade entrance', function () {
+
+    assert.ok(Style.tokens.Motion.duration_moderate_02, 'theme must provide motion.duration_moderate_02');
+    assert.ok(Style.tokens.Motion.easing_entrance_productive, 'theme must provide motion.easing_entrance_productive');
+
+    let tree;
+    act(function () {
+      tree = TestRenderer.create(
+        React.createElement(Component.ComposedModal, { isOpen: true, onClose: function () {} }, 'content')
+      );
+    });
+
+    assert.ok(tree.toJSON());
+    tree.unmount();
+
+  });
+
 });
 
 

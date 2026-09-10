@@ -16,7 +16,7 @@
 
 
 // Imports
-import { View as RNView, Pressable, Modal as RNModal, Platform } from 'react-native';
+import { View as RNView, Pressable, Modal as RNModal, Platform, Animated } from 'react-native';
 
 
 /////////////////////////// Component Factory START ////////////////////////////
@@ -27,7 +27,7 @@ Build the Modal molecule.
 @param {Object} Lib      - { Utils, Debug, React }
 @param {Object} CONFIG   - Package configuration
 @param {Object} ERRORS   - Frozen error catalog
-@param {Object} Parts    - Mechanisms: { A11y, PressKeys, ControllableState, Units, Overlay, AnchoredPosition }
+@param {Object} Parts    - Mechanisms: { A11y, PressKeys, ControllableState, Units, Overlay, AnchoredPosition, Motion }
 @param {Object} Registry - Component registry (for atom composition)
 @param {Object} Style   - { utilities, tokens, breakpoint }
 
@@ -56,6 +56,20 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
+
+    // Entrance animation driven by motion tokens (D18)
+    const animatedOpacity = React.useRef(new Animated.Value(0)).current;
+
+    React.useEffect(function () {
+      if (isOpen) {
+        Animated.timing(animatedOpacity, {
+          toValue: 1,
+          duration: Style.tokens.Motion.duration_moderate_02,
+          easing: Parts.Motion.toEasing(Style.tokens.Motion.easing_entrance_productive).easing || undefined,
+          useNativeDriver: true
+        }).start();
+      }
+    }, [isOpen]);
 
     // Use the focus trap hook for all six S3 obligations
     // trap=true for Modal: Tab cycles within the dialog,
@@ -86,23 +100,27 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     // Content container with focus trap accessibility props,
     const renderContent = function () {
       return React.createElement(
-        RNView,
-        Object.assign({
-          ref: containerRef,
-          style: [
-            Style.utilities['background_layer_02'],
-            Style.utilities['br_radius_12'],
-            Style.utilities['p_a_spacing_06'],
-            Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
-            {
-              margin: 24,
-              maxWidth: 600,
-              alignSelf: 'center'
-            },
-            style
-          ]
-        }, accessibilityProps, rest),
-        children
+        Animated.View,
+        { style: { opacity: animatedOpacity } },
+        React.createElement(
+          RNView,
+          Object.assign({
+            ref: containerRef,
+            style: [
+              Style.utilities['background_layer_02'],
+              Style.utilities['br_radius_12'],
+              Style.utilities['p_a_spacing_06'],
+              Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+              {
+                margin: 24,
+                maxWidth: 600,
+                alignSelf: 'center'
+              },
+              style
+            ]
+          }, accessibilityProps, rest),
+          children
+        )
       );
     };
 
@@ -118,7 +136,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         {
           visible: isOpen,
           transparent: true,
-          animationType: 'fade',
+          animationType: 'none',
           onRequestClose: onClose
         },
         renderBackdrop(),

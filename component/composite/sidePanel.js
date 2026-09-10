@@ -11,7 +11,7 @@
 
 
 // Imports
-import { View as RNView, Pressable, Modal as RNModal, Platform } from 'react-native';
+import { View as RNView, Pressable, Modal as RNModal, Platform, Animated } from 'react-native';
 
 
 /////////////////////////// Component Factory START ////////////////////////////
@@ -22,7 +22,7 @@ Build the SidePanel composite.
 @param {Object} Lib      - { Utils, Debug, React }
 @param {Object} CONFIG   - Package configuration
 @param {Object} ERRORS   - Frozen error catalog
-@param {Object} Parts    - Mechanisms: { A11y, PressKeys, ControllableState, Units, Overlay, AnchoredPosition }
+@param {Object} Parts    - Mechanisms: { A11y, PressKeys, ControllableState, Units, Overlay, AnchoredPosition, Motion }
 @param {Object} Registry - Component registry (for atom composition)
 @param {Object} Style   - { utilities, tokens, breakpoint }
 
@@ -50,6 +50,20 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const React = Lib.React;
     const panelSide = side || 'right';
 
+    // Entrance animation driven by motion tokens (D18)
+    const animatedSlide = React.useRef(new Animated.Value(0)).current;
+
+    React.useEffect(function () {
+      if (isOpen) {
+        Animated.timing(animatedSlide, {
+          toValue: 1,
+          duration: Style.tokens.Motion.duration_moderate_02,
+          easing: Parts.Motion.toEasing(Style.tokens.Motion.easing_entrance_expressive).easing || undefined,
+          useNativeDriver: true
+        }).start();
+      }
+    }, [isOpen]);
+
     // Validate layout dimension (D21 item 2)
     if (!Lib.Utils.isNullOrUndefined(width) && !Parts.Units.isLength(width)) {
       throw new TypeError('INVALID_LENGTH: ' + ERRORS.INVALID_LENGTH.message + ': SidePanel.width = ' + String(width));
@@ -66,19 +80,30 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Render panel content
     const renderPanel = function () {
+
+      // Slide animation for numeric widths; fade for percentage widths
+      // (Animated.Interpolation cannot mix string and number output ranges)
+      const isNumericWidth = Lib.Utils.isNumber(panelWidth);
+      const animatedStyle = isNumericWidth
+        ? { transform: [{ translateX: animatedSlide.interpolate({
+          inputRange: [0, 1],
+          outputRange: [panelSide === 'right' ? panelWidth : -panelWidth, 0]
+        }) }] }
+        : { opacity: animatedSlide };
+
       return React.createElement(
-        RNView,
+        Animated.View,
         Object.assign({
           ref: focusTrap.containerRef,
           accessibilityRole: 'dialog',
           style: [
             Style.utilities['background_layer_02'],
-            {
+            Object.assign({
               position: 'absolute',
               top: 0, bottom: 0,
               [panelSide]: 0,
               width: panelWidth
-            },
+            }, animatedStyle),
             style
           ]
         }, focusTrap.accessibilityProps, rest),
@@ -114,7 +139,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     if (Platform.OS !== 'web') {
       return React.createElement(
         RNModal,
-        { visible: true, transparent: true, animationType: 'slide', onRequestClose: onClose },
+        { visible: true, transparent: true, animationType: 'none', onRequestClose: onClose },
         renderBackdrop(),
         renderPanel()
       );
