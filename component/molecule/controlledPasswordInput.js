@@ -1,16 +1,17 @@
-// Info: ControlledPasswordInput molecule [S2 interactive]. A password input
-// with a show/hide toggle. Composes Registry.PasswordInput and Registry.Button
-// for the toggle. Uses A11y for aria-* state and ControllableState
-// for controlled/uncontrolled value.
-//   value       -> string (controlled)
-//   onChange    -> callback receiving the text value
+// Info: ControlledPasswordInput molecule [S2 interactive]. A controlled
+// variant of PasswordInput that requires explicit value and onChange props.
+// Composes Registry.PasswordInput, which owns its own border, visibility
+// toggle, and show/hide state. This component does not duplicate any of
+// those concerns.
+//   value       -> string (controlled, required)
+//   onChange    -> callback receiving the text value (required)
 //   placeholder -> string
 //   disabled    -> boolean
 //   style       -> custom style overrides
 
 
 // Imports
-import { View as RNView } from 'react-native';
+// None - this component forwards props to Registry.PasswordInput
 
 
 /////////////////////////// Component Factory START ////////////////////////////
@@ -27,7 +28,7 @@ Build the ControlledPasswordInput molecule.
 
 @return {Function} - The ControlledPasswordInput component
 *********************************************************************/
-export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
+export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) { // eslint-disable-line no-unused-vars
 
   /////////////////////////// Static Constants START ////////////////////////////
   // None.
@@ -46,51 +47,20 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     const React = Lib.React;
 
-    // Show/hide password toggle state (always uncontrolled)
-    const showState = React.useState(false);
-    const showPassword = showState[0];
-    const setShowPassword = showState[1];
-
-    const isDisabled = !!disabled;
-
+    // PasswordInput owns its border, visibility toggle, and show/hide state.
+    // This component is a thin controlled variant that forwards props
+    // without duplicating any of those concerns.
     return React.createElement(
-      RNView,
-      {
-        style: [
-          Style.utilities['flex_row'],
-          Style.utilities['align_center'],
-          style
-        ]
-      },
-      // Password input via Registry.PasswordInput
-      React.createElement(
-        Registry.PasswordInput,
-        Object.assign({
-          value: value,
-          onChange: onChange,
-          placeholder: placeholder,
-          disabled: isDisabled,
-          secureTextEntry: !showPassword,
-          accessibilityRole: 'textbox',
-          style: { flex: 1 }
-        }, rest)
-      ),
-      // Show/hide toggle button via Registry.Button
-      React.createElement(
-        Registry.Button,
-        {
-          kind: 'ghost',
-          onPress: function () {
-            setShowPassword(!showPassword);
-          },
-          disabled: isDisabled,
-          accessibilityRole: 'button',
-          accessibilityLabel: showPassword ? 'Hide password' : 'Show password',
-          style: Style.utilities['m_s_spacing_01']
-        },
-        showPassword ? 'Hide' : 'Show'
-      )
+      Registry.PasswordInput,
+      Object.assign({
+        value: value,
+        onChange: onChange,
+        placeholder: placeholder,
+        disabled: !!disabled,
+        style: style
+      }, rest)
     );
+
   };////////////////////////// Public Functions END ////////////////////////////
 
 

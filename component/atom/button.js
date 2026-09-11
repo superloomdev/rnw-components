@@ -30,15 +30,20 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
   /////////////////////////// Static Constants START ////////////////////////////
 
-  // Map kind to the background token. Buttons are their own token family,
-  // so a kind never borrows a general palette token.
-  const KIND_BACKGROUND = {
-    primary: 'button_primary',
-    secondary: 'button_secondary',
-    tertiary: 'button_tertiary',
-    danger: 'button_danger_primary',
-    ghost: undefined
+  // Map kind to per-state background token names. Each kind declares
+  // its base, hover, and active backgrounds. Disabled uses the shared
+  // button_disabled token. Selected reuses the active appearance.
+  // Focused uses the base plus the focus ring (no focused background).
+  const KIND_BG = {
+    primary: { base: 'button_primary', hover: 'button_primary_hover', active: 'button_primary_active' },
+    secondary: { base: 'button_secondary', hover: 'button_secondary_hover', active: 'button_secondary_active' },
+    tertiary: { base: 'button_tertiary', hover: 'button_tertiary_hover', active: 'button_tertiary_active' },
+    danger: { base: 'button_danger_primary', hover: 'button_danger_hover', active: 'button_danger_active' },
+    ghost: {}
   };
+
+  // Shared disabled background for all button kinds
+  const DISABLED_BG = 'button_disabled';
 
   // Map kind to the text color token. A filled kind needs an on-color label so
   // it contrasts its fill.
@@ -63,9 +68,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       ...rest
     } = props;
 
-    // kind overrides background when provided
-    const effectiveBackground = kind ? KIND_BACKGROUND[kind] : background;
-
     const React = Lib.React;
 
     // Track visual dimensions for hitSlop calculation
@@ -86,7 +88,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     // ---- Style function for Pressable (resolves interaction states) ----
     const styleFn = function (pressableState) {
 
-      const stateSuffix = _Button.resolveStateSuffix(props, pressableState);
+      const stateKey = _Button.resolveStateKey(props, pressableState);
 
       // Layout: a button is a centered row with padding and an accessible
       // minimum height. Without these a button renders as a bare text label.
@@ -100,24 +102,29 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         ...baseClasses
       ];
 
-      // Resolve background with state suffix, falling back to the base token
-      // through the same accessor so STRICT_TOKENS governs both lookups
-      if (effectiveBackground) {
-        const bgKey = 'background_' + effectiveBackground + stateSuffix;
-        const bgClass = Style.utilities[bgKey];
+      // Resolve background from the kind + state mapping. Kind buttons
+      // use per-state token names that match the contract. Generic
+      // background props use the base token only, since state variants
+      // do not exist for arbitrary caller-provided tokens.
+      if (kind) {
+        const kindBg = KIND_BG[kind];
+        let bgToken;
 
-        if (bgClass) {
-          classes.push(bgClass);
+        if (stateKey === 'disabled') {
+          bgToken = DISABLED_BG;
+        } else if (stateKey === 'selected') {
+          bgToken = kindBg.active || kindBg.base;
+        } else if (stateKey === 'focused') {
+          bgToken = kindBg.base;
         } else {
-          // Fall back to the base background without state suffix
-          const baseBgKey = 'background_' + effectiveBackground;
-          const baseBgClass = Style.utilities[baseBgKey];
-
-          if (baseBgClass) {
-            classes.push(baseBgClass);
-          }
+          bgToken = kindBg[stateKey] || kindBg.base;
         }
 
+        if (bgToken) {
+          classes.push(Style.utilities['background_' + bgToken]);
+        }
+      } else if (background) {
+        classes.push(Style.utilities['background_' + background]);
       }
 
       // Focus ring for the focused state
@@ -168,38 +175,39 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
   const _Button = {
 
     /********************************************************************
-    Resolve the active interaction state to a token suffix. Priority:
-    disabled > pressed > hovered > focused > default.
+    Resolve the active interaction state to a state key. Priority:
+    disabled > selected > pressed > hovered > focused > default.
 
-    @param {Object} props          - Component props (reads disabled)
+    @param {Object} props          - Component props (reads disabled, selected)
     @param {Object} pressableState - RN Pressable state { pressed, hovered, focused }
 
-    @return {String} - Token suffix ('_disabled', '_pressed', '_hovered', '_focused', or '')
+    @return {String} - State key ('disabled', 'selected', 'active', 'hover', 'focused', or '')
     *********************************************************************/
-    resolveStateSuffix: function (props, pressableState) {
+    resolveStateKey: function (props, pressableState) {
 
       // Disabled takes precedence over all other states
       if (props.disabled) {
-        return '_disabled';
+        return 'disabled';
       }
 
       // Selected is a persistent state, checked before transient press/hover
       if (props.selected) {
-        return '_selected';
+        return 'selected';
       }
 
-      // Pressed maps to the _active suffix
+      // Pressed maps to the active state
       if (pressableState.pressed) {
-        return '_active';
+        return 'active';
       }
 
-      // Hovered maps to the _hover suffix
+      // Hovered maps to the hover state
       if (pressableState.hovered) {
-        return '_hover';
+        return 'hover';
       }
 
+      // Focused uses the base background plus focus ring
       if (pressableState.focused) {
-        return '_focused';
+        return 'focused';
       }
 
       return '';

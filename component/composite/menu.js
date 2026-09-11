@@ -83,13 +83,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       });
     };
 
-    if (!isOpen) {
-      return null;
-    }
-
-    // Use Overlay on web
+    // Call useOverlay unconditionally (hook-order safety). The hook
+    // internally gates on isOpen, so it is a no-op when closed.
     const overlay = useOverlay({
-      isOpen: true,
+      isOpen: isOpen,
       trap: true,
       onClose: onClose,
       render: function () {
@@ -101,6 +98,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         );
       }
     });
+
+    if (!isOpen) {
+      return null;
+    }
 
     if (overlay.layerIndex < 0) {
       return React.createElement(

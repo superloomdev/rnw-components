@@ -13,7 +13,7 @@
 
 
 // Imports
-import { View as RNView, Pressable, Platform } from 'react-native';
+import { View as RNView, Platform } from 'react-native';
 
 
 /////////////////////////// Component Factory START ////////////////////////////
@@ -71,6 +71,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const maxVal = Lib.Utils.isNumber(max) ? max : 100;
     const stepVal = Lib.Utils.isNumber(step) ? step : 1;
 
+    // Track slider container width for pointer-to-value calculation
+    const layoutRef = React.useRef({ width: 0 });
+
     // Resolve track and thumb colors
     const activeColor = isDisabled
       ? Style.utilities['background_icon_disabled'].backgroundColor
@@ -97,21 +100,52 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const range = maxVal - minVal;
     const fillPercent = range > 0 ? ((clampedValue - minVal) / range) * 100 : 0;
 
-    // Step the value by stepVal on press of left/right track halves
-    const onDecrease = function () {
-      if (isDisabled) {
-        return;
+    // Calculate value from pointer x position relative to the slider
+    const valueFromPosition = function (x) {
+
+      // Guard against zero-width layout
+      const width = layoutRef.current.width;
+      if (width <= 0) {
+        return clampedValue;
       }
-      const next = Parts.Units.clamp(clampedValue - stepVal, minVal, maxVal);
-      setValue(next);
+
+      // Map x to a clamped percentage, then to a raw value
+      const percent = Parts.Units.clamp(x / width, 0, 1);
+      const raw = minVal + percent * range;
+
+      // Snap to the nearest step
+      const stepped = Parts.Units.round(raw / stepVal) * stepVal;
+      return Parts.Units.clamp(stepped, minVal, maxVal);
+
     };
 
-    const onIncrease = function () {
+    // Responder handlers for pointer drag
+    const handleStartShouldSetResponder = function () {
+      return !isDisabled;
+    };
+
+    const handleResponderGrant = function (e) {
+
       if (isDisabled) {
         return;
       }
-      const next = Parts.Units.clamp(clampedValue + stepVal, minVal, maxVal);
-      setValue(next);
+
+      // Calculate value from the initial press position
+      const x = e.nativeEvent.locationX;
+      setValue(valueFromPosition(x));
+
+    };
+
+    const handleResponderMove = function (e) {
+
+      if (isDisabled) {
+        return;
+      }
+
+      // Continuously update value as the pointer moves
+      const x = e.nativeEvent.locationX;
+      setValue(valueFromPosition(x));
+
     };
 
     // When hideTextInput is false, render a paired number input next to the slider.
@@ -123,6 +157,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       Object.assign({
         accessibilityRole: sliderRole,
         accessibilityLabel: accessibilityLabel,
+        onLayout: function (e) {
+          layoutRef.current = e.nativeEvent.layout;
+        },
         style: [
           {
             height: THUMB_SIZE + 8,
@@ -168,32 +205,19 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         }
       }),
 
-      // Left-side pressable (decrease)
-      React.createElement(Pressable, {
-        onPress: onDecrease,
-        disabled: isDisabled,
+      // Full-width drag surface (pointer-to-value on press and drag)
+      React.createElement(RNView, {
+        onStartShouldSetResponder: handleStartShouldSetResponder,
+        onMoveShouldSetResponder: handleStartShouldSetResponder,
+        onResponderGrant: handleResponderGrant,
+        onResponderMove: handleResponderMove,
         style: {
           position: 'absolute',
           left: 0,
           top: 0,
           bottom: 0,
-          width: '50%'
-        },
-        accessibilityLabel: 'decrease'
-      }),
-
-      // Right-side pressable (increase)
-      React.createElement(Pressable, {
-        onPress: onIncrease,
-        disabled: isDisabled,
-        style: {
-          position: 'absolute',
-          right: 0,
-          top: 0,
-          bottom: 0,
-          width: '50%'
-        },
-        accessibilityLabel: 'increase'
+          right: 0
+        }
       })
     );
 

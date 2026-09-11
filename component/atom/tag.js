@@ -87,7 +87,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           disabled: !!disabled,
           accessibilityRole: 'button',
           accessibilityLabel: 'Remove tag',
-          style: { marginLeft: 6 }
+          hitSlop: { top: 8, bottom: 8, left: 4, right: 4 },
+          style: {
+            marginLeft: 6,
+            minWidth: CONFIG.MIN_HIT_TARGET,
+            minHeight: CONFIG.MIN_HIT_TARGET,
+            alignItems: 'center',
+            justifyContent: 'center'
+          }
         },
         React.createElement(Registry.Text, {
           typeSet: 'label01',

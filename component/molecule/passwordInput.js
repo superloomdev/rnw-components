@@ -90,6 +90,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           placeholder: placeholder,
           isDisabled: isDisabled,
           isInvalid: isInvalid,
+          unframed: true,
           secureTextEntry: !showPassword,
           accessibilityRole: 'textbox',
           accessibilityLabel: accessibilityLabel,

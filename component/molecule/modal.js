@@ -124,6 +124,22 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       );
     };
 
+    // Call useOverlay unconditionally (hook-order safety). The hook
+    // internally gates on isOpen, so it is a no-op when closed.
+    const overlay = useOverlay({
+      isOpen: isOpen,
+      trap: true,
+      onClose: onClose,
+      render: function () {
+        return React.createElement(
+          React.Fragment,
+          null,
+          renderBackdrop(),
+          renderContent()
+        );
+      }
+    });
+
     // On native, use RN Modal for native modal behavior + hardware back,
     if (Platform.OS !== 'web') {
 
@@ -144,21 +160,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       );
 
     }
-
-    // On web, register with Overlay for stacking,
-    const overlay = useOverlay({
-      isOpen: !!isOpen,
-      trap: true,
-      onClose: onClose,
-      render: function () {
-        return React.createElement(
-          React.Fragment,
-          null,
-          renderBackdrop(),
-          renderContent()
-        );
-      }
-    });
 
     // When no Overlay is mounted, fall back to fixed positioning,
     if (overlay.layerIndex < 0) {

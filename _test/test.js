@@ -546,12 +546,12 @@ describe('Button', function () {
   // the component documents and asserts each one resolves, so adding a kind
   // without adding its token fails here.
   //
-  // KIND_BACKGROUND is factory-local and cannot be imported, so the roster is
+  // KIND_BG is factory-local and cannot be imported, so the roster is
   // mirrored from the component's own prop contract. Keep both in step: a kind
   // added to button.js must be added here.
   it('should resolve a background for every filled kind and none for ghost', function () {
 
-    const FILLED_KINDS = ['primary', 'secondary', 'danger'];
+    const FILLED_KINDS = ['primary', 'secondary', 'tertiary', 'danger'];
     const UNFILLED_KINDS = ['ghost'];
 
     for (let i = 0; i < FILLED_KINDS.length; i++) {

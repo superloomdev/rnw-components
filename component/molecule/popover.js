@@ -114,6 +114,22 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       });
     };
 
+    // Call useOverlay unconditionally (hook-order safety). The hook
+    // internally gates on isOpen, so it is a no-op when closed.
+    const overlay = useOverlay({
+      isOpen: isOpen,
+      trap: false,
+      onClose: onClose,
+      render: function () {
+        return React.createElement(
+          React.Fragment,
+          null,
+          renderBackdrop(),
+          renderContent()
+        );
+      }
+    });
+
     // Guard: children must be a valid React element for cloneElement
     if (!children || !React.isValidElement(children)) {
       return null;
@@ -129,21 +145,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         isOpen ? renderContent(1000) : null
       );
     }
-
-    // On web, use Overlay
-    const overlay = useOverlay({
-      isOpen: !!isOpen,
-      trap: false,
-      onClose: onClose,
-      render: function () {
-        return React.createElement(
-          React.Fragment,
-          null,
-          renderBackdrop(),
-          renderContent()
-        );
-      }
-    });
 
     // Clone trigger with anchor ref and aria props
     const trigger = React.cloneElement(children, Object.assign({

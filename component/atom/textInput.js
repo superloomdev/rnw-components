@@ -40,7 +40,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Destructure props
     const {
-      style, accessibilityLabel, isInvalid, isDisabled, layer, typeSet,
+      style, accessibilityLabel, isInvalid, isDisabled, layer, typeSet, unframed,
       onFocus, onBlur, ...rest
     } = props;
 
@@ -66,16 +66,24 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       borderClasses = [Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01']];
     }
 
-    // Resolve base styles from tokens
-    const base = [
-      fieldBg,
-      Style.utilities['br_radius_08'],
-      Style.utilities['p_h_spacing_05'],
-      Style.utilities['p_v_spacing_03'],
-      typeStyle,
-      Style.utilities['font_text_primary'],
-      ...borderClasses
-    ];
+    // When unframed, skip border/radius/background - the parent owns the shell.
+    // Padding and type style remain so the text is not flush against the border.
+    const base = unframed
+      ? [
+        Style.utilities['p_h_spacing_05'],
+        Style.utilities['p_v_spacing_03'],
+        typeStyle,
+        Style.utilities['font_text_primary']
+      ]
+      : [
+        fieldBg,
+        Style.utilities['br_radius_08'],
+        Style.utilities['p_h_spacing_05'],
+        Style.utilities['p_v_spacing_03'],
+        typeStyle,
+        Style.utilities['font_text_primary'],
+        ...borderClasses
+      ];
 
     // Build aria state props through the a11y translator
     const ariaProps = Parts.A11y.state({

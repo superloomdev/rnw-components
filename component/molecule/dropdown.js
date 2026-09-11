@@ -117,6 +117,22 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       expanded: !!isOpen
     });
 
+    // Call useOverlay unconditionally (hook-order safety). The hook
+    // internally gates on isOpen, so it is a no-op when closed.
+    const overlay = useOverlay({
+      isOpen: isOpen,
+      trap: false,
+      onClose: handleClose,
+      render: function () {
+        return React.createElement(
+          React.Fragment,
+          null,
+          renderBackdrop(),
+          renderPanel()
+        );
+      }
+    });
+
     // Render the trigger button,
     const trigger = React.createElement(
       Pressable,
@@ -231,21 +247,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         renderPanel(1000)
       );
     }
-
-    // On web, try Overlay for stacking,
-    const overlay = useOverlay({
-      isOpen: true,
-      trap: false,
-      onClose: handleClose,
-      render: function () {
-        return React.createElement(
-          React.Fragment,
-          null,
-          renderBackdrop(),
-          renderPanel()
-        );
-      }
-    });
 
     // When no Overlay is mounted, fall back to relative positioning,
     if (overlay.layerIndex < 0) {

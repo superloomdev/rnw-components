@@ -46,7 +46,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     // Render each navigation item
     const renderItem = function (item, index) {
 
-      const itemStyles = [Style.utilities['flex_col'], Style.utilities['align_center']];
+      // Each item takes equal width so the bar distributes evenly
+      const itemStyles = [
+        Style.utilities['flex_col'],
+        Style.utilities['align_center'],
+        { flex: 1 },
+        Style.utilities['p_v_spacing_03'],
+        { minHeight: CONFIG.MIN_HIT_TARGET }
+      ];
 
       if (item.active) {
         itemStyles.push(Style.utilities['border_w_width_01'], Style.utilities['border_color_interactive']);
@@ -59,10 +66,11 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           onPress: item.onPress,
           accessibilityRole: 'tab',
           accessibilityLabel: item.text,
+          hitSlop: { top: 4, bottom: 4, left: 4, right: 4 },
           style: itemStyles
         },
-        item.icon ? React.createElement(Registry.Icon, { name: item.icon }) : null,
-        React.createElement(Registry.Text, null, item.text)
+        item.icon ? React.createElement(Registry.Icon, { name: item.icon, style: { marginBottom: 2 } }) : null,
+        React.createElement(Registry.Text, { typeSet: 'label01', color: item.active ? 'interactive' : 'text_secondary' }, item.text)
       );
 
     };
@@ -74,6 +82,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['justify_between'],
+          Style.utilities['border_w_width_01'],
+          Style.utilities['border_color_border_subtle_01'],
           style
         ]
       }, rest),

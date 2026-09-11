@@ -78,6 +78,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             ? { ...Style.utilities['background_layer_01'] }
             : Style.utilities['background_layer_02'],
           Style.utilities['p_h_spacing_03'],
+          { flex: 1 },
           style
         ]
       },
@@ -96,6 +97,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           onChangeText: setValue,
           placeholder: placeholder || 'Search',
           isDisabled: isDisabled,
+          unframed: true,
           accessibilityRole: 'searchbox',
           accessibilityLabel: accessibilityLabel || 'Search',
           style: { flex: 1 }

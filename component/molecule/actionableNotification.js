@@ -83,7 +83,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         }),
         React.createElement(Registry.Text, {
           typeSet: 'label01',
-          color: 'interactive',
+          color: 'text_on_color',
           weight: 'medium'
         }, actionText)
       )
@@ -102,12 +102,15 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           onActivate: onDismiss,
           disabled: false
         }), {
-          style: Style.utilities['p_a_spacing_01']
+          style: [
+            Style.utilities['p_a_spacing_01'],
+            { minWidth: CONFIG.MIN_HIT_TARGET, minHeight: CONFIG.MIN_HIT_TARGET }
+          ]
         }),
         React.createElement(Registry.Icon, {
           name: 'close',
           typeSet: 'label01',
-          color: 'text_secondary'
+          color: 'icon_on_color'
         })
       )
       : null;
@@ -130,7 +133,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       React.createElement(Registry.Icon, {
         name: iconName,
         typeSet: 'body01',
-        color: 'text_secondary',
+        color: 'icon_on_color',
         style: Style.utilities['m_e_spacing_03']
       }),
       // Title and subtitle column
@@ -140,14 +143,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         title
           ? React.createElement(Registry.Text, {
             typeSet: 'body01',
-            color: 'text_primary',
+            color: 'text_on_color',
             weight: 'medium'
           }, title)
           : null,
         subtitle
           ? React.createElement(Registry.Text, {
             typeSet: 'label01',
-            color: 'text_secondary',
+            color: 'text_on_color',
             style: Style.utilities['m_t_spacing_01']
           }, subtitle)
           : null

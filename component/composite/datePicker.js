@@ -309,6 +309,22 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       });
     };
 
+    // Call useOverlay unconditionally (hook-order safety). The hook
+    // internally gates on isOpen, so it is a no-op when closed.
+    const overlay = useOverlay({
+      isOpen: isOpen,
+      trap: false,
+      onClose: handleClose,
+      render: function () {
+        return React.createElement(
+          React.Fragment,
+          null,
+          renderBackdrop(),
+          renderPanel()
+        );
+      }
+    });
+
     // Range mode: wrap two triggers in a group. The full range calendar
     // and the prop contract are handled by this component.
     if (isRange) {
@@ -340,21 +356,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       );
     }
 
-    // On web, use Overlay
-    const overlay = useOverlay({
-      isOpen: true,
-      trap: false,
-      onClose: handleClose,
-      render: function () {
-        return React.createElement(
-          React.Fragment,
-          null,
-          renderBackdrop(),
-          renderPanel()
-        );
-      }
-    });
-
+    // When no Overlay is mounted, fall back to relative positioning
     if (overlay.layerIndex < 0) {
       return React.createElement(
         RNView,

@@ -101,7 +101,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           accessibilityRole: 'button',
           accessibilityLabel: 'Remove ' + (filename || 'file')
         }, ariaProps, pressKeysProps, {
-          style: Style.utilities['p_a_spacing_01']
+          style: [
+            Style.utilities['p_a_spacing_01'],
+            { minWidth: CONFIG.MIN_HIT_TARGET, minHeight: CONFIG.MIN_HIT_TARGET }
+          ]
         }),
         React.createElement(Registry.Icon, {
           name: 'close',

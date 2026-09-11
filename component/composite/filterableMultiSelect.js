@@ -228,6 +228,22 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       });
     };
 
+    // Call useOverlay unconditionally (hook-order safety). The hook
+    // internally gates on isOpen, so it is a no-op when closed.
+    const overlay = useOverlay({
+      isOpen: isOpen,
+      trap: false,
+      onClose: handleClose,
+      render: function () {
+        return React.createElement(
+          React.Fragment,
+          null,
+          renderBackdrop(),
+          renderPanel()
+        );
+      }
+    });
+
     if (!isOpen) {
       return React.createElement(RNView, { style: { position: 'relative' } }, renderTrigger());
     }
@@ -242,21 +258,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         renderPanel(1000)
       );
     }
-
-    // On web, use Overlay
-    const overlay = useOverlay({
-      isOpen: true,
-      trap: false,
-      onClose: handleClose,
-      render: function () {
-        return React.createElement(
-          React.Fragment,
-          null,
-          renderBackdrop(),
-          renderPanel()
-        );
-      }
-    });
 
     if (overlay.layerIndex < 0) {
       return React.createElement(
