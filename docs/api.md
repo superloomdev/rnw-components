@@ -618,8 +618,8 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
-| `value` | - | - | string (controlled) |
-| `onChange` | Function | - | callback receiving the text value |
+| `value` | - | - | string (controlled, required) |
+| `onChange` | Function | - | callback receiving the text value (required) |
 | `placeholder` | - | - | string |
 | `disabled` | Boolean | - | boolean |
 | `style` | Object|Array | - | custom style overrides |
@@ -2559,6 +2559,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | `isDisabled` | Boolean | - | - |
 | `layer` | - | - | - |
 | `typeSet` | - | - | - |
+| `unframed` | - | - | - |
 | `onFocus` | Function | - | - |
 | `onBlur` | Function | - | - |
 
