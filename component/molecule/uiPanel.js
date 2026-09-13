@@ -29,7 +29,7 @@ Build the UiPanel molecule.
 export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
   /////////////////////////// Static Constants START ////////////////////////////
-  // None.
+  const minSize = Parts.Spec('target').minSize;
   /////////////////////////// Static Constants END //////////////////////////////
 
 
@@ -53,7 +53,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         onPress: onToggle,
         accessibilityRole: 'button',
         accessibilityLabel: title,
-        style: Style.utilities['flex_row']
+        style: [
+          Style.utilities['flex_row'],
+          { minWidth: minSize, minHeight: minSize, alignItems: 'center' }
+        ]
       },
       React.createElement(Registry.Text, null, title || ''),
       React.createElement(Registry.Icon, { name: collapsed ? 'chevron--right' : 'chevron--down' })

@@ -26,7 +26,7 @@ Build the DefinitionTooltip molecule.
 export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
   /////////////////////////// Static Constants START ////////////////////////////
-  // None.
+  const minSize = Parts.Spec('target').minSize;
   /////////////////////////// Static Constants END //////////////////////////////
 
 
@@ -113,7 +113,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         Object.assign({
           ref: anchorRef,
           accessibilityRole: 'button',
-          accessibilityLabel: term
+          accessibilityLabel: term,
+          style: { minWidth: minSize, minHeight: minSize, alignItems: 'center', justifyContent: 'center' }
         }, ariaProps, triggerProps),
         React.createElement(Registry.Text, {
           typeSet: 'body01',
