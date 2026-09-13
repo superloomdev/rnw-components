@@ -145,8 +145,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             Style.utilities['flex_row'],
             Style.utilities['align_center'],
             Style.utilities['justify_between'],
-            Style.utilities['br_radius_08'],
-            Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+            Style.utilities['br_radius_00'],
+            Style.utilities['border_w_b_width_01'], Style.utilities['border_color_border_subtle_01'],
+            { minWidth: 0 },
             Style.utilities['p_h_spacing_05'],
             Style.utilities['p_v_spacing_03'],
             Style.utilities['background_layer_02'],
@@ -179,8 +180,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           'aria-multiselectable': true,
           style: [
             Style.utilities['background_layer_02'],
-            Style.utilities['br_radius_08'],
-            Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+            Style.utilities['br_radius_00'],
+            Style.utilities['border_w_b_width_01'], Style.utilities['border_color_border_subtle_01'],
+            { minWidth: 0 },
             Style.utilities['p_v_spacing_01'],
             { position: 'absolute', top: pos.top, left: pos.left, minWidth: 200, zIndex: zIndex || 1000 }
           ]
@@ -198,7 +200,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             accessibilityLabel: 'Filter options',
             style: [
               Style.utilities['br_radius_04'],
-              Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+              Style.utilities['border_w_b_width_01'], Style.utilities['border_color_border_subtle_01'],
+              { minWidth: 0 },
               Style.utilities['p_h_spacing_03'],
               Style.utilities['p_v_spacing_01']
             ]

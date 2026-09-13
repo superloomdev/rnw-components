@@ -29,10 +29,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
   /////////////////////////// Static Constants START ////////////////////////////
   const KIND_BG = {
-    success: 'background_support_success',
-    error: 'background_support_error',
-    warning: 'background_support_warning',
-    info: 'background_support_info'
+    success: 'background_notification_background_success',
+    error: 'background_notification_background_error',
+    warning: 'background_notification_background_warning',
+    info: 'background_notification_background_info'
   };
 
   const KIND_ICON = {
@@ -65,8 +65,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityRole: 'alert',
         style: [
           Style.utilities[bgKey],
-          Style.utilities['br_radius_08'],
-          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+          Style.utilities['br_radius_04'],
+          Style.utilities['border_w_l_width_01'], Style.utilities['border_color_support_info'],
           Style.utilities['p_a_spacing_05'],
           style
         ]

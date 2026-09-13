@@ -1,0 +1,27 @@
+{
+  "_meta": {
+    "description": "Semantic icon name manifest for rnw-components. Every component icon literal must use a name from this manifest. Each host adapter maps the semantic name to a vendor-specific glyph.",
+    "version": "1.0.0"
+  },
+  "icons": {
+    "calendar":          { "carbon": "calendar",             "ionicons": "calendar" },
+    "checkmark":         { "aliases": ["check"], "carbon": "checkmark",       "ionicons": "checkmark" },
+    "chevron_down":      { "aliases": ["chevron--down", "chevron-down"], "carbon": "chevronDown",   "ionicons": "chevronDown" },
+    "chevron_up":        { "aliases": ["chevron--up", "chevron-up"], "carbon": "chevronUp",     "ionicons": "chevronUp" },
+    "chevron_right":     { "aliases": ["chevron--right", "chevron-right"], "carbon": "chevronRight", "ionicons": "chevronForward" },
+    "close":             { "carbon": "close",                 "ionicons": "close" },
+    "copy":              { "carbon": "copy",                  "ionicons": "copy" },
+    "eye":               { "carbon": "view",                  "ionicons": "eye" },
+    "eye_off":           { "aliases": ["eye-off"], "carbon": "viewOff",              "ionicons": "eyeOff" },
+    "info":              { "aliases": ["information"], "carbon": "information",         "ionicons": "information" },
+    "overflow":          { "carbon": "overflowMenuHorizontal", "ionicons": "ellipsisHorizontal" },
+    "search":            { "carbon": "search",               "ionicons": "search" },
+    "time":              { "carbon": "time",                 "ionicons": "time" },
+    "warning":           { "carbon": "warning",              "ionicons": "warning" },
+    "error":             { "carbon": "warningFilled",        "ionicons": "alertCircle" },
+    "success":           { "carbon": "checkmarkFilled",      "ionicons": "checkmarkCircle" },
+    "loading":           { "carbon": "restart",              "ionicons": "sync" },
+    "visibility":        { "carbon": "view",                  "ionicons": "eye" },
+    "visibility_off":    { "carbon": "viewOff",               "ionicons": "eyeOff" }
+  }
+}

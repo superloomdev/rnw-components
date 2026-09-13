@@ -64,20 +64,27 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const isDisabled = !!disabled;
     const isInvalid = !!invalid;
 
+    // Resolve frame mode from the feedback.field token (underline | outline)
+    const frameMode = Style.tokens.Feedback.field || 'underline';
+    const isUnderline = frameMode === 'underline';
+    const radiusKey = isUnderline ? 'br_radius_00' : 'br_radius_00';
+    const borderKey = isUnderline ? 'border_w_b_width_01' : 'border_w_width_01';
+
     return React.createElement(
       RNView,
       {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
-          Style.utilities['br_radius_08'],
-          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+          Style.utilities[radiusKey],
+          Style.utilities[borderKey], Style.utilities['border_color_border_subtle_01'],
           isInvalid
             ? { ...Style.utilities['border_color_support_error'] }
             : null,
           isDisabled
             ? { ...Style.utilities['background_layer_01'] }
             : Style.utilities['background_layer_02'],
+          { minWidth: 0 },
           style
         ]
       },
@@ -94,7 +101,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           secureTextEntry: !showPassword,
           accessibilityRole: 'textbox',
           accessibilityLabel: accessibilityLabel,
-          style: { flex: 1 }
+          style: { flex: 1, minWidth: 0 }
         }, rest)
       ),
       // Show/hide toggle button
@@ -110,8 +117,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           style: Style.utilities['m_s_spacing_01']
         },
         React.createElement(Registry.Icon, {
-          name: showPassword ? 'eye-off' : 'eye',
-          typeSet: 'label01',
+          name: showPassword ? 'visibility_off' : 'visibility',
+          size: 'sm',
           color: 'text_secondary'
         })
       )

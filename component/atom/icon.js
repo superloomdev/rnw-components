@@ -50,25 +50,16 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       return null;
     }
 
-    // Resolve size: token -> type set, number -> px, default md
-    // Map size tokens to type sets for the pixel value
-    const SIZE_TO_TYPE_SET = {
-      xs: 'caption01',
-      sm: 'label02',
-      md: 'body02',
-      lg: 'body02',
-      xl: 'heading03',
-      xxl: 'expressive_paragraph_01'
-    };
-    let px = Style.utilities['type_' + (SIZE_TO_TYPE_SET.md || 'body01')].fontSize;
+    // Resolve size: token -> spec sheet icon sizes, number -> px, default sm
+    // Spec sheet (data/component-spec.js) is the single source of truth for
+    // icon sizes. Values come from the Carbon geometry oracle, not type sets.
+    const ICON_SIZES = Parts.Spec('icon').sizes;
+    let px = ICON_SIZES[Parts.Spec('icon').defaultSize];
 
     if (Lib.Utils.isNumber(size)) {
       px = size;
-    } else if (size) {
-      const typeSetName = SIZE_TO_TYPE_SET[size];
-      if (typeSetName && Style.utilities['type_' + typeSetName]) {
-        px = Style.utilities['type_' + typeSetName].fontSize;
-      }
+    } else if (size && ICON_SIZES[size]) {
+      px = ICON_SIZES[size];
     }
 
     // Resolve color through the utilities so the strict proxy guards the name

@@ -5,7 +5,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --import ./harness/register.js --test test.js audit.test.js contract.test.js system.test.js theme.test.js parity.test.js",
+    "test": "node --import ./harness/register.js --test test.js audit.test.js contract.test.js system.test.js theme.test.js parity.test.js spec.test.js assertion-integrity.test.js icon-fidelity.test.js geometry-lint.test.js",
     "test:parity": "node --import ./harness/register.js --test parity.test.js",
     "test:l3": "npx esbuild visual/entry.js --bundle --format=esm --outfile=visual/bundle.js --platform=browser --alias:node:module=./harness/node-module-stub.js --alias:react-native=react-native-web --define:process.env.NODE_ENV=\\\"development\\\" && npx playwright test interact.test.js",
     "test:treeshake": "node --test treeshake.test.js"

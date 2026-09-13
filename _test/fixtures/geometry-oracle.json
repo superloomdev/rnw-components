@@ -1,0 +1,123 @@
+{
+  "_meta": {
+    "generated": "2026-09-13T09:38:46.795Z",
+    "sources": {
+      "layout": "@carbon/layout@11.59.0",
+      "styles": "@carbon/styles@1.115.0",
+      "icons": "@carbon/icons-react@11.88.0"
+    },
+    "description": "Authoritative geometry values from pinned Carbon upstream SCSS. Not generated from Superloom output."
+  },
+  "spacing": {
+    "spacing-01": 2,
+    "spacing-02": 4,
+    "spacing-03": 8,
+    "spacing-04": 12,
+    "spacing-05": 16,
+    "spacing-06": 24,
+    "spacing-07": 32,
+    "spacing-08": 40,
+    "spacing-09": 48,
+    "spacing-10": 64,
+    "spacing-11": 80,
+    "spacing-12": 96,
+    "spacing-13": 160
+  },
+  "radius": {
+    "border-radius-00": 0,
+    "border-radius-02": 2,
+    "border-radius-04": 4,
+    "border-radius-08": 8,
+    "border-radius-16": 16,
+    "border-radius-24": 24,
+    "border-radius-max": 999999
+  },
+  "sizeHeight": {
+    "xs": 24,
+    "sm": 32,
+    "md": 40,
+    "lg": 48,
+    "xl": 64,
+    "2xl": 80
+  },
+  "densityPaddingInline": {
+    "condensed": 8,
+    "normal": 16
+  },
+  "iconSizes": [
+    16,
+    20,
+    24,
+    32
+  ],
+  "components": {
+    "textInput": {
+      "height": 40,
+      "paddingInline": 16,
+      "border": {
+        "mode": "underline",
+        "bottomWidth": 1,
+        "sides": [
+          "bottom"
+        ]
+      },
+      "scss": "@carbon/styles/scss/components/text-input/_text-input.scss"
+    },
+    "button": {
+      "height": 40,
+      "paddingInlineStart": 16,
+      "paddingInlineEnd": 16,
+      "iconSize": 20,
+      "scss": "@carbon/styles/scss/components/button/_button.scss"
+    },
+    "search": {
+      "height": 40,
+      "paddingInline": 16,
+      "iconSize": 16,
+      "border": {
+        "mode": "underline",
+        "bottomWidth": 1,
+        "sides": [
+          "bottom"
+        ]
+      },
+      "scss": "@carbon/styles/scss/components/search/_search.scss"
+    },
+    "numberInput": {
+      "height": 40,
+      "paddingInline": 16,
+      "stepperIconSize": 20,
+      "border": {
+        "mode": "underline",
+        "bottomWidth": 1,
+        "sides": [
+          "bottom"
+        ]
+      },
+      "scss": "@carbon/styles/scss/components/number-input/_number-input.scss"
+    },
+    "tag": {
+      "height": 32,
+      "dismissTargetSize": 24,
+      "scss": "@carbon/styles/scss/components/tag/_tag.scss"
+    },
+    "notification": {
+      "iconSize": 20,
+      "scss": "@carbon/styles/scss/components/notification/_inline-notification.scss"
+    },
+    "fileUploaderItem": {
+      "removeTargetSize": 32,
+      "scss": "@carbon/styles/scss/components/file-uploader/_file-uploader.scss"
+    },
+    "copyButton": {
+      "targetSize": 32,
+      "iconSize": 16,
+      "scss": "@carbon/styles/scss/components/copy-button/_copy-button.scss"
+    },
+    "bottomNavigation": {
+      "itemHeight": 40,
+      "iconSize": 20,
+      "scss": "derived from Carbon bottom-navigation pattern"
+    }
+  }
+}

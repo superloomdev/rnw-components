@@ -46,6 +46,11 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const React = Lib.React;
     const [copied, setCopied] = React.useState(false);
 
+    // Resolve spec sheet values
+    const btnSpec = Parts.Spec('copyButton');
+    const targetSize = btnSpec.targetSize;
+    const iconSize = btnSpec.iconSize;
+
     // Handle copy action
     const handlePress = function () {
       if (disabled) {
@@ -83,17 +88,18 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['p_h_spacing_05'],
           Style.utilities['p_v_spacing_03'],
-          Style.utilities['br_radius_08'],
-          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+          Style.utilities['br_radius_04'],
+          Style.utilities['border_w_b_width_01'], Style.utilities['border_color_border_subtle_01'],
           Style.utilities['background_layer_02'],
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
+          { minWidth: targetSize, minHeight: targetSize },
           style
         ]
       }, ariaProps, rest),
       React.createElement(Registry.Icon, {
-        name: copied ? 'checkmark' : 'copy',
-        typeSet: 'label01',
+        name: copied ? btnSpec.checkIcon : btnSpec.copyIcon,
+        size: iconSize,
         color: 'text_secondary',
         style: Style.utilities['m_e_spacing_01']
       }),

@@ -74,6 +74,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const minVal = Lib.Utils.isNumber(min) ? min : null;
     const maxVal = Lib.Utils.isNumber(max) ? max : null;
 
+    // Resolve frame mode from the feedback.field token (underline | outline)
+    const frameMode = Style.tokens.Feedback.field || 'underline';
+    const isUnderline = frameMode === 'underline';
+    const radiusKey = isUnderline ? 'br_radius_00' : 'br_radius_00';
+    const borderKey = isUnderline ? 'border_w_b_width_01' : 'border_w_width_01';
+
     // Clamp a value to min/max
     const clamp = function (val) {
       let result = val;
@@ -115,14 +121,15 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
-          Style.utilities['br_radius_08'],
-          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+          Style.utilities[radiusKey],
+          Style.utilities[borderKey], Style.utilities['border_color_border_subtle_01'],
           isInvalid
             ? { ...Style.utilities['border_color_support_error'] }
             : null,
           isDisabled
             ? { ...Style.utilities['background_layer_01'] }
             : Style.utilities['background_layer_02'],
+          { minWidth: 0 },
           style
         ]
       },

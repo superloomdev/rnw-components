@@ -58,6 +58,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     const isDisabled = !!disabled;
 
+    // Resolve frame mode from the feedback.field token (underline | outline)
+    const frameMode = Style.tokens.Feedback.field || 'underline';
+    const isUnderline = frameMode === 'underline';
+    const radiusKey = isUnderline ? 'br_radius_00' : 'br_radius_00';
+    const borderKey = isUnderline ? 'border_w_b_width_01' : 'border_w_width_01';
+
     // Clear button handler
     const handleClear = function () {
       setValue('');
@@ -72,20 +78,20 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
-          Style.utilities['br_radius_08'],
-          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+          Style.utilities[radiusKey],
+          Style.utilities[borderKey], Style.utilities['border_color_border_subtle_01'],
           isDisabled
             ? { ...Style.utilities['background_layer_01'] }
             : Style.utilities['background_layer_02'],
           Style.utilities['p_h_spacing_03'],
-          { flex: 1 },
+          { flex: 1, minWidth: 0 },
           style
         ]
       },
       // Search icon
       React.createElement(Registry.Icon, {
         name: 'search',
-        typeSet: 'label01',
+        size: 'sm',
         color: 'text_secondary',
         style: Style.utilities['m_e_spacing_01']
       }),
@@ -100,7 +106,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           unframed: true,
           accessibilityRole: 'searchbox',
           accessibilityLabel: accessibilityLabel || 'Search',
-          style: { flex: 1 }
+          style: { flex: 1, minWidth: 0 }
         }, rest)
       ),
       // Clear button (visible when there is text)
@@ -115,7 +121,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           },
           React.createElement(Registry.Icon, {
             name: 'close',
-            typeSet: 'label01',
+            size: 'sm',
             color: 'text_secondary'
           })
         )

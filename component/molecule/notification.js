@@ -29,18 +29,34 @@ Build the Notification molecule.
 export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
   /////////////////////////// Static Constants START ////////////////////////////
+  // Carbon notification colors: notification_background_* for the fill,
+  // support_* for the icon and border accent. Text uses text_primary.
   const STATUS_BG = {
-    success: 'background_support_success',
-    error: 'background_support_error',
-    warning: 'background_support_warning',
-    info: 'background_support_info'
+    success: 'background_notification_background_success',
+    error: 'background_notification_background_error',
+    warning: 'background_notification_background_warning',
+    info: 'background_notification_background_info'
+  };
+
+  const STATUS_BORDER = {
+    success: 'border_color_support_success',
+    error: 'border_color_support_error',
+    warning: 'border_color_support_warning',
+    info: 'border_color_support_info'
+  };
+
+  const STATUS_ICON_COLOR = {
+    success: 'support_success',
+    error: 'support_error',
+    warning: 'support_warning',
+    info: 'support_info'
   };
 
   const STATUS_ICON = {
-    success: 'checkmark',
+    success: 'success',
     error: 'error',
     warning: 'warning',
-    info: 'information'
+    info: 'info'
   };
   /////////////////////////// Static Constants END //////////////////////////////
 
@@ -58,7 +74,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const React = Lib.React;
     const resolvedStatus = status || 'info';
     const bgKey = STATUS_BG[resolvedStatus] || STATUS_BG.info;
+    const borderKey = STATUS_BORDER[resolvedStatus] || STATUS_BORDER.info;
+    const iconColorKey = STATUS_ICON_COLOR[resolvedStatus] || STATUS_ICON_COLOR.info;
     const iconName = STATUS_ICON[resolvedStatus] || STATUS_ICON.info;
+
+    // Resolve spec sheet values
+    const notifSpec = Parts.Spec('notification');
+    const dismissSize = notifSpec.dismissTargetSize;
 
     // Build the close button if onClose is provided
     const closeButton = Lib.Utils.isFunction(onClose)
@@ -73,12 +95,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           onActivate: onClose,
           disabled: false
         }), {
-          style: Style.utilities['p_a_spacing_01']
+          style: [Style.utilities['p_a_spacing_01'], { minWidth: dismissSize, minHeight: dismissSize, alignItems: 'center', justifyContent: 'center' }]
         }),
         React.createElement(Registry.Icon, {
           name: 'close',
-          typeSet: 'label01',
-          color: 'text_secondary'
+          size: 'sm',
+          color: 'text_primary'
         })
       )
       : null;
@@ -89,8 +111,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityRole: 'alert',
         style: [
           Style.utilities[bgKey],
-          Style.utilities['br_radius_08'],
-          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+          Style.utilities['br_radius_04'],
+          Style.utilities['border_w_l_width_01'],
+          Style.utilities[borderKey],
           Style.utilities['p_a_spacing_05'],
           Style.utilities['flex_row'],
           Style.utilities['align_start'],
@@ -100,8 +123,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       // Status icon
       React.createElement(Registry.Icon, {
         name: iconName,
-        typeSet: 'body01',
-        color: 'text_secondary',
+        size: 'md',
+        color: iconColorKey,
         style: Style.utilities['m_e_spacing_03']
       }),
       // Title and subtitle column

@@ -43,6 +43,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     const React = Lib.React;
 
+    // Resolve spec sheet values
+    const navSpec = Parts.Spec('bottomNavigation');
+    const itemHeight = navSpec.itemHeight;
+    const iconSize = navSpec.iconSize;
+    const activeBorderWidth = navSpec.activeTopBorderWidth;
+
     // Render each navigation item
     const renderItem = function (item, index) {
 
@@ -52,11 +58,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         Style.utilities['align_center'],
         { flex: 1 },
         Style.utilities['p_v_spacing_03'],
-        { minHeight: CONFIG.MIN_HIT_TARGET }
+        { minHeight: itemHeight }
       ];
 
       if (item.active) {
-        itemStyles.push(Style.utilities['border_w_width_01'], Style.utilities['border_color_interactive']);
+        itemStyles.push(
+          { borderTopWidth: activeBorderWidth },
+          Style.utilities['border_color_interactive']
+        );
       }
 
       return React.createElement(
@@ -69,8 +78,16 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           hitSlop: { top: 4, bottom: 4, left: 4, right: 4 },
           style: itemStyles
         },
-        item.icon ? React.createElement(Registry.Icon, { name: item.icon, style: { marginBottom: 2 } }) : null,
-        React.createElement(Registry.Text, { typeSet: 'label01', color: item.active ? 'interactive' : 'text_secondary' }, item.text)
+        item.icon ? React.createElement(Registry.Icon, {
+          name: item.icon,
+          size: iconSize,
+          color: item.active ? 'interactive' : 'text_secondary',
+          style: { marginBottom: 2 }
+        }) : null,
+        React.createElement(Registry.Text, {
+          typeSet: navSpec.labelTypeStyle,
+          color: item.active ? 'interactive' : 'text_secondary'
+        }, item.text)
       );
 
     };

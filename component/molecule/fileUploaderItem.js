@@ -45,6 +45,11 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     const React = Lib.React;
 
+    // Resolve spec sheet values
+    const itemSpec = Parts.Spec('fileUploaderItem');
+    const removeSize = itemSpec.removeTargetSize;
+    const removeIconSize = itemSpec.removeIconSize;
+
     // Handle remove press
     const handleRemove = function () {
       if (Lib.Utils.isFunction(onRemove)) {
@@ -79,13 +84,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['align_center'],
           Style.utilities['p_h_spacing_05'],
           Style.utilities['p_v_spacing_03'],
-          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+          Style.utilities['border_w_b_width_01'], Style.utilities['border_color_border_subtle_01'],
           style
         ]
       }, rest),
       React.createElement(Registry.Icon, {
         name: statusIcon,
-        typeSet: 'label01',
+        size: 'sm',
         color: 'text_secondary',
         style: Style.utilities['m_e_spacing_03']
       }),
@@ -102,13 +107,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           accessibilityLabel: 'Remove ' + (filename || 'file')
         }, ariaProps, pressKeysProps, {
           style: [
-            Style.utilities['p_a_spacing_01'],
-            { minWidth: CONFIG.MIN_HIT_TARGET, minHeight: CONFIG.MIN_HIT_TARGET }
+            { minWidth: removeSize, minHeight: removeSize, alignItems: 'center', justifyContent: 'center' }
           ]
         }),
         React.createElement(Registry.Icon, {
-          name: 'close',
-          typeSet: 'label01',
+          name: itemSpec.removeIcon,
+          size: removeIconSize,
           color: 'text_secondary'
         })
       )

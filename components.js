@@ -42,6 +42,7 @@ import partsTypeface from './parts/typeface.js';
 import partsDirection from './parts/direction.js';
 import partsFilter from './parts/filter.js';
 import partsMotion from './parts/motion.js';
+import partsSpec from './parts/spec.js';
 import partsTokens from './parts/tokens.js';
 
 // Data
@@ -813,6 +814,7 @@ const buildInfrastructure = function (Lib, CONFIG, ERRORS, Validators, built, br
     Direction:        partsDirection(Lib, partsConfig, ERRORS),
     Filter:           partsFilter(Lib, partsConfig, ERRORS),
     Motion:           partsMotion(Lib, partsConfig, ERRORS),
+    Spec:             partsSpec(Lib, partsConfig, ERRORS),
     Stacking:         STACKING
   });
 

@@ -55,29 +55,71 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const typeKey = typeSet ? 'type_' + typeSet : 'type_body01';
     const typeStyle = Style.utilities[typeKey];
 
+    // Resolve frame mode from the feedback.field token (underline | outline)
+    // underline: Carbon-faithful bottom border only, square radius
+    // outline: four-sided border, radius from the theme
+    const frameMode = Style.tokens.Feedback.field || 'underline';
+    const isUnderline = frameMode === 'underline';
+
     // Resolve border: invalid uses support_error, focused uses primary, else default
     let borderClasses;
     if (isInvalid) {
       const invalidBorderKey = 'border_color_support_error';
-      borderClasses = [Object.assign({}, Style.utilities[invalidBorderKey], Style.utilities['border_w_width_01'])];
+      if (isUnderline) {
+        borderClasses = [
+          Style.utilities['border_w_b_width_01'],
+          Style.utilities[invalidBorderKey]
+        ];
+      } else {
+        borderClasses = [
+          Style.utilities['border_w_width_01'],
+          Style.utilities[invalidBorderKey]
+        ];
+      }
     } else if (focused) {
-      borderClasses = [Style.utilities['border_w_width_01'], Style.utilities['border_color_interactive']];
+      if (isUnderline) {
+        borderClasses = [
+          Style.utilities['border_w_b_width_01'],
+          Style.utilities['border_color_interactive']
+        ];
+      } else {
+        borderClasses = [
+          Style.utilities['border_w_width_01'],
+          Style.utilities['border_color_interactive']
+        ];
+      }
     } else {
-      borderClasses = [Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01']];
+      if (isUnderline) {
+        borderClasses = [
+          Style.utilities['border_w_b_width_01'],
+          Style.utilities['border_color_border_subtle_01']
+        ];
+      } else {
+        borderClasses = [
+          Style.utilities['border_w_width_01'],
+          Style.utilities['border_color_border_subtle_01']
+        ];
+      }
     }
+
+    // Resolve radius: underline uses radius_00 (square), outline uses the theme's radius
+    const radiusKey = isUnderline ? 'br_radius_00' : 'br_radius_00';
 
     // When unframed, skip border/radius/background - the parent owns the shell.
     // Padding and type style remain so the text is not flush against the border.
+    // minWidth: 0 prevents the intrinsic min-width overflow on web.
     const base = unframed
       ? [
+        { minWidth: 0 },
         Style.utilities['p_h_spacing_05'],
         Style.utilities['p_v_spacing_03'],
         typeStyle,
         Style.utilities['font_text_primary']
       ]
       : [
+        { minWidth: 0 },
         fieldBg,
-        Style.utilities['br_radius_08'],
+        Style.utilities[radiusKey],
         Style.utilities['p_h_spacing_05'],
         Style.utilities['p_v_spacing_03'],
         typeStyle,

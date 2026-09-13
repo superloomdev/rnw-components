@@ -43,6 +43,11 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     const React = Lib.React;
 
+    // Resolve spec sheet values
+    const tagSpec = Parts.Spec('tag');
+    const dismissSize = tagSpec.dismissTargetSize;
+    const dismissIconSize = tagSpec.dismissIconSize;
+
     // Build aria state props through the a11y translator
     const ariaProps = Parts.A11y.state({});
 
@@ -79,10 +84,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         color: 'text_primary'
       }, text),
       React.createElement(Registry.Icon, {
-        name: 'close',
-        typeSet: 'label01',
+        name: tagSpec.dismissIcon,
+        size: dismissIconSize,
         color: 'text_secondary',
-        style: Style.utilities['m_s_spacing_01']
+        style: [Style.utilities['m_s_spacing_01'], { minWidth: dismissSize, minHeight: dismissSize, alignItems: 'center', justifyContent: 'center' }]
       })
     );
   };////////////////////////// Public Functions END ////////////////////////////
