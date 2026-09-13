@@ -8,7 +8,7 @@
 // Numeric geometry, radius values, border-side literals, and glyph names
 // are NOT hardcoded in component implementation. They come from here.
 //
-// Values are transcribed from the Carbon geometry oracle
+// Values are transcribed from the geometry oracle
 // (_test/fixtures/geometry-oracle.json), which is generated from pinned
 // @carbon/styles SCSS. See generate-geometry-oracle.js.
 //

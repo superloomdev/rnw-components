@@ -56,7 +56,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const typeStyle = Style.utilities[typeKey];
 
     // Resolve frame mode from the feedback.field token (underline | outline)
-    // underline: Carbon-faithful bottom border only, square radius
+    // underline: Bottom border only, square radius
     // outline: four-sided border, radius from the theme
     const frameMode = Style.tokens.Feedback.field || 'underline';
     const isUnderline = frameMode === 'underline';

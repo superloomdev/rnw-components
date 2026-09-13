@@ -29,7 +29,7 @@ Build the Notification molecule.
 export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
   /////////////////////////// Static Constants START ////////////////////////////
-  // Carbon notification colors: notification_background_* for the fill,
+  // Notification colors: notification_background_* for the fill,
   // support_* for the icon and border accent. Text uses text_primary.
   const STATUS_BG = {
     success: 'background_notification_background_success',

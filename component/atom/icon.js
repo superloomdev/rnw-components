@@ -52,7 +52,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Resolve size: token -> spec sheet icon sizes, number -> px, default sm
     // Spec sheet (data/component-spec.js) is the single source of truth for
-    // icon sizes. Values come from the Carbon geometry oracle, not type sets.
+    // icon sizes. Values come from the geometry oracle, not type sets.
     const ICON_SIZES = Parts.Spec('icon').sizes;
     let px = ICON_SIZES[Parts.Spec('icon').defaultSize];
 
