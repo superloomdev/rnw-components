@@ -28,7 +28,7 @@ const COMPONENT_DEPS = Object.freeze({
   ComboButton: Object.freeze(['Button', 'Icon', 'MenuItem']),
   ContainedList: Object.freeze(['Text']),
   ContainedListItem: Object.freeze(['Text']),
-  ControlledPasswordInput: Object.freeze(['Button', 'PasswordInput']),
+  ControlledPasswordInput: Object.freeze(['PasswordInput']),
   Copy: Object.freeze(['Icon', 'Text']),
   CopyButton: Object.freeze(['Icon', 'Text']),
   DataTable: Object.freeze(['Text']),
