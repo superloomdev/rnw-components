@@ -7,7 +7,7 @@
 
 
 // Imports
-import { Pressable } from 'react-native';
+import { View as RNView, Pressable } from 'react-native';
 
 
 /////////////////////////// Component Factory START ////////////////////////////
@@ -83,12 +83,17 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         typeSet: 'label01',
         color: 'text_primary'
       }, text),
-      React.createElement(Registry.Icon, {
-        name: tagSpec.dismissIcon,
-        size: dismissIconSize,
-        color: 'text_secondary',
-        style: [Style.utilities['m_s_spacing_01'], { minWidth: dismissSize, minHeight: dismissSize, alignItems: 'center', justifyContent: 'center' }]
-      })
+      React.createElement(
+        RNView,
+        {
+          style: [Style.utilities['m_s_spacing_01'], { minWidth: dismissSize, minHeight: dismissSize, alignItems: 'center', justifyContent: 'center' }]
+        },
+        React.createElement(Registry.Icon, {
+          name: tagSpec.dismissIcon,
+          size: dismissIconSize,
+          color: 'text_secondary'
+        })
+      )
     );
   };////////////////////////// Public Functions END ////////////////////////////
 
