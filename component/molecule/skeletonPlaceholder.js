@@ -40,6 +40,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     const React = Lib.React;
 
+    // Resolve spec sheet values
+    const spec = Parts.Spec('skeletonPlaceholder');
+
     return React.createElement(
       RNView,
       Object.assign({
@@ -47,7 +50,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityLabel: 'Loading content',
         style: [
           {
-            height: 48,
+            height: spec.height,
             width: '100%',
             ...Style.utilities['br_radius_04'],
             ...Style.utilities['background_layer_01']

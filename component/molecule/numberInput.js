@@ -70,6 +70,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     const isDisabled = !!disabled;
     const isInvalid = !!invalid;
+
+    // Field-adjacent controls meet the spec sheet control size
+    const controlSize = Parts.Spec('textInput').controlSize;
+
     const stepVal = Lib.Utils.isNumber(step) ? step : 1;
     const minVal = Lib.Utils.isNumber(min) ? min : null;
     const maxVal = Lib.Utils.isNumber(max) ? max : null;
@@ -141,7 +145,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           disabled: isDisabled,
           accessibilityRole: 'button',
           accessibilityLabel: 'Decrement',
-          style: [Style.utilities['p_h_spacing_03'], Style.utilities['p_v_spacing_01']]
+          style: { minWidth: controlSize, minHeight: controlSize, alignItems: 'center', justifyContent: 'center' }
         },
         React.createElement(Registry.Text, {
           typeSet: 'body02',
@@ -176,7 +180,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           disabled: isDisabled,
           accessibilityRole: 'button',
           accessibilityLabel: 'Increment',
-          style: [Style.utilities['p_h_spacing_03'], Style.utilities['p_v_spacing_01']]
+          style: { minWidth: controlSize, minHeight: controlSize, alignItems: 'center', justifyContent: 'center' }
         },
         React.createElement(Registry.Text, {
           typeSet: 'body02',

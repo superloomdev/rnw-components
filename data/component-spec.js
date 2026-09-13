@@ -26,6 +26,7 @@ export default Object.freeze({
     iconSize: 16,
     typeStyle: 'type.body01',
     minWidth: 0,                     // prevent intrinsic min-width overflow
+    controlSize: 40,                 // field-adjacent control target (container md)
     states: Object.freeze({
       rest: Object.freeze({
         border: 'color.border_strong',
@@ -191,7 +192,7 @@ export default Object.freeze({
     iconSize: 20,
     titleTypeStyle: 'type.heading01',
     subtitleTypeStyle: 'type.body01',
-    dismissTargetSize: 32,
+    dismissTargetSize: 48,
     dismissIcon: 'close',
     dismissIconSize: 16,
     kinds: Object.freeze(['info', 'success', 'warning', 'error']),
@@ -237,6 +238,24 @@ export default Object.freeze({
     labelTypeStyle: 'label01',
     activeTopBorderWidth: 2,
     activeTopBorderColor: 'interactive'
+  }),
+
+  // --- SkeletonPlaceholder ---------------------------------------------------
+  skeletonPlaceholder: Object.freeze({
+    height: 48
+  }),
+
+  // --- IconSwitch -------------------------------------------------------------
+  iconSwitch: Object.freeze({
+    width: 48,
+    height: 28
+  }),
+
+  // --- Shared target floor ---------------------------------------------------
+  // Minimum target size for pressables that are not field-adjacent controls
+  // (those use textInput.controlSize). Oracle container xs step.
+  target: Object.freeze({
+    minSize: 24
   }),
 
   // --- Icon ----------------------------------------------------------------

@@ -811,7 +811,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 |---|---|---|---|
 | `title` | - | - | primary text |
 | `subtitle` | - | - | secondary text (optional) |
-| `icon` | - | 'error--filled' | icon name (optional, defaults to error--filled) |
+| `icon` | - | 'error' | icon name (optional, defaults to the semantic 'error' name) |
 | `children` | Node | - | additional content (optional) |
 | `style` | Object|Array | - | custom style overrides |
 

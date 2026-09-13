@@ -45,6 +45,15 @@ describe('icon manifest - structural validation', () => {
     }
   });
 
+  it('every icon entry should have non-empty carbon and ionicons strings', () => {
+    for (const [name, entry] of Object.entries(manifest.icons)) {
+      assert.equal(typeof entry.carbon, 'string', `icon "${name}" carbon must be a string`);
+      assert.ok(entry.carbon.length > 0, `icon "${name}" carbon must be non-empty`);
+      assert.equal(typeof entry.ionicons, 'string', `icon "${name}" ionicons must be a string`);
+      assert.ok(entry.ionicons.length > 0, `icon "${name}" ionicons must be non-empty`);
+    }
+  });
+
   it('aliases should be an array of strings if present', () => {
     for (const [name, entry] of Object.entries(manifest.icons)) {
       if (entry.aliases) {

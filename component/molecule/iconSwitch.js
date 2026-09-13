@@ -64,6 +64,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       disabled: false
     });
 
+    // Resolve spec sheet values
+    const spec = Parts.Spec('iconSwitch');
+
     return React.createElement(
       Pressable,
       Object.assign({
@@ -75,8 +78,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
           {
-            width: 48,
-            height: 28,
+            width: spec.width,
+            height: spec.height,
             ...Style.utilities['br_radius_max'],
             ...(isChecked
               ? Style.utilities['background_interactive']

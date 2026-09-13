@@ -64,6 +64,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const isDisabled = !!disabled;
     const isInvalid = !!invalid;
 
+    // Field-adjacent controls meet the spec sheet control size
+    const controlSize = Parts.Spec('textInput').controlSize;
+
     // Resolve frame mode from the feedback.field token (underline | outline)
     const frameMode = Style.tokens.Feedback.field || 'underline';
     const isUnderline = frameMode === 'underline';
@@ -114,7 +117,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           disabled: isDisabled,
           accessibilityRole: 'button',
           accessibilityLabel: showPassword ? 'Hide password' : 'Show password',
-          style: Style.utilities['m_s_spacing_01']
+          style: [Style.utilities['m_s_spacing_01'], { minWidth: controlSize, minHeight: controlSize, alignItems: 'center', justifyContent: 'center' }]
         },
         React.createElement(Registry.Icon, {
           name: showPassword ? 'visibility_off' : 'visibility',

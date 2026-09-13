@@ -58,6 +58,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const [isOpen, setIsOpen] = React.useState(false);
     const isDisabled = !!disabled;
 
+    // Field-adjacent controls meet the spec sheet control size
+    const controlSize = Parts.Spec('textInput').controlSize;
+
     return React.createElement(
       RNView,
       {
@@ -91,11 +94,11 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           disabled: isDisabled,
           accessibilityRole: 'button',
           accessibilityLabel: 'Open date picker',
-          style: Style.utilities['m_s_spacing_01']
+          style: [Style.utilities['m_s_spacing_01'], { minWidth: controlSize, minHeight: controlSize, alignItems: 'center', justifyContent: 'center' }]
         },
         React.createElement(Registry.Icon, {
           name: 'calendar',
-          typeSet: 'label01',
+          size: 'sm',
           color: 'text_secondary'
         })
       ),

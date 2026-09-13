@@ -35,11 +35,25 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     info: 'background_notification_background_info'
   };
 
+  const KIND_BORDER = {
+    success: 'border_color_support_success',
+    error: 'border_color_support_error',
+    warning: 'border_color_support_warning',
+    info: 'border_color_support_info'
+  };
+
+  const KIND_ICON_COLOR = {
+    success: 'support_success',
+    error: 'support_error',
+    warning: 'support_warning',
+    info: 'support_info'
+  };
+
   const KIND_ICON = {
-    success: 'checkmark',
+    success: 'success',
     error: 'error',
     warning: 'warning',
-    info: 'information'
+    info: 'info'
   };
   /////////////////////////// Static Constants END //////////////////////////////
 
@@ -57,7 +71,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const React = Lib.React;
     const resolvedKind = kind || 'info';
     const bgKey = KIND_BG[resolvedKind] || KIND_BG.info;
+    const borderKey = KIND_BORDER[resolvedKind] || KIND_BORDER.info;
+    const iconColorKey = KIND_ICON_COLOR[resolvedKind] || KIND_ICON_COLOR.info;
     const iconName = KIND_ICON[resolvedKind] || KIND_ICON.info;
+
+    // Resolve spec sheet values
+    const notifSpec = Parts.Spec('notification');
 
     return React.createElement(
       RNView,
@@ -66,7 +85,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities[bgKey],
           Style.utilities['br_radius_04'],
-          Style.utilities['border_w_l_width_01'], Style.utilities['border_color_support_info'],
+          Style.utilities['border_w_l_width_01'], Style.utilities[borderKey],
           Style.utilities['p_a_spacing_05'],
           style
         ]
@@ -82,8 +101,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         },
         React.createElement(Registry.Icon, {
           name: iconName,
-          typeSet: 'body01',
-          color: 'text_secondary',
+          size: notifSpec.iconSize,
+          color: iconColorKey,
           style: Style.utilities['m_e_spacing_03']
         }),
         title

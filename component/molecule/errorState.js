@@ -2,7 +2,7 @@
 // icon, title, and subtitle. Uses role="alert" for screen reader semantics.
 //   title       -> primary text
 //   subtitle    -> secondary text (optional)
-//   icon        -> icon name (optional, defaults to error--filled)
+//   icon        -> icon name (optional, defaults to the semantic 'error' name)
 //   children    -> additional content (optional)
 //   style       -> custom style overrides
 
@@ -43,16 +43,19 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     } = props;
 
     const React = Lib.React;
-    const iconName = icon || 'error--filled';
+    const iconName = icon || 'error';
+
+    // Resolve spec sheet values (error state uses the notification triad)
+    const notifSpec = Parts.Spec('notification');
 
     return React.createElement(
       RNView,
       Object.assign({
         accessibilityRole: 'alert',
         style: [
-          Style.utilities['background_support_error'],
-          Style.utilities['br_radius_08'],
-          Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01'],
+          Style.utilities['background_notification_background_error'],
+          Style.utilities['br_radius_04'],
+          Style.utilities['border_w_l_width_01'], Style.utilities['border_color_support_error'],
           Style.utilities['p_a_spacing_05'],
           Style.utilities['flex_row'],
           Style.utilities['align_start'],
@@ -62,8 +65,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       // Error icon
       React.createElement(Registry.Icon, {
         name: iconName,
-        typeSet: 'body01',
-        color: 'text_secondary',
+        size: notifSpec.iconSize,
+        color: 'support_error',
         style: Style.utilities['m_e_spacing_03']
       }),
       // Title and subtitle column
