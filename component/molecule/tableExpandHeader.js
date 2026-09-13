@@ -27,7 +27,7 @@ Build the TableExpandHeader molecule.
 export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
   /////////////////////////// Static Constants START ////////////////////////////
-  // None.
+  const minSize = Parts.Spec('target').minSize;
   /////////////////////////// Static Constants END //////////////////////////////
 
 
@@ -55,7 +55,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityLabel: isExpanded ? 'Collapse row' : 'Expand row',
         style: [
           Style.utilities['p_h_spacing_03'],
-          Style.utilities['p_v_spacing_01']
+          Style.utilities['p_v_spacing_01'],
+          { minWidth: minSize, minHeight: minSize, alignItems: 'center', justifyContent: 'center' }
         ]
       },
       React.createElement(Registry.Icon, {

@@ -30,7 +30,7 @@ Build the Pagination composite.
 export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
   /////////////////////////// Static Constants START ////////////////////////////
-  // None.
+  const minSize = Parts.Spec('target').minSize;
   /////////////////////////// Static Constants END //////////////////////////////
 
 
@@ -115,6 +115,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             Style.utilities['p_h_spacing_03'],
             Style.utilities['p_v_spacing_03'],
             Style.utilities['m_r_spacing_03'],
+            { minWidth: minSize, minHeight: minSize, alignItems: 'center', justifyContent: 'center' },
             {
               backgroundColor: prevDisabled
                 ? Style.utilities['background_layer_01'].backgroundColor
@@ -148,6 +149,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             Style.utilities['p_h_spacing_03'],
             Style.utilities['p_v_spacing_03'],
             Style.utilities['m_l_spacing_03'],
+            { minWidth: minSize, minHeight: minSize, alignItems: 'center', justifyContent: 'center' },
             {
               backgroundColor: nextDisabled
                 ? Style.utilities['background_layer_01'].backgroundColor

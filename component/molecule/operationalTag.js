@@ -27,7 +27,7 @@ Build the OperationalTag molecule.
 export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
   /////////////////////////// Static Constants START ////////////////////////////
-  // None.
+  const minSize = Parts.Spec('target').minSize;
   /////////////////////////// Static Constants END //////////////////////////////
 
 
@@ -66,6 +66,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['p_h_spacing_03'],
           Style.utilities['p_v_spacing_01'],
           Style.utilities['br_radius_max'],
+          { minWidth: minSize, minHeight: minSize },
           {
             ...Style.utilities['border_w_width_01'],
             ...Style.utilities['border_color_border_subtle_01'],

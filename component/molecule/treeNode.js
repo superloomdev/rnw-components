@@ -35,6 +35,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
   /////////////////////////// Static Constants START ////////////////////////////
 
+  const minSize = Parts.Spec('target').minSize;
 
   // Get the shared TreeView context (cached per Lib instance)
   const treeViewCtx = getSharedContext(Lib, 'TreeView');
@@ -108,6 +109,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             Style.utilities['align_center'],
             Style.utilities['p_h_spacing_03'],
             Style.utilities['p_v_spacing_01'],
+            { minWidth: minSize, minHeight: minSize },
             {
               marginLeft: (nodeLevel - 1) * 20,
               backgroundColor: isSelected

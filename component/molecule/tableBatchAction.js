@@ -28,7 +28,7 @@ Build the TableBatchAction molecule.
 export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
   /////////////////////////// Static Constants START ////////////////////////////
-  // None.
+  const minSize = Parts.Spec('target').minSize;
   /////////////////////////// Static Constants END //////////////////////////////
 
 
@@ -67,6 +67,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           Style.utilities['p_h_spacing_03'],
           Style.utilities['p_v_spacing_01'],
           Style.utilities['br_radius_08'],
+          { minWidth: minSize, minHeight: minSize, alignItems: 'center', justifyContent: 'center' },
           style
         ]
       }, ariaProps, pressKeysProps, rest),

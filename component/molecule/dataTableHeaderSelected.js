@@ -29,7 +29,7 @@ Build the DataTableHeaderSelected molecule.
 export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
   /////////////////////////// Static Constants START ////////////////////////////
-  // None.
+  const minSize = Parts.Spec('target').minSize;
   /////////////////////////// Static Constants END //////////////////////////////
 
 
@@ -65,7 +65,10 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           onPress: onCancel,
           accessibilityRole: 'button',
           accessibilityLabel: 'Cancel',
-          style: Style.utilities['m_s_spacing_01']
+          style: [
+            Style.utilities['m_s_spacing_01'],
+            { minWidth: minSize, minHeight: minSize, alignItems: 'center', justifyContent: 'center' }
+          ]
         },
         React.createElement(Registry.Text, {
           typeSet: 'label01',

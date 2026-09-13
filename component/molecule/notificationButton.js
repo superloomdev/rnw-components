@@ -26,7 +26,7 @@ Build the NotificationButton molecule.
 export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
   /////////////////////////// Static Constants START ////////////////////////////
-  // None.
+  const dismissTargetSize = Parts.Spec('notification').dismissTargetSize;
   /////////////////////////// Static Constants END //////////////////////////////
 
 
@@ -61,6 +61,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       }, ariaProps, pressKeysProps, {
         style: [
           Style.utilities['p_a_spacing_01'],
+          { minWidth: dismissTargetSize, minHeight: dismissTargetSize, alignItems: 'center', justifyContent: 'center' },
           style
         ]
       }, rest),
