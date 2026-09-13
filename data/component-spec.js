@@ -234,9 +234,9 @@ export default Object.freeze({
   bottomNavigation: Object.freeze({
     itemHeight: 40,
     iconSize: 20,
-    labelTypeStyle: 'type.label01',
+    labelTypeStyle: 'label01',
     activeTopBorderWidth: 2,
-    activeTopBorderColor: 'color.border_active'
+    activeTopBorderColor: 'interactive'
   }),
 
   // --- Icon ----------------------------------------------------------------

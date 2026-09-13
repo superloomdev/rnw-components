@@ -48,6 +48,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const itemHeight = navSpec.itemHeight;
     const iconSize = navSpec.iconSize;
     const activeBorderWidth = navSpec.activeTopBorderWidth;
+    const activeBorderColorKey = 'border_color_' + navSpec.activeTopBorderColor;
 
     // Render each navigation item
     const renderItem = function (item, index) {
@@ -64,7 +65,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       if (item.active) {
         itemStyles.push(
           { borderTopWidth: activeBorderWidth },
-          Style.utilities['border_color_interactive']
+          Style.utilities[activeBorderColorKey]
         );
       }
 
