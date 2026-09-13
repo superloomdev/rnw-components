@@ -192,6 +192,7 @@ export default Object.freeze({
     iconSize: 20,
     titleTypeStyle: 'type.heading01',
     subtitleTypeStyle: 'type.body01',
+    radiusToken: 'shape.radius_00',
     dismissTargetSize: 48,
     dismissIcon: 'close',
     dismissIconSize: 16,

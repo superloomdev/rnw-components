@@ -86,7 +86,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityRole: 'note',
         style: [
           Style.utilities[bgKey],
-          Style.utilities['br_radius_04'],
+          Style.utilities['br_radius_00'],
           Style.utilities['border_w_l_width_01'], Style.utilities[borderKey],
           Style.utilities['p_a_spacing_05'],
           style

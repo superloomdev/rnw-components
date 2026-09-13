@@ -54,7 +54,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         accessibilityRole: 'alert',
         style: [
           Style.utilities['background_notification_background_error'],
-          Style.utilities['br_radius_04'],
+          Style.utilities['br_radius_00'],
           Style.utilities['border_w_l_width_01'], Style.utilities['border_color_support_error'],
           Style.utilities['p_a_spacing_05'],
           Style.utilities['flex_row'],

@@ -103,7 +103,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     }
 
     // Resolve radius: underline uses radius_00 (square), outline uses the theme's radius
-    const radiusKey = isUnderline ? 'br_radius_00' : 'br_radius_00';
+    const radiusKey = 'br_radius_00';
 
     // When unframed, skip border/radius/background - the parent owns the shell.
     // Padding and type style remain so the text is not flush against the border.
