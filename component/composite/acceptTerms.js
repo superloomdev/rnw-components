@@ -103,8 +103,8 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         React.createElement(Registry.Text, null, modalBody)
       ),
       React.createElement(Registry.ModalFooter, null,
-        React.createElement(Registry.Button, { kind: 'ghost', title: modalSecondary, onPress: handleConfirmDisagree }),
-        React.createElement(Registry.Button, { kind: 'primary', title: modalPrimary, onPress: handleContinue })
+        React.createElement(Registry.Button, { kind: 'ghost', children: modalSecondary, onPress: handleConfirmDisagree }),
+        React.createElement(Registry.Button, { kind: 'primary', children: modalPrimary, onPress: handleContinue })
       )
     ) : null;
 

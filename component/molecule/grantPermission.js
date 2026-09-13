@@ -100,7 +100,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         Lib.Utils.isFunction(onDeny)
           ? React.createElement(Registry.Button, {
             kind: 'ghost',
-            title: 'Deny',
+            children: 'Deny',
             onPress: onDeny,
             style: Style.utilities['m_e_spacing_03']
           })
@@ -109,7 +109,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         Lib.Utils.isFunction(onGrant)
           ? React.createElement(Registry.Button, {
             kind: 'primary',
-            title: 'Grant',
+            children: 'Grant',
             onPress: onGrant
           })
           : null

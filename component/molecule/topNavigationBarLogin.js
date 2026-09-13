@@ -50,7 +50,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     if (loginAction && Lib.Utils.isFunction(loginAction.onPress)) {
       loginButton = React.createElement(Registry.Button, {
         kind: 'primary',
-        title: loginAction.text,
+        children: loginAction.text,
         onPress: loginAction.onPress
       });
     }

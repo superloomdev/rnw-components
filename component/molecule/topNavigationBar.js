@@ -53,7 +53,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       return React.createElement(Registry.Button, {
         key: index,
         kind: 'ghost',
-        title: item.text,
+        children: item.text,
         icon: item.icon,
         onPress: item.onPress
       });
