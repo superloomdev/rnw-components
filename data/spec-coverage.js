@@ -1,4 +1,4 @@
-// Info: Spec coverage manifest for rnw-components (Plan 0156).
+// Info: Spec coverage manifest for rnw-components.
 //
 // Lists every component and its spec status: either "specced" (has an entry
 // in data/component-spec.js) or "unspecced" with a documented reason.
@@ -22,20 +22,19 @@ export default Object.freeze({
     InlineNotification: 'notification',
     FileUploaderItem: 'fileUploaderItem',
     CopyButton: 'copyButton',
-    BottomNavigationBar: 'bottomNavigation'
+    BottomNavigationBar: 'bottomNavigation',
+    ComboBox: 'textInput',
+    DateInput: 'textInput',
+    DatePickerInput: 'textInput',
+    ExpandableSearch: 'textInput',
+    FilterableMultiSelect: 'textInput',
+    MultiSelect: 'textInput',
+    Select: 'textInput',
+    TableToolbarSearch: 'textInput'
   }),
 
   // --- Will be specced in Part D (frame work) ------------------------------
-  partD: Object.freeze([
-    'ComboBox',
-    'DateInput',
-    'DatePickerInput',
-    'ExpandableSearch',
-    'FilterableMultiSelect',
-    'MultiSelect',
-    'Select',
-    'TableToolbarSearch'
-  ]),
+  partD: Object.freeze([]),
 
   // --- Unspecced (documented reasons) --------------------------------------
   // The ratchet: this list can only shrink. Adding a component here requires

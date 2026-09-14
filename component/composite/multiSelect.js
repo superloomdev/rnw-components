@@ -66,6 +66,9 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const optionList = options || [];
     const selectedArray = resolvedValues || [];
 
+    // Resolve frame mode from the feedback.field token (underline | outline)
+    const frameMode = Style.tokens.Feedback.field || 'underline';
+
     // Build the display label from selected count
     const displayLabel = Lib.Utils.isEmptyArray(selectedArray)
       ? (placeholder || 'Select options')
@@ -134,18 +137,15 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
             Style.utilities['flex_row'],
             Style.utilities['align_center'],
             Style.utilities['justify_between'],
-            Style.utilities['br_radius_00'],
-            Style.utilities['border_w_b_width_01'], Style.utilities['border_color_border_subtle_01'],
+            ...Parts.Frame.resolve({
+              mode: frameMode,
+              focused: isOpen,
+              invalid: isInvalid,
+              disabled: isDisabled
+            }),
             { minWidth: 0 },
             Style.utilities['p_h_spacing_05'],
             Style.utilities['p_v_spacing_03'],
-            Style.utilities['background_layer_02'],
-            isInvalid
-              ? { ...Style.utilities['border_color_support_error'] }
-              : null,
-            isDisabled
-              ? { ...Style.utilities['background_layer_01'] }
-              : null,
             style
           ]
         }, ariaStateProps, pressKeysProps, rest),

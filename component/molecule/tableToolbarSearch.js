@@ -44,16 +44,27 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     const React = Lib.React;
 
+    // Frame ownership: the wrapper owns the border/focus state.
+    const focusState = React.useState(false);
+    const focused = focusState[0];
+    const setFocused = focusState[1];
+
+    // Resolve frame mode from the feedback.field token (underline | outline)
+    const frameMode = Style.tokens.Feedback.field || 'underline';
+
     return React.createElement(
       RNView,
       {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
-          Style.utilities['br_radius_00'],
-          Style.utilities['border_w_b_width_01'], Style.utilities['border_color_border_subtle_01'],
+          ...Parts.Frame.resolve({
+            mode: frameMode,
+            focused: focused,
+            invalid: false,
+            disabled: false
+          }),
           { minWidth: 0 },
-          Style.utilities['background_layer_02'],
           Style.utilities['p_h_spacing_03'],
           style
         ]
@@ -70,8 +81,21 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           value: value,
           onChangeText: onChange,
           placeholder: placeholder || 'Search',
+          unframed: true,
           accessibilityRole: 'searchbox',
           accessibilityLabel: 'Search table',
+          onFocus: function (e) {
+            setFocused(true);
+            if (Lib.Utils.isFunction(props.onFocus)) {
+              props.onFocus(e);
+            }
+          },
+          onBlur: function (e) {
+            setFocused(false);
+            if (Lib.Utils.isFunction(props.onBlur)) {
+              props.onBlur(e);
+            }
+          },
           style: { flex: 1 }
         }, rest)
       )

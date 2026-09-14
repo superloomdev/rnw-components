@@ -1,0 +1,59 @@
+[
+  {
+    "name": "spec-oracle-control-size",
+    "file": "data/component-spec.js",
+    "find": "controlSize: 40,",
+    "replace": "controlSize: 39,",
+    "test": "spec.test.js"
+  },
+  {
+    "name": "spec-field-min-width",
+    "file": "data/component-spec.js",
+    "find": "minWidth: 0,",
+    "replace": "minWidth: 1,",
+    "test": "spec.test.js"
+  },
+  {
+    "name": "spec-state-token",
+    "file": "data/component-spec.js",
+    "find": "border: 'color.border_subtle_01',",
+    "replace": "border: 'color.border_subtle_01_missing',",
+    "test": "spec.test.js"
+  },
+  {
+    "name": "icon-manifest-close",
+    "file": "data/icon-names.json",
+    "find": "\"close\":",
+    "replace": "\"close_removed\":",
+    "test": "icon-fidelity.test.js"
+  },
+  {
+    "name": "geometry-literal",
+    "file": "component/molecule/callout.js",
+    "find": "Style.utilities['p_a_spacing_05'],",
+    "replace": "Style.utilities['p_a_spacing_05'], { height: 40 },",
+    "test": "geometry-lint.test.js"
+  },
+  {
+    "name": "hook-order",
+    "file": "component/composite/comboBox.js",
+    "find": "    const overlay = useOverlay({",
+    "replace": "    if (!props) { return null; }\n    const overlay = useOverlay({",
+    "test": "geometry-lint.test.js"
+  },
+  {
+    "name": "coverage-ratchet",
+    "file": "data/spec-coverage.js",
+    "find": "unspecced: Object.freeze({",
+    "replace": "unspecced: Object.freeze({ FakeComponent: 'planted',",
+    "test": "spec.test.js"
+  },
+  {
+    "name": "frame-owner-outline",
+    "file": "component/atom/textInput.js",
+    "find": "outlineStyle: 'none', outlineWidth: 0",
+    "replace": "outlineStyle: 'auto', outlineWidth: 0",
+    "test": "interact.test.js",
+    "runner": "l3"
+  }
+]

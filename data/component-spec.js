@@ -1,4 +1,4 @@
-// Info: Component spec sheets for rnw-components (Plan 0156).
+// Info: Component spec sheets for rnw-components.
 //
 // Shared data consumed by both component implementations and L3 tests.
 // Components resolve geometry, frame style, states, targets, and icon
@@ -29,23 +29,23 @@ export default Object.freeze({
     controlSize: 40,                 // field-adjacent control target (container md)
     states: Object.freeze({
       rest: Object.freeze({
-        border: 'color.border_strong',
-        background: 'color.field',
+        border: 'color.border_subtle_01',
+        background: 'color.field_01',
         text: 'color.text_primary'
       }),
       focus: Object.freeze({
-        border: 'color.border_focus',
-        background: 'color.field',
+        border: 'color.focus',
+        background: 'color.field_01',
         text: 'color.text_primary'
       }),
       invalid: Object.freeze({
         border: 'color.support_error',
-        background: 'color.field',
+        background: 'color.field_01',
         text: 'color.text_primary'
       }),
       disabled: Object.freeze({
         border: 'color.border_disabled',
-        background: 'color.field',
+        background: 'color.field_01',
         text: 'color.text_disabled'
       })
     })
@@ -97,18 +97,18 @@ export default Object.freeze({
     innerInputUnframed: true,
     states: Object.freeze({
       rest: Object.freeze({
-        border: 'color.border_strong',
-        background: 'color.field',
+        border: 'color.border_subtle_01',
+        background: 'color.field_01',
         text: 'color.text_primary'
       }),
       focus: Object.freeze({
-        border: 'color.border_focus',
-        background: 'color.field',
+        border: 'color.focus',
+        background: 'color.field_01',
         text: 'color.text_primary'
       }),
       invalid: Object.freeze({
         border: 'color.support_error',
-        background: 'color.field',
+        background: 'color.field_01',
         text: 'color.text_primary'
       })
     })
@@ -129,18 +129,18 @@ export default Object.freeze({
     toggleIconOff: 'visibility_off',
     states: Object.freeze({
       rest: Object.freeze({
-        border: 'color.border_strong',
-        background: 'color.field',
+        border: 'color.border_subtle_01',
+        background: 'color.field_01',
         text: 'color.text_primary'
       }),
       focus: Object.freeze({
-        border: 'color.border_focus',
-        background: 'color.field',
+        border: 'color.focus',
+        background: 'color.field_01',
         text: 'color.text_primary'
       }),
       invalid: Object.freeze({
         border: 'color.support_error',
-        background: 'color.field',
+        background: 'color.field_01',
         text: 'color.text_primary'
       })
     })
@@ -160,18 +160,18 @@ export default Object.freeze({
     innerInputUnframed: true,
     states: Object.freeze({
       rest: Object.freeze({
-        border: 'color.border_strong',
-        background: 'color.field',
+        border: 'color.border_subtle_01',
+        background: 'color.field_01',
         text: 'color.text_primary'
       }),
       focus: Object.freeze({
-        border: 'color.border_focus',
-        background: 'color.field',
+        border: 'color.focus',
+        background: 'color.field_01',
         text: 'color.text_primary'
       }),
       invalid: Object.freeze({
         border: 'color.support_error',
-        background: 'color.field',
+        background: 'color.field_01',
         text: 'color.text_primary'
       })
     })

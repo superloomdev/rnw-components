@@ -1,4 +1,4 @@
-// Info: Assertion-integrity manifest (Plan 0156, Part B).
+// Info: Assertion-integrity manifest.
 //
 // Proves that the permanent tests actually fail when the behavior they
 // guard is intentionally disabled. Each test in this file temporarily

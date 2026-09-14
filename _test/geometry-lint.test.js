@@ -1,4 +1,4 @@
-// Info: Hard-coded geometry/token lint tests (Plan 0156, Part B).
+// Info: Hard-coded geometry/token lint tests.
 //
 // Scans component source files for hardcoded numeric geometry values that
 // should come from the spec sheet. The spec sheet is the single source of
@@ -97,19 +97,12 @@ describe('geometry lint - no hardcoded spec values in components', () => {
     const componentDir = join(__dirname, '..', 'component');
     const violations = scanComponentDir(componentDir);
 
-    // Filter out known acceptable uses (e.g., in style objects that
-    // reference the spec sheet via Parts.Spec)
-    const realViolations = violations.filter(v => {
-      // Allow if the file imports or uses Parts.Spec
-      const content = readFileSync(join(__dirname, '..', v.file), 'utf8');
-      if (content.includes('Parts.Spec') || content.includes('Spec(')) {
-        return false; // File uses spec sheet, acceptable
-      }
-      return true;
-    });
+    // All violations are real; files that use Parts.Spec for one value
+    // still cannot hardcode a different spec value.
+    const realViolations = violations;
 
     // Baseline violations ratchet: these known violations will shrink as
-    // Part C/D fixes the components. New violations are never allowed.
+    // components adopt the spec sheet. New violations are never allowed.
     // Format: "file: value" entries
     const BASELINE_VIOLATIONS = [
       'component/atom/badgeIndicator.js: 20',
@@ -173,12 +166,20 @@ describe('hook-order lint - useOverlay before early returns', () => {
           // Check if this component uses useOverlay
           if (!content.includes('useOverlay')) continue;
 
-          // Find the useOverlay call position
-          const overlayIdx = content.indexOf('useOverlay');
-          if (overlayIdx === -1) continue;
+          // Find the first CALL to useOverlay (not the alias assignment).
+          // The alias `const useOverlay = Parts.Overlay.useOverlay;` near the
+          // top of the file is not a call; we need the first `useOverlay(` call.
+          const callMatch = /\buseOverlay\s*\(/.exec(content);
+          if (!callMatch) continue;
 
-          // Check for early returns BEFORE the useOverlay call
-          const beforeOverlay = content.substring(0, overlayIdx);
+          const overlayCallIdx = callMatch.index;
+
+          // Find the Public Functions START banner; scan for early returns
+          // only between that banner (or 0 if absent) and the first call.
+          const bannerIdx = content.indexOf('Public Functions START');
+          const scanStart = bannerIdx === -1 ? 0 : bannerIdx;
+
+          const beforeOverlay = content.substring(scanStart, overlayCallIdx);
           const earlyReturnPattern = /return\s*(?:null|undefined|false)\s*[;}]|return\s*\(?\s*null/;
           if (earlyReturnPattern.test(beforeOverlay)) {
             violations.push({

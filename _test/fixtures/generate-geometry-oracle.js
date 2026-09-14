@@ -1,4 +1,4 @@
-// Info: Carbon geometry oracle generator (Plan 0156, Step A.0b).
+// Info: Carbon geometry oracle generator.
 //
 // Reads the pinned @carbon/layout and @carbon/styles SCSS source files and
 // extracts authoritative geometry values: spacing scale, layout heights,

@@ -291,9 +291,9 @@ test('L3: gallery renders expected number of interactive components', async ({ p
     document.querySelectorAll('[data-component]').length
   );
 
-  // The entry registers exactly the 16 interactive components by name, so an
+  // The entry registers exactly the 20 interactive components by name, so an
   // exact count also proves no named import was silently dropped.
-  expect(count).toBe(16);
+  expect(count).toBe(20);
 });
 
 // ─── Theme switching ───────────────────────────────────────────────────────
@@ -352,4 +352,83 @@ test('L3: Carbon theme carries Carbon blue and contrast does not', async ({ page
   expect(carbonColor).not.toBe(contrastColor);
   expect(carbonColor).toContain('15, 98, 254');
   expect(contrastColor).toContain('124, 58, 237');
+});
+
+
+// ─── Frame Owner Tests ─────────────────────────────────────────────────────
+
+test('L3: field frame owner renders focus, input has no UA outline, no nested frames', async ({ page }) => {
+
+  await page.goto('/');
+  await page.waitForSelector('#gallery');
+
+  const fieldComposites = ['PasswordInput', 'Search', 'NumberInput', 'DatePickerInput'];
+
+  for (const name of fieldComposites) {
+    const row = page.locator(`[data-component="${name}"]`);
+    await expect(row).toBeAttached();
+
+    const input = row.locator('input').first();
+    await expect(input).toBeAttached();
+
+    // Read rest state: outlineStyle and the border chain
+    const restData = await input.evaluate(el => {
+      const computed = window.getComputedStyle(el);
+      const restOutline = computed.outlineStyle;
+
+      // Walk from the input's parent up to (excluding) the row root,
+      // counting elements with borderBottomWidth > 0
+      const rowRoot = el.closest('[data-component]');
+      let borderEl = null;
+      let borderCount = 0;
+      let node = el.parentElement;
+      while (node && node !== rowRoot) {
+        const bs = window.getComputedStyle(node);
+        const bw = parseFloat(bs.borderBottomWidth);
+        if (bw > 0) {
+          borderCount++;
+          if (!borderEl) borderEl = node;
+        }
+        node = node.parentElement;
+      }
+
+      return {
+        restOutline: restOutline,
+        borderCount: borderCount,
+        restBorderColor: borderEl ? window.getComputedStyle(borderEl).borderBottomColor : null
+      };
+    });
+
+    // Assert input has no UA outline
+    expect(restData.restOutline, `${name}: input must have outlineStyle 'none'`).toBe('none');
+
+    // Assert exactly one element on the chain has borderBottomWidth > 0
+    expect(restData.borderCount, `nested frames in ${name}: ${restData.borderCount}`).toBe(1);
+
+    // Focus the input
+    await input.focus();
+    await page.waitForTimeout(100);
+
+    // Read focused state: the border element's borderBottomColor
+    const focusedData = await input.evaluate(el => {
+      const rowRoot = el.closest('[data-component]');
+      let borderEl = null;
+      let node = el.parentElement;
+      while (node && node !== rowRoot) {
+        const bs = window.getComputedStyle(node);
+        const bw = parseFloat(bs.borderBottomWidth);
+        if (bw > 0) {
+          borderEl = node;
+          break;
+        }
+        node = node.parentElement;
+      }
+      return {
+        focusedBorderColor: borderEl ? window.getComputedStyle(borderEl).borderBottomColor : null
+      };
+    });
+
+    // Assert the border color changed between rest and focused
+    expect(focusedData.focusedBorderColor, `frame did not react to focus in ${name}`).not.toBe(restData.restBorderColor);
+  }
 });

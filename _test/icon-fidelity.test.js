@@ -1,4 +1,4 @@
-// Info: Icon contract and fidelity tests (Plan 0156, Part B).
+// Info: Icon contract and fidelity tests.
 //
 // Validates the semantic icon manifest and ensures every component icon
 // literal uses a name from the manifest. The manifest maps semantic names

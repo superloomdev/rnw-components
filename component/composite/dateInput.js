@@ -9,6 +9,7 @@
 
 
 // Imports
+import { View as RNView } from 'react-native';
 
 
 
@@ -26,7 +27,7 @@ Build the DateInput composite.
 
 @return {Function} - The DateInput component
 *********************************************************************/
-export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) { // eslint-disable-line no-unused-vars
+export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
   /////////////////////////// Static Constants START ////////////////////////////
 
@@ -49,6 +50,15 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) { // eslin
     const isDisabled = !!disabled;
     const isInvalid = !!invalid;
 
+    // Frame ownership: the wrapper owns the border/focus/invalid/disabled
+    // state. The inner TextInput renders unframed.
+    const focusState = React.useState(false);
+    const focused = focusState[0];
+    const setFocused = focusState[1];
+
+    // Resolve frame mode from the feedback.field token (underline | outline)
+    const frameMode = Style.tokens.Feedback.field || 'underline';
+
     // Controlled/uncontrolled state for the date value
     const state = Parts.ControllableState({
       value: value,
@@ -70,19 +80,46 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) { // eslin
     });
 
     return React.createElement(
-      Registry.TextInput,
-      Object.assign({
-        value: resolvedValue,
-        onChangeText: handleChange,
-        isDisabled: isDisabled,
-        isInvalid: isInvalid,
-        accessibilityRole: 'textbox',
-        accessibilityLabel: accessibilityLabel || 'Date input',
-        placeholder: 'YYYY-MM-DD',
-        keyboardType: 'numeric',
-        maxLength: 10,
-        style: style
-      }, ariaStateProps, rest)
+      RNView,
+      {
+        style: [
+          ...Parts.Frame.resolve({
+            mode: frameMode,
+            focused: focused,
+            invalid: isInvalid,
+            disabled: isDisabled
+          }),
+          { minWidth: 0 },
+          style
+        ]
+      },
+      React.createElement(
+        Registry.TextInput,
+        Object.assign({
+          value: resolvedValue,
+          onChangeText: handleChange,
+          isDisabled: isDisabled,
+          isInvalid: isInvalid,
+          unframed: true,
+          accessibilityRole: 'textbox',
+          accessibilityLabel: accessibilityLabel || 'Date input',
+          placeholder: 'YYYY-MM-DD',
+          keyboardType: 'numeric',
+          maxLength: 10,
+          onFocus: function (e) {
+            setFocused(true);
+            if (Lib.Utils.isFunction(props.onFocus)) {
+              props.onFocus(e);
+            }
+          },
+          onBlur: function (e) {
+            setFocused(false);
+            if (Lib.Utils.isFunction(props.onBlur)) {
+              props.onBlur(e);
+            }
+          }
+        }, ariaStateProps, rest)
+      )
     );
   };////////////////////////// Public Functions END ////////////////////////////
 

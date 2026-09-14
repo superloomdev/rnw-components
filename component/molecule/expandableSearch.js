@@ -67,6 +67,14 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     const isDisabled = !!disabled;
 
+    // Frame ownership: the wrapper owns the border/focus/disabled state.
+    const focusState = React.useState(false);
+    const focused = focusState[0];
+    const setFocused = focusState[1];
+
+    // Resolve frame mode from the feedback.field token (underline | outline)
+    const frameMode = Style.tokens.Feedback.field || 'underline';
+
     // Clear button handler
     const handleClear = function () {
       setValue('');
@@ -109,12 +117,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
-          Style.utilities['br_radius_00'],
-          Style.utilities['border_w_b_width_01'], Style.utilities['border_color_border_subtle_01'],
+          ...Parts.Frame.resolve({
+            mode: frameMode,
+            focused: focused,
+            invalid: false,
+            disabled: isDisabled
+          }),
           { minWidth: 0 },
-          isDisabled
-            ? { ...Style.utilities['background_layer_01'] }
-            : Style.utilities['background_layer_02'],
           Style.utilities['p_h_spacing_03'],
           style
         ]
@@ -143,8 +152,21 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           onChangeText: setValue,
           placeholder: placeholder || 'Search',
           isDisabled: isDisabled,
+          unframed: true,
           accessibilityRole: 'searchbox',
           accessibilityLabel: accessibilityLabel || 'Search',
+          onFocus: function (e) {
+            setFocused(true);
+            if (Lib.Utils.isFunction(props.onFocus)) {
+              props.onFocus(e);
+            }
+          },
+          onBlur: function (e) {
+            setFocused(false);
+            if (Lib.Utils.isFunction(props.onBlur)) {
+              props.onBlur(e);
+            }
+          },
           style: { flex: 1 }
         }, rest)
       ),

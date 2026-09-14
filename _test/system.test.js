@@ -122,13 +122,13 @@ describe('createSystem surface', function () {
 
   });
 
-  it('should build all fifteen mechanism parts', function () {
+  it('should build all sixteen mechanism parts', function () {
 
     const system = buildSystem();
     const expected = [
       'A11y', 'PressKeys', 'RovingTabIndex', 'ControllableState',
       'AnchoredPosition', 'FocusTrap', 'Overlay', 'CompoundContext',
-      'Units', 'Typeface', 'Direction', 'Filter', 'Motion', 'Spec', 'Stacking'
+      'Units', 'Typeface', 'Direction', 'Filter', 'Motion', 'Spec', 'Frame', 'Stacking'
     ];
 
     assert.deepStrictEqual(Object.keys(system.Parts).sort(), expected.slice().sort());

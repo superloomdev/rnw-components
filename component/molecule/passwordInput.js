@@ -61,6 +61,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const showPassword = showState[0];
     const setShowPassword = showState[1];
 
+    // Frame ownership: the wrapper owns the border/focus/invalid/disabled
+    // state. The inner TextInput renders unframed.
+    const focusState = React.useState(false);
+    const focused = focusState[0];
+    const setFocused = focusState[1];
+
     const isDisabled = !!disabled;
     const isInvalid = !!invalid;
 
@@ -69,9 +75,6 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Resolve frame mode from the feedback.field token (underline | outline)
     const frameMode = Style.tokens.Feedback.field || 'underline';
-    const isUnderline = frameMode === 'underline';
-    const radiusKey = isUnderline ? 'br_radius_00' : 'br_radius_00';
-    const borderKey = isUnderline ? 'border_w_b_width_01' : 'border_w_width_01';
 
     return React.createElement(
       RNView,
@@ -79,14 +82,12 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
-          Style.utilities[radiusKey],
-          Style.utilities[borderKey], Style.utilities['border_color_border_subtle_01'],
-          isInvalid
-            ? { ...Style.utilities['border_color_support_error'] }
-            : null,
-          isDisabled
-            ? { ...Style.utilities['background_layer_01'] }
-            : Style.utilities['background_layer_02'],
+          ...Parts.Frame.resolve({
+            mode: frameMode,
+            focused: focused,
+            invalid: isInvalid,
+            disabled: isDisabled
+          }),
           { minWidth: 0 },
           style
         ]
@@ -104,6 +105,18 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           secureTextEntry: !showPassword,
           accessibilityRole: 'textbox',
           accessibilityLabel: accessibilityLabel,
+          onFocus: function (e) {
+            setFocused(true);
+            if (Lib.Utils.isFunction(props.onFocus)) {
+              props.onFocus(e);
+            }
+          },
+          onBlur: function (e) {
+            setFocused(false);
+            if (Lib.Utils.isFunction(props.onBlur)) {
+              props.onBlur(e);
+            }
+          },
           style: { flex: 1, minWidth: 0 }
         }, rest)
       ),

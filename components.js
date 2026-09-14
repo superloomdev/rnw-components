@@ -43,6 +43,7 @@ import partsDirection from './parts/direction.js';
 import partsFilter from './parts/filter.js';
 import partsMotion from './parts/motion.js';
 import partsSpec from './parts/spec.js';
+import partsFrame from './parts/frame.js';
 import partsTokens from './parts/tokens.js';
 
 // Data
@@ -815,6 +816,7 @@ const buildInfrastructure = function (Lib, CONFIG, ERRORS, Validators, built, br
     Filter:           partsFilter(Lib, partsConfig, ERRORS),
     Motion:           partsMotion(Lib, partsConfig, ERRORS),
     Spec:             partsSpec(Lib, partsConfig, ERRORS),
+    Frame:            partsFrame(Lib, partsConfig, ERRORS),
     Stacking:         STACKING
   });
 
@@ -886,6 +888,10 @@ const buildInfrastructure = function (Lib, CONFIG, ERRORS, Validators, built, br
     breakpoint: activeBreakpoint,
     allBreakpoints: allStyles
   };
+
+  // Wire the built Style into the Frame part so resolve() can look up
+  // utilities. Style is built after Parts, so this late binding is required.
+  Parts.Frame.setStyle(Style);
 
   // The shared component registry (molecules close over this object)
   const Component = {};

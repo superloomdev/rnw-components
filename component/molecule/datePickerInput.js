@@ -58,8 +58,17 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const [isOpen, setIsOpen] = React.useState(false);
     const isDisabled = !!disabled;
 
+    // Frame ownership: the wrapper owns the border/focus/disabled state.
+    // The inner TextInput renders unframed.
+    const focusState = React.useState(false);
+    const focused = focusState[0];
+    const setFocused = focusState[1];
+
     // Field-adjacent controls meet the spec sheet control size
     const controlSize = Parts.Spec('textInput').controlSize;
+
+    // Resolve frame mode from the feedback.field token (underline | outline)
+    const frameMode = Style.tokens.Feedback.field || 'underline';
 
     return React.createElement(
       RNView,
@@ -67,6 +76,13 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         style: [
           Style.utilities['flex_row'],
           Style.utilities['align_center'],
+          ...Parts.Frame.resolve({
+            mode: frameMode,
+            focused: focused,
+            invalid: false,
+            disabled: isDisabled
+          }),
+          { minWidth: 0 },
           style
         ]
       },
@@ -78,7 +94,21 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
           onChangeText: setValue,
           placeholder: placeholder || 'YYYY-MM-DD',
           isDisabled: isDisabled,
+          unframed: true,
           accessibilityRole: 'combobox',
+          'aria-expanded': isOpen,
+          onFocus: function (e) {
+            setFocused(true);
+            if (Lib.Utils.isFunction(props.onFocus)) {
+              props.onFocus(e);
+            }
+          },
+          onBlur: function (e) {
+            setFocused(false);
+            if (Lib.Utils.isFunction(props.onBlur)) {
+              props.onBlur(e);
+            }
+          },
           style: { flex: 1 }
         }, rest)
       ),

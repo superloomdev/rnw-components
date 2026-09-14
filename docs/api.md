@@ -2557,7 +2557,6 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | `accessibilityLabel` | - | - | - |
 | `isInvalid` | Boolean | - | - |
 | `isDisabled` | Boolean | - | - |
-| `layer` | - | - | - |
 | `typeSet` | - | - | - |
 | `unframed` | - | - | - |
 | `onFocus` | Function | - | - |

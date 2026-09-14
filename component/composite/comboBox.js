@@ -65,6 +65,15 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const isInvalid = !!invalid;
     const optionList = options || [];
 
+    // Frame ownership: the trigger wrapper owns the border/focus/invalid/
+    // disabled state. The inner TextInput renders unframed.
+    const focusState = React.useState(false);
+    const focused = focusState[0];
+    const setFocused = focusState[1];
+
+    // Resolve frame mode from the feedback.field token (underline | outline)
+    const frameMode = Style.tokens.Feedback.field || 'underline';
+
     // Filter options based on the current input text
     const filteredOptions = optionList.filter(function (opt) {
       return Parts.Filter.matchesLabel(inputValue, opt.label);
@@ -83,12 +92,23 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
       }
     }, [isOpen]);
 
-    const handleFocus = function () {
+    const handleFocus = function (e) {
       setIsOpen(true);
+      setFocused(true);
+      if (Lib.Utils.isFunction(props.onFocus)) {
+        props.onFocus(e);
+      }
     };
 
     const handleClose = function () {
       setIsOpen(false);
+    };
+
+    const handleBlur = function (e) {
+      setFocused(false);
+      if (Lib.Utils.isFunction(props.onBlur)) {
+        props.onBlur(e);
+      }
     };
 
     const handleSelect = function (opt) {
@@ -107,24 +127,32 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const renderTrigger = function () {
       return React.createElement(
         RNView,
-        { ref: anchorRef, style: { position: 'relative' } },
+        {
+          ref: anchorRef,
+          style: [
+            { position: 'relative' },
+            ...Parts.Frame.resolve({
+              mode: frameMode,
+              focused: focused,
+              invalid: isInvalid,
+              disabled: isDisabled
+            })
+          ]
+        },
         React.createElement(
           Registry.TextInput,
           Object.assign({
             value: inputValue,
             onChangeText: setInputValue,
             onFocus: handleFocus,
+            onBlur: handleBlur,
             isDisabled: isDisabled,
             isInvalid: isInvalid,
+            unframed: true,
             accessibilityRole: 'combobox',
             accessibilityLabel: accessibilityLabel || placeholder || 'Search',
             placeholder: placeholder || 'Search',
-            style: [
-              isInvalid
-                ? { ...Style.utilities['border_color_support_error'] }
-                : null,
-              style
-            ]
+            style: style
           }, ariaStateProps, rest)
         )
       );

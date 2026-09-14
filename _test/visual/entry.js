@@ -16,12 +16,16 @@ import ThemerFactory from 'helper-themer';
 import carbonV11Profile from 'helper-themer-template-carbon';
 import {
   createSystem,
-  // The sixteen interactive components the gallery renders
+  // The interactive components the gallery renders
   Button, IconButton, Toggle, Checkbox, RadioButton,
   Switch, Link, InlineLink, Tab, AccordionItem,
   Slider, CopyButton, MenuItem, SelectItem,
   ClickableTile, SelectableTile,
-  // Siblings the sixteen resolve from the registry at render time
+  // Field composites for the frame-owner L3 test
+  PasswordInput, Search, NumberInput, DatePickerInput,
+  // Sibling DatePickerInput resolves at render time
+  DatePicker,
+  // Siblings the components resolve from the registry at render time
   Icon, Text, TextInput
 } from 'rnw-components';
 
@@ -32,7 +36,8 @@ const INTERACTIVE = [
   'Button', 'IconButton', 'Toggle', 'Checkbox', 'RadioButton',
   'Switch', 'Link', 'InlineLink', 'Tab', 'AccordionItem',
   'Slider', 'CopyButton',
-  'MenuItem', 'SelectItem', 'ClickableTile', 'SelectableTile'
+  'MenuItem', 'SelectItem', 'ClickableTile', 'SelectableTile',
+  'PasswordInput', 'Search', 'NumberInput', 'DatePickerInput'
 ];
 
 // Minimal render-hint props for the interactive subset. Each entry provides
@@ -53,7 +58,11 @@ const HINT_PROPS = {
   MenuItem: { label: 'Menu item', onPress: noop },
   SelectItem: { text: 'Option', value: 'opt1' },
   ClickableTile: { title: 'Clickable tile', onPress: noop },
-  SelectableTile: { title: 'Selectable tile' }
+  SelectableTile: { title: 'Selectable tile' },
+  PasswordInput: { placeholder: 'Password', accessibilityLabel: 'Password' },
+  Search: { placeholder: 'Search', accessibilityLabel: 'Search' },
+  NumberInput: { value: 0, accessibilityLabel: 'Number' },
+  DatePickerInput: { placeholder: 'YYYY-MM-DD', accessibilityLabel: 'Date' }
 };
 
 // Carbon is square by specification; the contrast theme is rounded and warm.
@@ -104,6 +113,8 @@ function buildRegistry(themeName) {
     Tab: Tab, AccordionItem: AccordionItem, Slider: Slider, CopyButton: CopyButton,
     MenuItem: MenuItem, SelectItem: SelectItem, ClickableTile: ClickableTile,
     SelectableTile: SelectableTile,
+    PasswordInput: PasswordInput, Search: Search, NumberInput: NumberInput,
+    DatePickerInput: DatePickerInput, DatePicker: DatePicker,
     Icon: Icon, Text: Text, TextInput: TextInput
   });
 

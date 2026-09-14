@@ -1,4 +1,4 @@
-// Info: Component spec sheet accessor (Plan 0156).
+// Info: Component spec sheet accessor.
 //
 // Provides Parts.Spec(name) so component implementations can resolve
 // geometry, frame style, states, targets, and icon names from the shared

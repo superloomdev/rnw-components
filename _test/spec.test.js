@@ -1,4 +1,4 @@
-// Info: Spec sheet validation tests (Plan 0156, Part B).
+// Info: Spec sheet validation tests.
 //
 // Validates that the component spec sheet values match the Carbon geometry
 // oracle. The oracle is generated from pinned @carbon/styles SCSS, so any
@@ -121,6 +121,21 @@ describe('spec sheet - Carbon geometry oracle validation', () => {
     assert.deepEqual(spec.icon.sizes, { sm: 16, md: 20, lg: 24, xl: 32 });
   });
 
+  it('textInput controlSize should match Carbon layout.size md (40px)', () => {
+    assert.equal(spec.textInput.controlSize, oracle.sizeHeight.md,
+      'textInput.controlSize must match Carbon layout.size("height") at md step (field-adjacent control target)');
+  });
+
+  it('notification dismissTargetSize should match Carbon layout.size lg (48px)', () => {
+    assert.equal(spec.notification.dismissTargetSize, oracle.sizeHeight.lg,
+      'notification.dismissTargetSize must match Carbon layout.size("height") at lg step (notification dismiss target)');
+  });
+
+  it('target minSize should match Carbon layout.size xs (24px)', () => {
+    assert.equal(spec.target.minSize, oracle.sizeHeight.xs,
+      'target.minSize must match Carbon layout.size("height") at xs step (minimum pressable target)');
+  });
+
 });
 
 // --- Frame mode validation ------------------------------------------------
@@ -173,9 +188,20 @@ describe('spec coverage manifest', () => {
     const unspecced = Object.keys(coverage.unspecced);
     const total = specced.length + partD.length + unspecced.length;
 
-    // The component roster has 133 components
-    assert.ok(total >= 133,
-      `coverage manifest must account for all components (got ${total}, expected >= 133)`);
+    // The component roster has 134 components
+    assert.equal(total, 134,
+      `coverage manifest must account for all components (got ${total}, expected 134)`);
+  });
+
+  it('unspecced count should not grow (ratchet)', async () => {
+    const coverage = (await import('../data/spec-coverage.js')).default;
+    const unspecced = Object.keys(coverage.unspecced);
+
+    // Lower this constant when sheets land, never raise it.
+    const UNSPECCED_BASELINE = 116;
+
+    assert.ok(unspecced.length <= UNSPECCED_BASELINE,
+      `unspecced count grew from ${UNSPECCED_BASELINE} to ${unspecced.length}; lower the baseline only when a sheet lands, never raise it`);
   });
 
   it('every specced component should have a spec entry', async () => {
@@ -184,6 +210,55 @@ describe('spec coverage manifest', () => {
       assert.ok(spec[specKey],
         `specced component ${componentName} maps to spec.${specKey} but no entry exists`);
     }
+  });
+
+});
+
+// --- State token resolution validation -------------------------------------
+
+describe('spec sheet - state token resolution', () => {
+
+  it('every states.* token should resolve as a strict utility', async () => {
+
+    // Build a system to obtain the strict utilities (same pattern as system.test.js)
+    const { createSystem } = await import('rnw-components');
+    const { Utils, Debug, Themer, React, TestRenderer, Device, Icons } = await import('./loader.js');
+    const { buildCarbonWhite } = await import('./harness/themes.js');
+    const sharedLibs = { Utils, Debug, React, Device, Themer, Icons };
+    const system = createSystem(sharedLibs, {}, buildCarbonWhite(), 'sm');
+    const utilities = system.Style.utilities;
+
+    // Walk every spec sheet that has states, and verify each border/background/text
+    // token resolves to a utility key (border_color_<x> / background_<x> / font_<x>)
+    for (const [sheetName, sheet] of Object.entries(spec)) {
+      if (!sheet.states) {
+        continue;
+      }
+      for (const [stateName, stateTokens] of Object.entries(sheet.states)) {
+        // Border token -> border_color_<x>
+        if (stateTokens.border) {
+          const token = stateTokens.border.replace(/^color\./, '');
+          const key = 'border_color_' + token;
+          assert.ok(key in utilities,
+            `spec.${sheetName}.states.${stateName}.border "${stateTokens.border}" -> "${key}" not found in Style.utilities`);
+        }
+        // Background token -> background_<x>
+        if (stateTokens.background) {
+          const token = stateTokens.background.replace(/^color\./, '');
+          const key = 'background_' + token;
+          assert.ok(key in utilities,
+            `spec.${sheetName}.states.${stateName}.background "${stateTokens.background}" -> "${key}" not found in Style.utilities`);
+        }
+        // Text token -> font_<x>
+        if (stateTokens.text) {
+          const token = stateTokens.text.replace(/^color\./, '');
+          const key = 'font_' + token;
+          assert.ok(key in utilities,
+            `spec.${sheetName}.states.${stateName}.text "${stateTokens.text}" -> "${key}" not found in Style.utilities`);
+        }
+      }
+    }
+
   });
 
 });
