@@ -1,4 +1,4 @@
-// Info: Independent Carbon parity oracle generator (Plan 0149, Step 4.1).
+// Info: Independent Carbon parity oracle generator
 //
 // This script generates the independent expected-values fixture by reading
 // the pinned @carbon/themes, @carbon/type, @carbon/motion, and @carbon/layout

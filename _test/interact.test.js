@@ -376,12 +376,12 @@ test('L3: field frame owner renders focus, input has no UA outline, no nested fr
       const computed = window.getComputedStyle(el);
       const restOutline = computed.outlineStyle;
 
-      // Walk from the input's parent up to (excluding) the row root,
+      // Walk from the input (inclusive) up to (excluding) the row root,
       // counting elements with borderBottomWidth > 0
       const rowRoot = el.closest('[data-component]');
       let borderEl = null;
       let borderCount = 0;
-      let node = el.parentElement;
+      let node = el;
       while (node && node !== rowRoot) {
         const bs = window.getComputedStyle(node);
         const bw = parseFloat(bs.borderBottomWidth);
@@ -413,7 +413,7 @@ test('L3: field frame owner renders focus, input has no UA outline, no nested fr
     const focusedData = await input.evaluate(el => {
       const rowRoot = el.closest('[data-component]');
       let borderEl = null;
-      let node = el.parentElement;
+      let node = el;
       while (node && node !== rowRoot) {
         const bs = window.getComputedStyle(node);
         const bw = parseFloat(bs.borderBottomWidth);

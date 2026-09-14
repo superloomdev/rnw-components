@@ -235,7 +235,7 @@ describe('commonStyles', function () {
   });
 
 
-  // ---- Logical spacing utilities (Plan 0147 Part B) ----
+  // ---- Logical spacing utilities ----
 
   it('should emit marginInlineEnd for m_e_* utilities', function () {
 
@@ -465,7 +465,7 @@ describe('Button', function () {
   });
 
 
-  // ---- Button rendering defects (Plan 0147 Part A) ----
+  // ---- Button rendering defects ----
 
   // Helper: resolve the style function on a rendered Button
   function resolveButtonStyles (props) {
