@@ -8,6 +8,7 @@
 
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import { View as RNView, StyleSheet } from 'react-native';
 
 import {
   createSystem,
@@ -917,6 +918,104 @@ describe('strict roster walk', function () {
   it('should render every component, variant, and freeform under buildContrastTheme without a strict violation', function () {
 
     rosterWalk(buildContrastTheme(), 'contrast');
+
+  });
+
+});
+
+
+// ========================= M.1 TEST 4 - TEXTAREA FRAME ==================== //
+// F-R4/M-F3: TextArea must join the frame contract. The resolved wrapper
+// style array under underline has a bottom border only and br_radius_00,
+// and under outline has four sides.
+
+describe('M.1 test 4 - TextArea frame contract', function () {
+
+  it('Frame.resolve under underline should have bottom border only and br_radius_00', function () {
+
+    const sys = createSystem(sharedLibs, {}, buildCarbonWhite(), 'sm');
+    const Frame = sys.Parts.Frame;
+    const u = sys.Style.utilities;
+
+    const styles = Frame.resolve({ mode: 'underline', focused: false, invalid: false, disabled: false });
+
+    // Must include br_radius_00
+    const hasRadius = styles.some(function (s) {
+      return s && s.borderRadius === u['br_radius_00'].borderRadius;
+    });
+    assert.ok(hasRadius, 'underline frame should include br_radius_00');
+
+    // Must include border_w_b_width_01 (bottom only), NOT border_w_width_01 (four sides)
+    const hasBottomOnly = styles.some(function (s) {
+      return s && s.borderBottomWidth !== undefined && s.borderWidth === undefined;
+    });
+    assert.ok(hasBottomOnly, 'underline frame should have bottom border only');
+
+    const hasFourSides = styles.some(function (s) {
+      return s && s.borderWidth !== undefined;
+    });
+    assert.ok(!hasFourSides, 'underline frame should NOT have four-sided border (borderWidth)');
+
+  });
+
+  it('Frame.resolve under outline should have four sides and br_radius_00', function () {
+
+    const sys = createSystem(sharedLibs, {}, buildCarbonWhite(), 'sm');
+    const Frame = sys.Parts.Frame;
+    const u = sys.Style.utilities;
+
+    const styles = Frame.resolve({ mode: 'outline', focused: false, invalid: false, disabled: false });
+
+    // Must include br_radius_00
+    const hasRadius = styles.some(function (s) {
+      return s && s.borderRadius === u['br_radius_00'].borderRadius;
+    });
+    assert.ok(hasRadius, 'outline frame should include br_radius_00');
+
+    // Must include border_w_width_01 (four sides via borderWidth shorthand)
+    const hasFourSides = styles.some(function (s) {
+      return s && s.borderWidth !== undefined;
+    });
+    assert.ok(hasFourSides, 'outline frame should have four-sided border (borderWidth)');
+
+    const hasBottomOnly = styles.some(function (s) {
+      return s && s.borderBottomWidth !== undefined && s.borderWidth === undefined;
+    });
+    assert.ok(!hasBottomOnly, 'outline frame should NOT have bottom-only border');
+
+  });
+
+  it('TextArea should resolve through Frame like the eleven other composites (M-D2 = join)', function () {
+
+    // TextArea joins the frame contract per M-D2. This test asserts the
+    // Frame resolver produces the same shape for TextArea as for the
+    // other field composites. Until M.3 lands, TextArea does NOT use
+    // Frame.resolve, so this test fails - which is the expected M.1 state.
+    const sys = createSystem(sharedLibs, {}, buildCarbonWhite(), 'sm');
+    sys.addComponents(COMPONENTS);
+
+    let render;
+    act(function () {
+      render = TestRenderer.create(
+        React.createElement(sys.Component.TextArea, { label: 'Test' })
+      );
+    });
+
+    // Find the wrapper View (the outermost View in the TextArea tree).
+    // TextArea uses the raw react-native View, not the registered one.
+    const wrapperView = render.root.findByType(RNView);
+    assert.ok(wrapperView, 'TextArea should render a wrapper View');
+
+    // The wrapper should NOT contain br_radius_08 or border_w_width_01
+    // literals (those are the old hardcoded values that M.3 removes)
+    const wrapperStyle = StyleSheet.flatten(wrapperView.props.style);
+
+    // This assertion fails until M.3 lands because textArea.js still
+    // hardcodes br_radius_08 and border_w_width_01
+    assert.notStrictEqual(wrapperStyle.borderRadius, 8,
+      'TextArea wrapper should not hardcode borderRadius 8 (should use Frame.resolve)');
+
+    render.unmount();
 
   });
 

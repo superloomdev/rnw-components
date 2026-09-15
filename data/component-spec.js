@@ -8,9 +8,10 @@
 // Numeric geometry, radius values, border-side literals, and glyph names
 // are NOT hardcoded in component implementation. They come from here.
 //
-// Values are transcribed from the geometry oracle
-// (_test/fixtures/geometry-oracle.json), which is generated from pinned
-// @carbon/styles SCSS. See generate-geometry-oracle.js.
+// Geometry values are token references (heightToken, paddingInlineToken,
+// iconSizeToken) resolved through the theme. Values without a contract
+// token stay numeric with a rawReason. Where the spec intentionally differs
+// from an oracle, a sizeChoice declares both Carbon and Material values.
 //
 // Class I data module. Pure data, no side effects.
 
@@ -18,15 +19,17 @@ export default Object.freeze({
 
   // --- TextInput (atom) ----------------------------------------------------
   textInput: Object.freeze({
-    height: 40,
-    paddingInline: 16,
-    frameMode: 'feedback.field',     // resolved at runtime: underline | outline
+    heightToken: 'size.container_03',     // 40px - Carbon layout.size md
+    paddingInlineToken: 'spacing.spacing_05', // 16px - Carbon density normal
+    frameMode: 'feedback.field',          // resolved at runtime: underline | outline
     borderWidth: 1,
+    rawReason_borderWidth: 'no contract token for 1px border width; Carbon uses $border-strong',
     radiusToken: 'shape.radius_00',
-    iconSize: 16,
+    iconSizeToken: 'size.icon_01',        // 16px
     typeStyle: 'type.body01',
-    minWidth: 0,                     // prevent intrinsic min-width overflow
-    controlSize: 40,                 // field-adjacent control target (container md)
+    minWidth: 0,                         // prevent intrinsic min-width overflow
+    rawReason_minWidth: 'no contract token for 0px min-width; structural reset',
+    controlSizeToken: 'size.container_03', // 40px - field-adjacent control target
     states: Object.freeze({
       rest: Object.freeze({
         border: 'color.border_subtle_01',
@@ -51,15 +54,26 @@ export default Object.freeze({
     })
   }),
 
-  // --- Button --------------------------------------------------------------
+  // --- Button (M-D6: Carbon default lg, icon 16, full size scale) ----------
   button: Object.freeze({
-    height: 40,
-    paddingInlineStart: 16,
-    paddingInlineEnd: 16,
+    heightToken: 'size.container_04',     // 48px - Carbon layout.size lg (M-D6)
+    paddingInlineStartToken: 'spacing.spacing_05', // 16px
+    paddingInlineEndToken: 'spacing.spacing_05',   // 16px
     radiusToken: 'shape.radius_00',
-    iconSize: 20,
+    iconSizeToken: 'size.icon_01',        // 16px (M-D6)
     typeStyle: 'type.body01',
     minWidth: 0,
+    rawReason_minWidth: 'no contract token for 0px min-width; structural reset',
+    // Full Carbon size scale (M-D6)
+    sizes: Object.freeze({
+      xs: Object.freeze({ heightToken: 'size.container_01' }),  // 24
+      sm: Object.freeze({ heightToken: 'size.container_02' }),  // 32
+      md: Object.freeze({ heightToken: 'size.container_03' }),  // 40
+      lg: Object.freeze({ heightToken: 'size.container_04' }),   // 48
+      xl: Object.freeze({ heightToken: 'size.container_05' }),   // 64
+      '2xl': Object.freeze({ heightToken: 'size.size_2xlarge' }) // 80
+    }),
+    defaultSize: 'lg',                    // M-D6: Carbon default
     states: Object.freeze({
       rest: Object.freeze({
         background: 'color.button_primary',
@@ -86,14 +100,16 @@ export default Object.freeze({
 
   // --- Search (composite, owns frame) --------------------------------------
   search: Object.freeze({
-    height: 40,
-    paddingInline: 16,
+    heightToken: 'size.container_03',     // 40px
+    paddingInlineToken: 'spacing.spacing_05', // 16px
     frameMode: 'feedback.field',
     borderWidth: 1,
+    rawReason_borderWidth: 'no contract token for 1px border width; Carbon uses $border-strong',
     radiusToken: 'shape.radius_00',
-    iconSize: 16,
+    iconSizeToken: 'size.icon_01',         // 16px
     typeStyle: 'type.body01',
     minWidth: 0,
+    rawReason_minWidth: 'no contract token for 0px min-width; structural reset',
     innerInputUnframed: true,
     states: Object.freeze({
       rest: Object.freeze({
@@ -116,14 +132,16 @@ export default Object.freeze({
 
   // --- PasswordInput (composite, owns frame) -------------------------------
   passwordInput: Object.freeze({
-    height: 40,
-    paddingInline: 16,
+    heightToken: 'size.container_03',     // 40px
+    paddingInlineToken: 'spacing.spacing_05', // 16px
     frameMode: 'feedback.field',
     borderWidth: 1,
+    rawReason_borderWidth: 'no contract token for 1px border width; Carbon uses $border-strong',
     radiusToken: 'shape.radius_00',
-    iconSize: 16,
+    iconSizeToken: 'size.icon_01',         // 16px
     typeStyle: 'type.body01',
     minWidth: 0,
+    rawReason_minWidth: 'no contract token for 0px min-width; structural reset',
     innerInputUnframed: true,
     toggleIcon: 'visibility',
     toggleIconOff: 'visibility_off',
@@ -148,15 +166,17 @@ export default Object.freeze({
 
   // --- NumberInput (composite, owns frame) ----------------------------------
   numberInput: Object.freeze({
-    height: 40,
-    paddingInline: 16,
+    heightToken: 'size.container_03',     // 40px
+    paddingInlineToken: 'spacing.spacing_05', // 16px
     frameMode: 'feedback.field',
     borderWidth: 1,
+    rawReason_borderWidth: 'no contract token for 1px border width; Carbon uses $border-strong',
     radiusToken: 'shape.radius_00',
-    iconSize: 16,
-    stepperIconSize: 20,
+    iconSizeToken: 'size.icon_01',         // 16px
+    stepperIconSizeToken: 'size.icon_02', // 20px
     typeStyle: 'type.body01',
     minWidth: 0,
+    rawReason_minWidth: 'no contract token for 0px min-width; structural reset',
     innerInputUnframed: true,
     states: Object.freeze({
       rest: Object.freeze({
@@ -177,25 +197,31 @@ export default Object.freeze({
     })
   }),
 
-  // --- Tag -----------------------------------------------------------------
+  // --- Tag (owner-confirmed: adopt Carbon parsed default 24) ---------------
   tag: Object.freeze({
-    height: 32,
+    heightToken: 'size.container_01',     // 24px - Carbon tag redefined md
     radiusToken: 'shape.radius_max',
     typeStyle: 'type.label01',
-    dismissTargetSize: 24,
+    dismissTargetSizeToken: 'size.container_01', // 24px
     dismissIcon: 'close',
-    dismissIconSize: 12
+    dismissIconSize: 12,
+    rawReason_dismissIconSize: 'no contract token for 12px icon size; Carbon tag dismiss icon',
+    sizeChoice: Object.freeze({
+      carbon: 'md (24px, tag redefined scale)',
+      material: 'container-height (32px, assist-chip)',
+      reason: 'Carbon redefines the tag size scale with md=24; adopted Carbon default per M-D6 direction'
+    })
   }),
 
   // --- Notification (inline) -----------------------------------------------
   notification: Object.freeze({
-    iconSize: 20,
+    iconSizeToken: 'size.icon_02',       // 20px
     titleTypeStyle: 'type.heading01',
     subtitleTypeStyle: 'type.body01',
     radiusToken: 'shape.radius_00',
-    dismissTargetSize: 48,
+    dismissTargetSizeToken: 'size.container_04', // 48px
     dismissIcon: 'close',
-    dismissIconSize: 16,
+    dismissIconSizeToken: 'size.icon_01', // 16px
     kinds: Object.freeze(['info', 'success', 'warning', 'error']),
     // Low contrast triad
     lowContrast: Object.freeze({
@@ -219,53 +245,127 @@ export default Object.freeze({
 
   // --- FileUploaderItem ----------------------------------------------------
   fileUploaderItem: Object.freeze({
-    removeTargetSize: 32,
+    removeTargetSizeToken: 'size.container_02', // 32px
     removeIcon: 'close',
-    removeIconSize: 16
+    removeIconSizeToken: 'size.icon_01'   // 16px
   }),
 
   // --- CopyButton ----------------------------------------------------------
   copyButton: Object.freeze({
-    targetSize: 32,
-    iconSize: 16,
+    targetSizeToken: 'size.container_02', // 32px
+    iconSizeToken: 'size.icon_01',         // 16px
     copyIcon: 'copy',
     checkIcon: 'checkmark'
   }),
 
   // --- BottomNavigationBar -------------------------------------------------
   bottomNavigation: Object.freeze({
-    itemHeight: 40,
-    iconSize: 20,
+    itemHeightToken: 'size.container_03', // 40px
+    iconSizeToken: 'size.icon_02',        // 20px
     labelTypeStyle: 'label01',
     activeTopBorderWidth: 2,
+    rawReason_activeTopBorderWidth: 'no contract token for 2px active indicator; Carbon bottom-nav pattern',
     activeTopBorderColor: 'interactive'
   }),
 
   // --- SkeletonPlaceholder ---------------------------------------------------
   skeletonPlaceholder: Object.freeze({
-    height: 48
+    heightToken: 'size.container_04'      // 48px
   }),
 
   // --- IconSwitch -------------------------------------------------------------
   iconSwitch: Object.freeze({
-    width: 48,
-    height: 28
+    widthToken: 'size.container_04',      // 48px
+    height: 28,
+    rawReason_height: 'no contract token for 28px switch height; Carbon switch track height'
+  }),
+
+  // --- Select (uses textInput spec for frame; geometry from oracle) ---------
+  select: Object.freeze({
+    heightToken: 'size.container_03',     // 40px - Carbon select md
+    paddingInlineToken: 'spacing.spacing_05', // 16px
+    frameMode: 'feedback.field',
+    borderWidth: 1,
+    rawReason_borderWidth: 'no contract token for 1px border width; Carbon uses $border-strong',
+    radiusToken: 'shape.radius_00',
+    iconSizeToken: 'size.icon_01',        // 16px
+    typeStyle: 'type.body01',
+    minWidth: 0,
+    rawReason_minWidth: 'no contract token for 0px min-width; structural reset',
+    states: Object.freeze({
+      rest: Object.freeze({
+        border: 'color.border_subtle_01',
+        background: 'color.field_01',
+        text: 'color.text_primary'
+      }),
+      focus: Object.freeze({
+        border: 'color.focus',
+        background: 'color.field_01',
+        text: 'color.text_primary'
+      }),
+      invalid: Object.freeze({
+        border: 'color.support_error',
+        background: 'color.field_01',
+        text: 'color.text_primary'
+      }),
+      disabled: Object.freeze({
+        border: 'color.border_disabled',
+        background: 'color.field_01',
+        text: 'color.text_disabled'
+      })
+    })
+  }),
+
+  // --- TextArea (M.3: joins frame contract) ----------------------------------
+  textArea: Object.freeze({
+    minHeightToken: 'size.container_03',  // 40px - matches field height
+    paddingInlineToken: 'spacing.spacing_05', // 16px
+    frameMode: 'feedback.field',
+    borderWidth: 1,
+    rawReason_borderWidth: 'no contract token for 1px border width; Carbon uses $border-strong',
+    radiusToken: 'shape.radius_00',
+    typeStyle: 'type.body01',
+    minWidth: 0,
+    rawReason_minWidth: 'no contract token for 0px min-width; structural reset',
+    innerInputUnframed: true,
+    states: Object.freeze({
+      rest: Object.freeze({
+        border: 'color.border_subtle_01',
+        background: 'color.field_01',
+        text: 'color.text_primary'
+      }),
+      focus: Object.freeze({
+        border: 'color.focus',
+        background: 'color.field_01',
+        text: 'color.text_primary'
+      }),
+      invalid: Object.freeze({
+        border: 'color.support_error',
+        background: 'color.field_01',
+        text: 'color.text_primary'
+      }),
+      disabled: Object.freeze({
+        border: 'color.border_disabled',
+        background: 'color.field_01',
+        text: 'color.text_disabled'
+      })
+    })
   }),
 
   // --- Shared target floor ---------------------------------------------------
   // Minimum target size for pressables that are not field-adjacent controls
-  // (those use textInput.controlSize). Oracle container xs step.
+  // (those use textInput.controlSizeToken). Oracle container xs step.
   target: Object.freeze({
-    minSize: 24
+    minSizeToken: 'size.container_01'     // 24px
   }),
 
   // --- Icon ----------------------------------------------------------------
   icon: Object.freeze({
     sizes: Object.freeze({
-      sm: 16,
-      md: 20,
-      lg: 24,
-      xl: 32
+      sm: Object.freeze({ sizeToken: 'size.icon_01' }),   // 16
+      md: Object.freeze({ sizeToken: 'size.icon_02' }),   // 20
+      lg: Object.freeze({ sizeToken: 'size.icon_03' }),    // 24
+      xl: Object.freeze({ sizeToken: 'size.icon_04' })     // 32
     }),
     defaultSize: 'sm'
   })

@@ -242,7 +242,7 @@ if (failed.length >= 1) {
 // executed in this run. In gates-only or fast mode, the full gate set is
 // not executed, so the assertion is skipped.
 if (!GATES_ONLY && !FAST) {
-  execSync('node scripts/ci-census.js --assert-executed ' + executed.join(','), {
+  execSync('node scripts/ci-census.js --assert-executed "' + executed.join(',') + '"', {
     cwd: REPO_ROOT, stdio: 'inherit'
   });
   // Write the content hash stamp so the pre-push hook can verify it.

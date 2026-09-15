@@ -24,6 +24,7 @@ import {
   buildBrandOverWhite,
   buildIncompleteTheme
 } from './harness/themes.js';
+import SPEC from 'rnw-components/data/component-spec.js';
 
 
 // ========================= HELPERS ======================================== //
@@ -1017,5 +1018,114 @@ describe('Motion: two-segment curve (D18, F-R2.4b)', function () {
     assert.deepEqual(result, { kind: 'linear', easing: null, spring: null });
 
   });
+
+});
+
+
+// ========================= M.1 TEST 3 - NUMERIC CONTRAST ================== //
+// F-R5: status surfaces must meet WCAG 2.1 contrast ratios as measured
+// numeric values, not as token-name assertions.
+
+function hexToRgb (hex) {
+  const h = hex.replace('#', '');
+  return {
+    r: parseInt(h.substring(0, 2), 16) / 255,
+    g: parseInt(h.substring(2, 4), 16) / 255,
+    b: parseInt(h.substring(4, 6), 16) / 255
+  };
+}
+
+function relativeLuminance (hex) {
+  const { r, g, b } = hexToRgb(hex);
+  function channel (c) {
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  }
+  return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+}
+
+function contrastRatio (hex1, hex2) {
+  const l1 = relativeLuminance(hex1);
+  const l2 = relativeLuminance(hex2);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+describe('M.1 test 3 - numeric contrast for status surfaces', function () {
+
+  // Load the spec sheet to read the actual token names the notification
+  // triad uses. This way a fire row that changes the spec's background
+  // from notification_background_* to support_* is caught here.
+  const notificationSpec = SPEC.notification;
+
+  // Seven status surfaces per R5: inlineNotification, notification,
+  // actionableNotification, staticNotification, callout, errorState,
+  // progressStep. All read the notification spec's triad.
+  const SURFACES = [
+    'inlineNotification',
+    'notification',
+    'actionableNotification',
+    'staticNotification',
+    'callout',
+    'errorState',
+    'progressStep'
+  ];
+
+  const KINDS = ['info', 'success', 'warning', 'error'];
+
+  // Two theme builds: Carbon white and contrast
+  const builds = [
+    { name: 'carbon-white', build: buildCarbonWhite },
+    { name: 'contrast', build: buildContrastTheme }
+  ];
+
+  for (const build of builds) {
+    for (const surface of SURFACES) {
+      for (const kind of KINDS) {
+        const testName = build.name + ' / ' + surface + ' / ' + kind +
+          ' title contrast >= 4.5 (body text)';
+        it(testName, function () {
+          const theme = build.build();
+          const tokens = theme.tokens;
+
+          // Resolve the background and text token names from the spec
+          const bgTokenName = notificationSpec.lowContrast.background.replace('{kind}', kind);
+          const titleTokenName = notificationSpec.lowContrast.title;
+
+          const bg = tokens[bgTokenName];
+          const titleColor = tokens[titleTokenName];
+
+          assert.ok(bg, 'missing token ' + bgTokenName);
+          assert.ok(titleColor, 'missing token ' + titleTokenName);
+
+          const ratio = contrastRatio(bg, titleColor);
+          assert.ok(ratio >= 4.5,
+            surface + ' ' + kind + ' title contrast ratio ' + ratio.toFixed(2) +
+            ' is below 4.5 (bg: ' + bg + ', text: ' + titleColor + ')');
+        });
+
+        const subTestName = build.name + ' / ' + surface + ' / ' + kind +
+          ' subtitle contrast >= 4.5 (body text)';
+        it(subTestName, function () {
+          const theme = build.build();
+          const tokens = theme.tokens;
+
+          const bgTokenName = notificationSpec.lowContrast.background.replace('{kind}', kind);
+          const subtitleTokenName = notificationSpec.lowContrast.subtitle;
+
+          const bg = tokens[bgTokenName];
+          const subtitleColor = tokens[subtitleTokenName];
+
+          assert.ok(bg, 'missing token ' + bgTokenName);
+          assert.ok(subtitleColor, 'missing token ' + subtitleTokenName);
+
+          const ratio = contrastRatio(bg, subtitleColor);
+          assert.ok(ratio >= 4.5,
+            surface + ' ' + kind + ' subtitle contrast ratio ' + ratio.toFixed(2) +
+            ' is below 4.5 (bg: ' + bg + ', text: ' + subtitleColor + ')');
+        });
+      }
+    }
+  }
 
 });

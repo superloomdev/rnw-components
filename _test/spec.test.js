@@ -21,6 +21,54 @@ const oracle = JSON.parse(
   readFileSync(join(__dirname, 'fixtures', 'geometry-oracle.json'), 'utf8')
 );
 
+// Load the Material oracle
+const materialOracle = JSON.parse(
+  readFileSync(join(__dirname, 'fixtures', 'material-geometry-oracle.json'), 'utf8')
+);
+
+// --- Token resolution helper ----------------------------------------------
+// Resolves a token reference (e.g. 'size.container_03') to its numeric value
+// using the Carbon white theme build.
+import { sharedLibs, Themer } from './loader.js';
+import buildTokenContract from 'rnw-components/data/token-contract.js';
+import {
+  buildCarbonWhite
+} from './harness/themes.js';
+
+const _theme = Themer.buildTheme(
+  (await import('helper-themer-template-carbon')).default.schemes.white,
+  [],
+  'native'
+);
+const _tokenValues = {};
+for (const [name, value] of Object.entries(_theme.tokens)) {
+  if (typeof value === 'number') {
+    _tokenValues[name] = value;
+  }
+}
+
+// Resolve a token reference to its numeric value
+function resolveToken (tokenName) {
+  const value = _tokenValues[tokenName];
+  if (value === undefined) {
+    throw new Error('Unknown token: ' + tokenName);
+  }
+  return value;
+}
+
+// Resolve a spec entry's geometry field, handling both token references
+// and raw numbers with rawReason
+function resolveGeometry (entry, field) {
+  const tokenField = field + 'Token';
+  if (entry[tokenField]) {
+    return resolveToken(entry[tokenField]);
+  }
+  if (entry[field] !== undefined) {
+    return entry[field];
+  }
+  return undefined;
+}
+
 // --- Spec sheet structural validation -------------------------------------
 
 describe('spec sheet - structural validation', () => {
@@ -53,86 +101,89 @@ describe('spec sheet - structural validation', () => {
 describe('spec sheet - Carbon geometry oracle validation', () => {
 
   it('textInput height should match Carbon layout.size md (40px)', () => {
-    assert.equal(spec.textInput.height, oracle.sizeHeight.md,
-      'textInput.height must match Carbon layout.size("height") at md step');
+    assert.equal(resolveGeometry(spec.textInput, 'height'), oracle.sizeHeight.md,
+      'textInput.heightToken must resolve to Carbon layout.size("height") at md step');
   });
 
   it('textInput paddingInline should match Carbon density normal (16px)', () => {
-    assert.equal(spec.textInput.paddingInline, oracle.densityPaddingInline.normal,
-      'textInput.paddingInline must match Carbon density("padding-inline") at normal step');
+    assert.equal(resolveGeometry(spec.textInput, 'paddingInline'), oracle.densityPaddingInline.normal,
+      'textInput.paddingInlineToken must resolve to Carbon density("padding-inline") at normal step');
   });
 
-  it('button height should match Carbon layout.size md (40px)', () => {
-    assert.equal(spec.button.height, oracle.sizeHeight.md,
-      'button.height must match Carbon layout.size("height") at md step');
+  it('button height should match Carbon layout.size lg (48px) - M-D6', () => {
+    assert.equal(resolveGeometry(spec.button, 'height'), oracle.sizeHeight.lg,
+      'button.heightToken must resolve to Carbon layout.size("height") at lg step (M-D6)');
   });
 
-  it('button iconSize should match Carbon button icon (20px)', () => {
-    assert.equal(spec.button.iconSize, 20,
-      'button.iconSize must match Carbon button icon size (20px)');
+  it('button iconSize should match Carbon button icon (16px) - M-D6', () => {
+    assert.equal(resolveGeometry(spec.button, 'iconSize'), 16,
+      'button.iconSizeToken must resolve to 16px (M-D6)');
   });
 
   it('search height should match Carbon layout.size md (40px)', () => {
-    assert.equal(spec.search.height, oracle.sizeHeight.md);
+    assert.equal(resolveGeometry(spec.search, 'height'), oracle.sizeHeight.md);
   });
 
   it('passwordInput height should match Carbon layout.size md (40px)', () => {
-    assert.equal(spec.passwordInput.height, oracle.sizeHeight.md);
+    assert.equal(resolveGeometry(spec.passwordInput, 'height'), oracle.sizeHeight.md);
   });
 
   it('numberInput height should match Carbon layout.size md (40px)', () => {
-    assert.equal(spec.numberInput.height, oracle.sizeHeight.md);
+    assert.equal(resolveGeometry(spec.numberInput, 'height'), oracle.sizeHeight.md);
   });
 
   it('numberInput stepperIconSize should match Carbon (20px)', () => {
-    assert.equal(spec.numberInput.stepperIconSize, 20);
+    assert.equal(resolveGeometry(spec.numberInput, 'stepperIconSize'), 20);
   });
 
-  it('tag height should match Carbon layout.size sm (32px)', () => {
-    assert.equal(spec.tag.height, oracle.sizeHeight.sm,
-      'tag.height must match Carbon layout.size("height") at sm step');
+  it('tag height should match Carbon tag redefined md (24px)', () => {
+    assert.equal(resolveGeometry(spec.tag, 'height'), 24,
+      'tag.heightToken must resolve to 24px (Carbon tag redefined md, owner-confirmed)');
   });
 
   it('tag dismissTargetSize should match Carbon (24px)', () => {
-    assert.equal(spec.tag.dismissTargetSize, 24);
+    assert.equal(resolveGeometry(spec.tag, 'dismissTargetSize'), 24);
   });
 
   it('notification iconSize should match Carbon (20px)', () => {
-    assert.equal(spec.notification.iconSize, 20);
+    assert.equal(resolveGeometry(spec.notification, 'iconSize'), 20);
   });
 
   it('fileUploaderItem removeTargetSize should match Carbon sm (32px)', () => {
-    assert.equal(spec.fileUploaderItem.removeTargetSize, oracle.sizeHeight.sm);
+    assert.equal(resolveGeometry(spec.fileUploaderItem, 'removeTargetSize'), oracle.sizeHeight.sm);
   });
 
   it('copyButton targetSize should match Carbon sm (32px)', () => {
-    assert.equal(spec.copyButton.targetSize, oracle.sizeHeight.sm);
+    assert.equal(resolveGeometry(spec.copyButton, 'targetSize'), oracle.sizeHeight.sm);
   });
 
   it('bottomNavigation itemHeight should match Carbon md (40px)', () => {
-    assert.equal(spec.bottomNavigation.itemHeight, oracle.sizeHeight.md);
+    assert.equal(resolveGeometry(spec.bottomNavigation, 'itemHeight'), oracle.sizeHeight.md);
   });
 
   it('bottomNavigation iconSize should match Carbon (20px)', () => {
-    assert.equal(spec.bottomNavigation.iconSize, 20);
+    assert.equal(resolveGeometry(spec.bottomNavigation, 'iconSize'), 20);
   });
 
   it('icon sizes should match Carbon icon sizes (16, 20, 24, 32)', () => {
-    assert.deepEqual(spec.icon.sizes, { sm: 16, md: 20, lg: 24, xl: 32 });
+    assert.equal(resolveGeometry(spec.icon.sizes.sm, 'size'), 16);
+    assert.equal(resolveGeometry(spec.icon.sizes.md, 'size'), 20);
+    assert.equal(resolveGeometry(spec.icon.sizes.lg, 'size'), 24);
+    assert.equal(resolveGeometry(spec.icon.sizes.xl, 'size'), 32);
   });
 
   it('textInput controlSize should match Carbon layout.size md (40px)', () => {
-    assert.equal(spec.textInput.controlSize, oracle.sizeHeight.md,
-      'textInput.controlSize must match Carbon layout.size("height") at md step (field-adjacent control target)');
+    assert.equal(resolveGeometry(spec.textInput, 'controlSize'), oracle.sizeHeight.md,
+      'textInput.controlSizeToken must resolve to Carbon layout.size("height") at md step');
   });
 
   it('notification dismissTargetSize should match Carbon layout.size lg (48px)', () => {
-    assert.equal(spec.notification.dismissTargetSize, oracle.sizeHeight.lg,
-      'notification.dismissTargetSize must match Carbon layout.size("height") at lg step (notification dismiss target)');
+    assert.equal(resolveGeometry(spec.notification, 'dismissTargetSize'), oracle.sizeHeight.lg,
+      'notification.dismissTargetSizeToken must resolve to Carbon layout.size("height") at lg step');
   });
 
   it('target minSize should match Carbon layout.size xs (24px)', () => {
-    assert.equal(spec.target.minSize, oracle.sizeHeight.xs,
+    assert.equal(resolveGeometry(spec.target, 'minSize'), oracle.sizeHeight.xs,
       'target.minSize must match Carbon layout.size("height") at xs step (minimum pressable target)');
   });
 
@@ -198,7 +249,7 @@ describe('spec coverage manifest', () => {
     const unspecced = Object.keys(coverage.unspecced);
 
     // Lower this constant when sheets land, never raise it.
-    const UNSPECCED_BASELINE = 116;
+    const UNSPECCED_BASELINE = 115;
 
     assert.ok(unspecced.length <= UNSPECCED_BASELINE,
       `unspecced count grew from ${UNSPECCED_BASELINE} to ${unspecced.length}; lower the baseline only when a sheet lands, never raise it`);
@@ -259,6 +310,98 @@ describe('spec sheet - state token resolution', () => {
       }
     }
 
+  });
+
+});
+
+// --- Oracle integrity (M.1 test 7) ----------------------------------------
+
+describe('oracle integrity - method taxonomy and spec agreement', () => {
+
+  it('every oracle component entry should carry a valid method', () => {
+    const validMethods = new Set(['parsed', 'inherited', 'transcribed', 'none']);
+    for (const [name, entry] of Object.entries(oracle.components || {})) {
+      assert.ok(entry.method,
+        `oracle.components.${name} has no method field`);
+      assert.ok(validMethods.has(entry.method),
+        `oracle.components.${name}.method "${entry.method}" is not one of: parsed, inherited, transcribed, none`);
+    }
+  });
+
+  it('transcribed and none entries should carry a reason', () => {
+    for (const [name, entry] of Object.entries(oracle.components || {})) {
+      if (entry.method === 'transcribed' || entry.method === 'none') {
+        assert.ok(entry.reason && entry.reason.length > 0,
+          `oracle.components.${name} has method "${entry.method}" but no reason`);
+      }
+    }
+  });
+
+  it('every parsed oracle entry should agree with the spec or declare a sizeChoice', () => {
+    for (const [name, entry] of Object.entries(oracle.components || {})) {
+      if (entry.method !== 'parsed') continue;
+      const specEntry = spec[name];
+      if (!specEntry) continue;
+
+      // Check height agreement
+      if (entry.height !== undefined && specEntry.height !== undefined) {
+        if (entry.height !== specEntry.height) {
+          assert.ok(specEntry.sizeChoice,
+            `oracle.components.${name} parsed height ${entry.height} disagrees with spec height ${specEntry.height} and no sizeChoice is declared`);
+        }
+      }
+    }
+  });
+
+});
+
+// --- Coverage floor (M.1 test 2) -----------------------------------------
+
+describe('spec coverage floor', () => {
+
+  it('partD should be empty or removed', async () => {
+    const coverage = (await import('../data/spec-coverage.js')).default;
+    if (coverage.partD !== undefined) {
+      assert.equal(coverage.partD.length, 0,
+        `partD should be empty or removed, got ${coverage.partD.length} entries`);
+    }
+  });
+
+  it('every unspecced entry should carry a non-empty reason', async () => {
+    const coverage = (await import('../data/spec-coverage.js')).default;
+    for (const [name, reason] of Object.entries(coverage.unspecced)) {
+      assert.ok(typeof reason === 'string' && reason.length > 0,
+        `unspecced component ${name} has no reason or an empty reason`);
+    }
+  });
+
+  it('no component with an oracle entry should appear in unspecced', async () => {
+    const coverage = (await import('../data/spec-coverage.js')).default;
+    const oracleKeys = new Set(Object.keys(oracle.components || {}));
+    for (const name of Object.keys(coverage.unspecced)) {
+      const camelKey = name.charAt(0).toLowerCase() + name.slice(1);
+      assert.ok(!oracleKeys.has(camelKey),
+        `component ${name} appears in unspecced but has an oracle entry "${camelKey}"`);
+    }
+  });
+
+  it('every geometry field in the spec should be a token reference or carry a rawReason', () => {
+    const geometryFields = ['height', 'paddingInline', 'paddingInlineStart', 'paddingInlineEnd',
+      'iconSize', 'stepperIconSize', 'dismissTargetSize', 'removeTargetSize',
+      'targetSize', 'itemHeight', 'controlSize', 'minHeight', 'width', 'minWidth',
+      'borderWidth', 'activeTopBorderWidth', 'dismissIconSize'];
+    for (const [name, entry] of Object.entries(spec)) {
+      if (name === 'icon' || name === 'target') continue;
+      for (const field of geometryFields) {
+        if (entry[field] === undefined) continue;
+        if (typeof entry[field] === 'number') {
+          const tokenField = field + 'Token';
+          const rawReasonField = 'rawReason_' + field;
+          assert.ok(entry[tokenField] || entry[rawReasonField] || entry.rawReason,
+            `spec.${name}.${field} is a raw number (${entry[field]}) with no ${tokenField} or ${rawReasonField}`);
+        }
+      }
+    }
   });
 
 });

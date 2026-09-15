@@ -1,0 +1,90 @@
+{
+  "_meta": {
+    "generated": "2026-09-15T19:07:50.903Z",
+    "sources": {
+      "material-web": "@material/web@2.5.0"
+    },
+    "description": "Authoritative geometry values from pinned @material/web token files. Not generated from Superloom output."
+  },
+  "shape": {
+    "cornerNone": 0,
+    "cornerExtraSmall": 4,
+    "cornerSmall": 8,
+    "cornerMedium": 12,
+    "cornerFull": 9999
+  },
+  "components": {
+    "button": {
+      "heightToken": "container-height",
+      "height": 40,
+      "source": "@material/web/tokens/versions/v0_192/_md-comp-filled-button.scss",
+      "method": "parsed",
+      "shapeRef": "corner-full",
+      "shapeValue": 9999
+    },
+    "tag": {
+      "heightToken": "container-height",
+      "height": 32,
+      "source": "@material/web/tokens/versions/v0_192/_md-comp-assist-chip.scss",
+      "method": "parsed",
+      "shapeRef": "corner-small",
+      "shapeValue": 8
+    },
+    "checkbox": {
+      "heightToken": "container-size",
+      "height": 18,
+      "source": "@material/web/tokens/versions/v0_192/_md-comp-checkbox.scss",
+      "method": "parsed",
+      "iconSize": 18,
+      "stateLayerSize": 40
+    },
+    "iconSwitch": {
+      "heightToken": "track-height",
+      "height": 32,
+      "source": "@material/web/tokens/versions/v0_192/_md-comp-switch.scss",
+      "method": "parsed",
+      "trackHeight": 32,
+      "stateLayerSize": 40,
+      "shapeRef": "corner-full",
+      "shapeValue": 9999
+    },
+    "textInput": {
+      "method": "none",
+      "source": "@material/web/tokens/versions/v0_192/_md-comp-filled-text-field.scss",
+      "reason": "MD3 filled text field height is not expressed as a token in this pin"
+    },
+    "notification": {
+      "method": "none",
+      "source": "@material/web/tokens/versions/v0_192/_md-comp-banner.scss",
+      "reason": "MD3 banner height is content-driven with multiple layout variants, not a single size token"
+    },
+    "search": {
+      "method": "none",
+      "reason": "no Material component token file"
+    },
+    "numberInput": {
+      "method": "none",
+      "reason": "no Material component token file"
+    },
+    "passwordInput": {
+      "method": "none",
+      "reason": "no Material component token file"
+    },
+    "fileUploaderItem": {
+      "method": "none",
+      "reason": "no Material component token file"
+    },
+    "copyButton": {
+      "method": "none",
+      "reason": "no Material component token file"
+    },
+    "bottomNavigation": {
+      "method": "none",
+      "reason": "no Material component token file"
+    },
+    "select": {
+      "method": "none",
+      "reason": "no Material component token file"
+    }
+  }
+}

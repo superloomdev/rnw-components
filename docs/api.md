@@ -437,6 +437,7 @@ Controlled/uncontrolled state hook. Controlled when `value` is not undefined, un
 | `style` | Object|Array | - | - |
 | `children` | Node | - | Node|Function (string wrapped in Text, function passed through) |
 | `accessibilityLabel` | - | - | - |
+| `size` | - | - | - |
 
 ### ButtonSet
 

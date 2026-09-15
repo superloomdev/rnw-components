@@ -372,6 +372,24 @@ This library requires React Native 0.86 or later and React Native for Web 0.21 o
 
 See [docs/api.md](docs/api.md) for full signatures and [docs/configuration.md](docs/configuration.md) for config keys.
 
+## Geometry Oracles
+
+The component spec sheets are validated against geometry oracles generated from pinned design system packages. Two oracles exist:
+
+- **Carbon oracle** (`_test/fixtures/geometry-oracle.json`): generated from `@carbon/styles` SCSS by `node _test/fixtures/generate-geometry-oracle.js`.
+- **Material oracle** (`_test/fixtures/material-geometry-oracle.json`): generated from `@material/web` token SCSS by `node _test/fixtures/generate-material-oracle.js`.
+
+Each oracle entry carries a `method`:
+
+| Method | Meaning |
+|---|---|
+| `parsed` | Value parsed from the pinned source SCSS |
+| `inherited` | Value inherited from a parent component's parsed value |
+| `transcribed` | Value recorded by hand with a `reason` (cannot detect drift) |
+| `none` | No value exists in the pinned source (with a `reason`) |
+
+A hand edit to a generated oracle is caught by the CI drift gate, which copies the artifact aside, regenerates, and byte-compares. The oracles are never compared with `git diff`.
+
 ## Testing
 
 ```bash

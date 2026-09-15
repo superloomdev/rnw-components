@@ -54,7 +54,7 @@ export default function (shared_libs, config, errors) {
       throw new TypeError('Frame.resolve called before setStyle');
     }
 
-    const sheet = SPEC.textInput;
+    const sheet = SPEC[opts.sheet] || SPEC.textInput;
     const mode = opts.mode || 'underline';
     const focused = !!opts.focused;
     const invalid = !!opts.invalid;

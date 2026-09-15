@@ -26,13 +26,18 @@ function restoreBackup(file, backupPath) {
   copyFileSync(backupPath, join(REPO_ROOT, file));
 }
 
-function runTest(test, runner) {
+function runTest(test, runner, testName) {
   if (runner === 'l3') {
     return spawnSync('npm', ['run', 'test:l3', '--silent'], {
       cwd: TEST_DIR, stdio: 'ignore'
     }).status;
   }
-  return spawnSync('node', ['--import', './harness/register.js', '--test', test], {
+  const args = ['--import', './harness/register.js'];
+  if (testName) {
+    args.push('--test-name-pattern=' + testName);
+  }
+  args.push('--test', test);
+  return spawnSync('node', args, {
     cwd: TEST_DIR, stdio: 'ignore'
   }).status;
 }
@@ -47,7 +52,7 @@ process.on('exit', () => {
 });
 
 for (const e of entries) {
-  const { name, file, find, replace, test, runner } = e;
+  const { name, file, find, replace, test, runner, testName } = e;
   const absPath = join(REPO_ROOT, file);
   const backup = join(backupDir, file.replace(/\//g, '_'));
 
@@ -67,7 +72,7 @@ for (const e of entries) {
   }
 
   // Run the test (expect failure: nonzero exit)
-  const firedExit = runTest(test, runner);
+  const firedExit = runTest(test, runner, testName);
 
   // Restore from backup
   restoreBackup(file, backup);
@@ -79,7 +84,7 @@ for (const e of entries) {
   }
 
   // Run the test again (expect pass: zero exit)
-  const restoredExit = runTest(test, runner);
+  const restoredExit = runTest(test, runner, testName);
 
   if (restoredExit !== 0) {
     console.log(`BROKEN ${name} (test failed after restore)`);

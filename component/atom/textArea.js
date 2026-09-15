@@ -1,6 +1,8 @@
-// Info: TextArea atom [S2 interactive]. A multiline text input with token
-// consumption for border and background. Uses a11y for aria-* state and
-// ControllableState for controlled/uncontrolled value.
+// Info: TextArea atom [S2 interactive]. A multiline text input that joins
+// the frame contract (M-D2 = join). The wrapper View owns the frame through
+// Parts.Frame.resolve; the inner TextInput is unframed and suppresses the
+// browser outline. Uses a11y for aria-* state and ControllableState for
+// controlled/uncontrolled value.
 //   value         -> string (controlled)
 //   defaultValue  -> string (uncontrolled)
 //   onChange      -> callback receiving the text value
@@ -11,7 +13,7 @@
 
 
 // Imports
-import { TextInput as RNTextInput } from 'react-native';
+import { View as RNView, TextInput as RNTextInput } from 'react-native';
 
 
 /////////////////////////// Component Factory START ////////////////////////////
@@ -22,7 +24,7 @@ Build the TextArea atom.
 @param {Object} Lib      - { Utils, Debug, React }
 @param {Object} CONFIG   - Package configuration
 @param {Object} ERRORS   - Frozen error catalog
-@param {Object} Parts    - Mechanisms: { A11y, PressKeys, ControllableState, Units, Overlay, AnchoredPosition }
+@param {Object} Parts    - Mechanisms: { A11y, PressKeys, ControllableState, Units, Overlay, AnchoredPosition, Frame, Spec }
 @param {Object} Registry - Component registry (unused by atoms)
 @param {Object} Style    - { utilities, tokens, breakpoint }
 
@@ -60,6 +62,18 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const isDisabled = !!disabled;
     const isInvalid = !!invalid;
 
+    // Resolve the frame through the shared Frame resolver (M-D2 = join).
+    // The wrapper View owns the frame; the inner TextInput is unframed.
+    const sheet = Parts.Spec('textArea');
+    const frameMode = (Style.tokens.Feedback && Style.tokens.Feedback.field) || 'underline';
+    const frameStyles = Parts.Frame.resolve({
+      sheet: 'textArea',
+      mode: frameMode,
+      focused: false,
+      invalid: isInvalid,
+      disabled: isDisabled
+    });
+
     // Resolve field background: layer prop takes precedence, then disabled, then surface
     const fieldBgKey = layer ? 'background_' + layer : 'background_background';
     const fieldBg = isDisabled
@@ -70,24 +84,32 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     const typeKey = typeSet ? 'type_' + typeSet : 'type_body01';
     const typeStyle = Style.utilities[typeKey];
 
-    // Resolve border: invalid uses support_error
-    let borderClasses = [Style.utilities['border_w_width_01'], Style.utilities['border_color_border_subtle_01']];
-    if (isInvalid) {
-      const invalidBorderKey = 'border_color_support_error';
-      borderClasses = [Object.assign({}, Style.utilities[invalidBorderKey], Style.utilities['border_w_width_01'])];
-    }
+    // Resolve padding from the spec token
+    const paddingInline = Style.tokens[sheet.paddingInlineToken] || 16;
 
-    // Base styles from tokens
-    const base = [
+    // Wrapper frame styles (the wrapper owns the frame)
+    const wrapperStyle = [
       Style.utilities['p_h_spacing_05'],
       Style.utilities['p_v_spacing_03'],
-      Style.utilities['br_radius_08'],
-      ...borderClasses,
+      ...frameStyles,
       fieldBg,
+      {
+        minHeight: (rows || 4) * 24
+      }
+    ];
+
+    // Inner input styles (unframed, suppress browser outline)
+    const inputStyle = [
       typeStyle,
       {
-        minHeight: (rows || 4) * 24,
-        textAlignVertical: 'top'
+        paddingInline: paddingInline,
+        outlineStyle: 'none',
+        outlineWidth: 0,
+        borderWidth: 0,
+        borderRadius: 0,
+        flex: 1,
+        textAlignVertical: 'top',
+        minHeight: (rows || 4) * 24
       }
     ];
 
@@ -98,19 +120,26 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     });
 
     return React.createElement(
-      RNTextInput,
-      Object.assign({
-        value: resolvedValue,
-        onChangeText: setValue,
-        placeholder: placeholder,
-        placeholderTextColor: Style.tokens.Color.text_secondary,
-        editable: !isDisabled,
-        multiline: true,
-        numberOfLines: rows || 4,
-        accessibilityRole: 'textbox',
-        accessibilityLabel: accessibilityLabel,
-        style: [...base, style]
-      }, ariaProps, rest)
+      RNView,
+      {
+        style: [...wrapperStyle, style],
+        accessibilityRole: 'group'
+      },
+      React.createElement(
+        RNTextInput,
+        Object.assign({
+          value: resolvedValue,
+          onChangeText: setValue,
+          placeholder: placeholder,
+          placeholderTextColor: Style.tokens.Color.text_secondary,
+          editable: !isDisabled,
+          multiline: true,
+          numberOfLines: rows || 4,
+          accessibilityRole: 'textbox',
+          accessibilityLabel: accessibilityLabel,
+          style: inputStyle
+        }, ariaProps, rest)
+      )
     );
 
   };////////////////////////// Public Functions END ////////////////////////////

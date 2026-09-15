@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "generated": "2026-09-13T09:38:46.795Z",
+    "generated": "2026-09-15T19:07:50.065Z",
     "sources": {
       "layout": "@carbon/layout@11.59.0",
       "styles": "@carbon/styles@1.115.0",
@@ -52,8 +52,12 @@
   ],
   "components": {
     "textInput": {
+      "sizeDefault": "md",
       "height": 40,
+      "densityDefault": "normal",
       "paddingInline": 16,
+      "source": "@carbon/styles/scss/components/text-input/_text-input.scss",
+      "method": "parsed",
       "border": {
         "mode": "underline",
         "bottomWidth": 1,
@@ -61,18 +65,26 @@
           "bottom"
         ]
       },
-      "scss": "@carbon/styles/scss/components/text-input/_text-input.scss"
+      "iconSize": 16
     },
     "button": {
-      "height": 40,
-      "paddingInlineStart": 16,
-      "paddingInlineEnd": 16,
+      "sizeDefault": "lg",
+      "height": 48,
+      "densityDefault": "normal",
+      "paddingInline": 16,
+      "source": "@carbon/styles/scss/components/button/_button.scss",
+      "method": "parsed",
       "iconSize": 20,
-      "scss": "@carbon/styles/scss/components/button/_button.scss"
+      "paddingInlineStart": 16,
+      "paddingInlineEnd": 16
     },
     "search": {
+      "sizeDefault": "md",
       "height": 40,
+      "densityDefault": "normal",
       "paddingInline": 16,
+      "source": "@carbon/styles/scss/components/search/_search.scss",
+      "method": "parsed",
       "iconSize": 16,
       "border": {
         "mode": "underline",
@@ -80,12 +92,15 @@
         "sides": [
           "bottom"
         ]
-      },
-      "scss": "@carbon/styles/scss/components/search/_search.scss"
+      }
     },
     "numberInput": {
       "height": 40,
       "paddingInline": 16,
+      "method": "inherited",
+      "from": "form (text-input)",
+      "source": "@carbon/styles/scss/components/number-input/_number-input.scss",
+      "reason": "Carbon number-input has no layout.use; resolves through @use ../form",
       "stepperIconSize": 20,
       "border": {
         "mode": "underline",
@@ -93,31 +108,55 @@
         "sides": [
           "bottom"
         ]
-      },
-      "scss": "@carbon/styles/scss/components/number-input/_number-input.scss"
+      }
     },
     "tag": {
-      "height": 32,
-      "dismissTargetSize": 24,
-      "scss": "@carbon/styles/scss/components/tag/_tag.scss"
+      "sizeDefault": "md",
+      "height": 24,
+      "densityDefault": "normal",
+      "source": "@carbon/styles/scss/components/tag/_tag.scss",
+      "method": "parsed",
+      "redefinedSizeHeight": {
+        "xs": 18,
+        "sm": 18,
+        "md": 24,
+        "lg": 32
+      },
+      "dismissTargetSize": 24
     },
     "notification": {
       "iconSize": 20,
-      "scss": "@carbon/styles/scss/components/notification/_inline-notification.scss"
+      "method": "none",
+      "source": "@carbon/styles/scss/components/notification/_inline-notification.scss",
+      "reason": "Carbon notification height is content-driven, not a size token"
     },
     "fileUploaderItem": {
-      "removeTargetSize": 32,
-      "scss": "@carbon/styles/scss/components/file-uploader/_file-uploader.scss"
+      "method": "transcribed",
+      "source": "@carbon/styles/scss/components/file-uploader/_file-uploader.scss",
+      "reason": "No layout.use found in component SCSS; value transcribed from Carbon docs",
+      "removeTargetSize": 32
     },
     "copyButton": {
+      "method": "transcribed",
+      "source": "@carbon/styles/scss/components/copy-button/_copy-button.scss",
+      "reason": "No layout.use found in component SCSS; value transcribed from Carbon docs",
       "targetSize": 32,
-      "iconSize": 16,
-      "scss": "@carbon/styles/scss/components/copy-button/_copy-button.scss"
+      "iconSize": 16
+    },
+    "select": {
+      "sizeDefault": "md",
+      "height": 40,
+      "densityDefault": "normal",
+      "paddingInline": 16,
+      "source": "@carbon/styles/scss/components/select/_select.scss",
+      "method": "parsed"
     },
     "bottomNavigation": {
       "itemHeight": 40,
       "iconSize": 20,
-      "scss": "derived from Carbon bottom-navigation pattern"
+      "method": "transcribed",
+      "source": "derived from Carbon bottom-navigation pattern",
+      "reason": "No dedicated Carbon SCSS component; value derived from Carbon design patterns"
     }
   }
 }

@@ -65,6 +65,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
     // Destructure props
     const {
       onPress, disabled, selected, background, kind, radius, style, children, accessibilityLabel,
+      size,
       ...rest
     } = props;
 
@@ -72,6 +73,27 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
 
     // Track visual dimensions for hitSlop calculation
     const layoutRef = React.useRef({ height: 0, width: 0 });
+
+    // ---- Size resolution (M-D6) ----
+    // Default to 'lg' per M-D6. Validate against the spec's size scale.
+    const buttonSpec = Parts.Spec('button');
+    const allowedSizes = buttonSpec && buttonSpec.sizes
+      ? Object.keys(buttonSpec.sizes)
+      : ['lg'];
+    const resolvedSize = size && allowedSizes.indexOf(size) !== -1
+      ? size
+      : buttonSpec && buttonSpec.defaultSize
+        ? buttonSpec.defaultSize
+        : 'lg';
+
+    // Resolve the height token for this size from the spec
+    let sizeHeight = CONFIG.MIN_HIT_TARGET;
+    if (buttonSpec && buttonSpec.sizes && buttonSpec.sizes[resolvedSize]) {
+      const heightToken = buttonSpec.sizes[resolvedSize].heightToken;
+      if (heightToken && Style.tokens[heightToken]) {
+        sizeHeight = Style.tokens[heightToken];
+      }
+    }
 
 
     // ---- Base utility classes ----
@@ -98,7 +120,7 @@ export default function (Lib, CONFIG, ERRORS, Parts, Registry, Style) {
         Style.utilities['justify_center'],
         Style.utilities['p_h_spacing_05'],
         Style.utilities['p_v_spacing_03'],
-        { minHeight: CONFIG.MIN_HIT_TARGET },
+        { minHeight: sizeHeight },
         ...baseClasses
       ];
 

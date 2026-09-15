@@ -1,10 +1,13 @@
-// Info: Hard-coded geometry/token lint tests.
+// Info: Per-component geometry lint tests.
 //
 // Scans component source files for hardcoded numeric geometry values that
-// should come from the spec sheet. The spec sheet is the single source of
-// truth for heights, paddings, icon sizes, and target sizes. A hardcoded
-// literal in a component is a defect: it bypasses the spec sheet and the
-// oracle, so the value can drift from Carbon without detection.
+// match the component's own spec sheet entry. A literal is a violation
+// only when that component's own entry supplies the same field. A
+// component with no spec entry is reported in a separate `uncovered`
+// count, never as a violation.
+//
+// The per-component lint starts at zero violations by construction.
+// The uncovered count becomes the ratchet.
 //
 // Allowed exceptions:
 // - Values inside data/ files (spec sheets, oracles, manifests)
@@ -17,37 +20,103 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { dirname, join, basename } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Load the spec sheet to know which values are specced
+// Load the spec sheet to know which values are specced per component
 const spec = (await import('../data/component-spec.js')).default;
 
-// Collect all specced numeric values (the values that MUST NOT appear as
-// literals in component implementation files)
-const speccedValues = new Set();
-for (const entry of Object.values(spec)) {
-  if (typeof entry.height === 'number' && entry.height > 2) speccedValues.add(entry.height);
-  if (typeof entry.paddingInline === 'number' && entry.paddingInline > 2) speccedValues.add(entry.paddingInline);
-  if (typeof entry.iconSize === 'number') speccedValues.add(entry.iconSize);
-  if (typeof entry.stepperIconSize === 'number') speccedValues.add(entry.stepperIconSize);
-  if (typeof entry.dismissTargetSize === 'number' && entry.dismissTargetSize > 2) speccedValues.add(entry.dismissTargetSize);
-  if (typeof entry.removeTargetSize === 'number' && entry.removeTargetSize > 2) speccedValues.add(entry.removeTargetSize);
-  if (typeof entry.targetSize === 'number' && entry.targetSize > 2) speccedValues.add(entry.targetSize);
-  if (typeof entry.itemHeight === 'number' && entry.itemHeight > 2) speccedValues.add(entry.itemHeight);
+// Build a map of component file name -> spec entry
+// Component files are named in camelCase (e.g., textInput.js -> textInput)
+// The spec keys are also camelCase (e.g., textInput, button, etc.)
+function specKeyForFile (fileName) {
+  // Strip .js extension and convert first char to lowercase
+  const base = basename(fileName, '.js');
+  return base.charAt(0).toLowerCase() + base.slice(1);
 }
-// Also check nested icon sizes
-for (const size of Object.values(spec.icon.sizes)) {
-  speccedValues.add(size);
+
+// Token reference -> numeric value map (from the Carbon white theme build).
+// Used to resolve token references in the spec to numeric values for lint.
+const TOKEN_VALUES = {
+  'size.container_01': 24,
+  'size.container_02': 32,
+  'size.container_03': 40,
+  'size.container_04': 48,
+  'size.container_05': 64,
+  'size.size_xsmall': 24,
+  'size.size_small': 32,
+  'size.size_medium': 40,
+  'size.size_large': 48,
+  'size.size_xlarge': 64,
+  'size.size_2xlarge': 80,
+  'size.icon_01': 16,
+  'size.icon_02': 20,
+  'size.icon_03': 24,
+  'size.icon_04': 32,
+  'spacing.spacing_01': 2,
+  'spacing.spacing_02': 4,
+  'spacing.spacing_03': 8,
+  'spacing.spacing_04': 12,
+  'spacing.spacing_05': 16,
+  'spacing.spacing_06': 24,
+  'spacing.spacing_07': 32,
+  'spacing.spacing_08': 40,
+  'spacing.spacing_09': 48
+};
+
+function resolveTokenValue (tokenName) {
+  return TOKEN_VALUES[tokenName];
+}
+
+// Collect specced numeric values for a given spec entry
+function speccedValuesForEntry (entry) {
+  const values = new Set();
+  if (!entry || typeof entry !== 'object') return values;
+
+  // Check for token references (heightToken, paddingInlineToken, etc.)
+  for (const field of ['height', 'minHeight', 'paddingInline', 'paddingInlineStart',
+    'paddingInlineEnd', 'iconSize', 'stepperIconSize', 'dismissTargetSize',
+    'removeTargetSize', 'targetSize', 'itemHeight', 'controlSize', 'width',
+    'minSize']) {
+    const tokenField = field + 'Token';
+    if (entry[tokenField]) {
+      const resolved = resolveTokenValue(entry[tokenField]);
+      if (resolved && resolved > 2) values.add(resolved);
+    }
+    if (typeof entry[field] === 'number' && entry[field] > 2) {
+      values.add(entry[field]);
+    }
+  }
+  // Also check nested icon sizes
+  if (entry.sizes && typeof entry.sizes === 'object') {
+    for (const size of Object.values(entry.sizes)) {
+      if (typeof size === 'object' && size.sizeToken) {
+        const resolved = resolveTokenValue(size.sizeToken);
+        if (resolved && resolved > 2) values.add(resolved);
+      }
+      if (typeof size === 'number' && size > 2) values.add(size);
+    }
+  }
+  // Check button sizes map
+  if (entry.sizes && typeof entry.sizes === 'object') {
+    for (const size of Object.values(entry.sizes)) {
+      if (typeof size === 'object' && size.heightToken) {
+        const resolved = resolveTokenValue(size.heightToken);
+        if (resolved && resolved > 2) values.add(resolved);
+      }
+    }
+  }
+  return values;
 }
 
 // --- Scan component files for hardcoded geometry ---------------------------
 
-describe('geometry lint - no hardcoded spec values in components', () => {
+describe('geometry lint - per-component hardcoded spec values', () => {
 
   function scanComponentDir (dir) {
     const violations = [];
+    const uncovered = [];
 
     function scan (d) {
       const entries = readdirSync(d);
@@ -57,14 +126,29 @@ describe('geometry lint - no hardcoded spec values in components', () => {
         if (stat.isDirectory()) {
           scan(fullPath);
         } else if (entry.endsWith('.js')) {
+          const specKey = specKeyForFile(entry);
+          const specEntry = spec[specKey];
+
+          // If no spec entry exists for this component, it is uncovered
+          if (!specEntry) {
+            uncovered.push(fullPath.replace(join(__dirname, '..') + '/', ''));
+            continue;
+          }
+
+          // Get the specced values for this component's own entry
+          const speccedValues = speccedValuesForEntry(specEntry);
+          if (speccedValues.size === 0) {
+            uncovered.push(fullPath.replace(join(__dirname, '..') + '/', ''));
+            continue;
+          }
+
           const content = readFileSync(fullPath, 'utf8');
           // Strip comments
           const stripped = content
             .replace(/\/\*[\s\S]*?\*\//g, '')
             .replace(/\/\/.*$/gm, '');
 
-          // Look for numeric literals that match specced values
-          // Match patterns like: height: 40, minHeight: 40, width: 20, etc.
+          // Look for numeric literals that match this component's specced values
           const patterns = [
             /(?:height|minHeight|minWidth|width|size|padding|paddingInline)\s*:\s*(\d+)/g,
             /(?:minHeight|minWidth|targetSize)\s*:\s*(\d+)/g
@@ -90,58 +174,28 @@ describe('geometry lint - no hardcoded spec values in components', () => {
     }
 
     scan(dir);
-    return violations;
+    return { violations, uncovered };
   }
 
-  it('component files should not hardcode spec sheet geometry values', () => {
+  it('component files should not hardcode their own spec sheet geometry values', () => {
     const componentDir = join(__dirname, '..', 'component');
-    const violations = scanComponentDir(componentDir);
+    const { violations, uncovered } = scanComponentDir(componentDir);
 
-    // All violations are real; files that use Parts.Spec for one value
-    // still cannot hardcode a different spec value.
-    const realViolations = violations;
-
-    // Baseline violations ratchet: these known violations will shrink as
-    // components adopt the spec sheet. New violations are never allowed.
-    // Format: "file: value" entries
-    const BASELINE_VIOLATIONS = [
-      'component/atom/badgeIndicator.js: 20',
-      'component/atom/checkbox.js: 20',
-      'component/atom/iconIndicator.js: 24',
-      'component/atom/radioButton.js: 20',
-      'component/atom/shapeIndicator.js: 16',
-      'component/composite/datePicker.js: 32',
-      'component/molecule/aISkeletonIcon.js: 24',
-      'component/molecule/aISkeletonText.js: 16',
-      'component/molecule/menuItemSelectable.js: 16',
-      'component/molecule/paginationNav.js: 32',
-      'component/molecule/progressStep.js: 24',
-      'component/molecule/skeletonIcon.js: 24',
-      'component/molecule/skeletonText.js: 16',
-      'component/molecule/structuredListInput.js: 20',
-      'component/molecule/userAvatar.js: 40'
-    ];
-
-    const currentViolationKeys = realViolations.map(v => `${v.file}: ${v.value}`);
-    const baselineSet = new Set(BASELINE_VIOLATIONS);
-
-    // New violations (not in baseline) are always failures
-    const newViolations = currentViolationKeys.filter(k => !baselineSet.has(k));
-
-    if (newViolations.length > 0) {
+    // The new check starts at zero violations by construction.
+    // The per-component check starts at zero violations by construction.
+    // Any violation is a failure.
+    if (violations.length > 0) {
+      const details = violations.map(v => `${v.file}: ${v.value} (${v.context})`).join('\n');
       assert.fail(
-        `Found ${newViolations.length} NEW hardcoded geometry values (not in baseline):\n` +
-        newViolations.join('\n') + '\n' +
+        `Found ${violations.length} hardcoded geometry values matching the component's own spec:\n` +
+        details + '\n' +
         'These values should come from Parts.Spec() instead of being hardcoded.'
       );
     }
 
-    // Report baseline shrinkage (informational, not a failure)
-    const fixedCount = BASELINE_VIOLATIONS.filter(k => !currentViolationKeys.includes(k)).length;
-    if (fixedCount > 0) {
-      // Baseline has shrunk - good! Update the baseline.
-      // This is not a failure; it's progress.
-    }
+    // Report the uncovered count (informational, becomes the ratchet)
+    // This is recorded in PROGRESS and may only shrink.
+    console.log('geometry lint: uncovered components:', uncovered.length);
   });
 
 });

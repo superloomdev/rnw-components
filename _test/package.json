@@ -12,24 +12,26 @@
     "fire": "bash fire.sh"
   },
   "dependencies": {
-    "rnw-components": "file:../",
-    "helper-utils": "npm:@superloomdev/js-helper-utils@^1.0.0",
-    "helper-debug": "npm:@superloomdev/js-helper-debug@^1.0.0",
-    "helper-themer": "npm:@superloomdev/js-client-helper-themer@^1.0.0",
-    "helper-themer-template-carbon": "npm:@superloomdev/js-client-helper-themer-template-carbon@^1.0.0",
-    "helper-device": "npm:@superloomdev/js-rnw-helper-device@^1.0.0",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "react-test-renderer": "^19.2.0",
-    "react-native-web": "^0.21.2",
-    "jsdom": "^25.0.1",
-    "axe-core": "^4.10.3",
     "@axe-core/playwright": "^4.10.0",
     "@playwright/test": "^1.48.0",
-    "vite": "^6.4.0",
-    "@vitejs/plugin-react": "^4.3.0"
+    "@vitejs/plugin-react": "^4.3.0",
+    "axe-core": "^4.10.3",
+    "helper-debug": "npm:@superloomdev/js-helper-debug@^1.0.0",
+    "helper-device": "npm:@superloomdev/js-rnw-helper-device@^1.0.0",
+    "helper-themer": "npm:@superloomdev/js-client-helper-themer@^1.0.0",
+    "helper-themer-template-carbon": "npm:@superloomdev/js-client-helper-themer-template-carbon@^1.0.0",
+    "helper-utils": "npm:@superloomdev/js-helper-utils@^1.0.0",
+    "jsdom": "^25.0.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-native-web": "^0.21.2",
+    "react-test-renderer": "^19.2.0",
+    "rnw-components": "file:../",
+    "vite": "^6.4.0"
   },
   "devDependencies": {
-    "@carbon/react": "1.115.0"
+    "@carbon/react": "1.115.0",
+    "@carbon/styles": "1.115.0",
+    "@material/web": "^2.5.0"
   }
 }

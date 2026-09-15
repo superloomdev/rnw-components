@@ -2,23 +2,26 @@
   {
     "name": "spec-oracle-control-size",
     "file": "data/component-spec.js",
-    "find": "controlSize: 40,",
-    "replace": "controlSize: 39,",
-    "test": "spec.test.js"
+    "find": "controlSizeToken: 'size.container_03',",
+    "replace": "controlSizeToken: 'size.container_02',",
+    "test": "spec.test.js",
+    "testName": "controlSize should match Carbon layout.size md"
   },
   {
     "name": "spec-field-min-width",
     "file": "data/component-spec.js",
     "find": "minWidth: 0,",
     "replace": "minWidth: 1,",
-    "test": "spec.test.js"
+    "test": "spec.test.js",
+    "testName": "all field specs should declare minWidth: 0"
   },
   {
     "name": "spec-state-token",
     "file": "data/component-spec.js",
     "find": "border: 'color.border_subtle_01',",
     "replace": "border: 'color.border_subtle_01_missing',",
-    "test": "spec.test.js"
+    "test": "spec.test.js",
+    "testName": "every states.* token should resolve as a strict utility"
   },
   {
     "name": "icon-manifest-close",
@@ -29,9 +32,9 @@
   },
   {
     "name": "geometry-literal",
-    "file": "component/molecule/callout.js",
-    "find": "Style.utilities['p_a_spacing_05'],",
-    "replace": "Style.utilities['p_a_spacing_05'], { height: 40 },",
+    "file": "component/atom/button.js",
+    "find": "Style.utilities['p_h_spacing_05'],",
+    "replace": "Style.utilities['p_h_spacing_05'], { height: 48 },",
     "test": "geometry-lint.test.js"
   },
   {
@@ -46,7 +49,8 @@
     "file": "data/spec-coverage.js",
     "find": "unspecced: Object.freeze({",
     "replace": "unspecced: Object.freeze({ FakeComponent: 'planted',",
-    "test": "spec.test.js"
+    "test": "spec.test.js",
+    "testName": "unspecced count should not grow"
   },
   {
     "name": "frame-owner-outline",
@@ -55,5 +59,21 @@
     "replace": "outlineStyle: 'auto', outlineWidth: 0",
     "test": "interact.test.js",
     "runner": "l3"
+  },
+  {
+    "name": "R2-icon-size-lg",
+    "file": "data/component-spec.js",
+    "find": "lg: Object.freeze({ sizeToken: 'size.icon_03' })",
+    "replace": "lg: Object.freeze({ sizeToken: 'size.icon_01' })",
+    "test": "spec.test.js",
+    "testName": "icon sizes should match Carbon icon sizes"
+  },
+  {
+    "name": "R5-status-surface-token-family",
+    "file": "data/component-spec.js",
+    "find": "background: 'color.notification_background_{kind}',",
+    "replace": "background: 'color.support_{kind}',",
+    "test": "theme.test.js",
+    "testName": "M.1 test 3 - numeric contrast for status surfaces"
   }
 ]

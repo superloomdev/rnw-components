@@ -24,24 +24,25 @@ const spec = (await import('../data/component-spec.js')).default;
 describe('assertion integrity - spec sheet negative controls', () => {
 
   it('spec.textInput.height assertion fires when value is wrong', () => {
-    // The spec says 40. If we corrupt it, the oracle check should fail.
-    const corrupted = { ...spec, textInput: { ...spec.textInput, height: 999 } };
-    assert.notEqual(corrupted.textInput.height, 40,
-      'corrupted height should not match the expected 40');
-    assert.equal(spec.textInput.height, 40,
-      'original spec should still be 40 (frozen, not mutated)');
+    // The spec uses heightToken: 'size.container_03' (resolves to 40).
+    // If we corrupt it, the oracle check should fail.
+    const corrupted = { ...spec, textInput: { ...spec.textInput, heightToken: 'size.container_05' } };
+    assert.notEqual(corrupted.textInput.heightToken, 'size.container_03',
+      'corrupted heightToken should not match the expected token');
+    assert.equal(spec.textInput.heightToken, 'size.container_03',
+      'original spec should still have size.container_03 (frozen, not mutated)');
   });
 
   it('spec.button.iconSize assertion fires when value is wrong', () => {
-    const corrupted = { ...spec, button: { ...spec.button, iconSize: 999 } };
-    assert.notEqual(corrupted.button.iconSize, 20);
-    assert.equal(spec.button.iconSize, 20);
+    const corrupted = { ...spec, button: { ...spec.button, iconSizeToken: 'size.icon_04' } };
+    assert.notEqual(corrupted.button.iconSizeToken, 'size.icon_01');
+    assert.equal(spec.button.iconSizeToken, 'size.icon_01');
   });
 
   it('spec.tag.height assertion fires when value is wrong', () => {
-    const corrupted = { ...spec, tag: { ...spec.tag, height: 999 } };
-    assert.notEqual(corrupted.tag.height, 32);
-    assert.equal(spec.tag.height, 32);
+    const corrupted = { ...spec, tag: { ...spec.tag, heightToken: 'size.container_05' } };
+    assert.notEqual(corrupted.tag.heightToken, 'size.container_01');
+    assert.equal(spec.tag.heightToken, 'size.container_01');
   });
 
   it('spec.textInput.minWidth assertion fires when value is wrong', () => {
