@@ -14,6 +14,12 @@ eslint.config.js
 # Dev tooling scripts (local verification, not part of the package)
 scripts/
 
+# CI parity artifacts (local verification, not part of the package)
+.ci-step-map.tsv
+.ci-unreplicable.tsv
+.githooks/
+.verify-stamp
+
 # Devin workflow definitions (internal tooling, not for package consumers)
 .devin/
 
