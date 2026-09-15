@@ -408,6 +408,9 @@ jobs:
             exit 1
           fi
           echo "PASS: no removed ./theme export reference"
+      - name: G33 - CI step map covers every workflow step
+        run: |
+          node scripts/ci-census.js --check-map
 
   contract:
     name: L4 Contract Tests

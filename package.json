@@ -25,8 +25,9 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "verify": "node scripts/verify.js",
+    "verify": "node scripts/verify.js --full",
     "verify:gates": "node scripts/verify.js --gates",
+    "verify:fast": "node scripts/verify.js --fast",
     "verify:full": "node scripts/verify.js --full",
     "verify:parity": "cd _test && node --import ./harness/register.js --test parity.test.js"
   },

@@ -11,87 +11,53 @@
 //   node scripts/verify.js           gates + lint + unit tests
 //   node scripts/verify.js --gates   enforcement gates only
 //   node scripts/verify.js --full    adds the L3 esbuild + Playwright tier
+//   node scripts/verify.js --fast    skips the L3 tier (inner loop)
 
-import { readFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
+import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const WORKFLOW = path.join(REPO_ROOT, '.github', 'workflows', 'ci.yml');
 
 const GATES_ONLY = process.argv.includes('--gates');
-const FULL = process.argv.includes('--full');
+const FAST = process.argv.includes('--fast');
+// L3 runs by default. --fast skips it (inner loop). --full is an alias for
+// the default and is accepted for backward compatibility.
+const FULL = !FAST;
 
 
 /********************************************************************
-Extract every enforcement gate step from the workflow file.
+Extract every enforcement gate step from the census, not by name pattern.
 
-A step looks like:
+The census (`scripts/ci-census.js --json`) enumerates every workflow step
+structurally and resolves each one against `.ci-step-map.tsv`. Steps whose
+`local_gate` includes `gates` are the enforcement gates this script replays.
 
-      - name: G1 - No accessibilityState
-        run: |
-          <command lines indented further>
-
-@return {Array} - List of { name, script } in workflow order
+@return {Array} - List of { name, script, workdir } in workflow order
 *********************************************************************/
 function getGates () {
 
-  const lines = readFileSync(WORKFLOW, 'utf8').split('\n');
+  const json = execSync('node scripts/ci-census.js --json', {
+    cwd: REPO_ROOT, encoding: 'utf8'
+  });
+  const steps = JSON.parse(json);
   const gates = [];
 
-  for (let i = 0; i < lines.length; i++) {
-
-    // A gate begins at a step whose name starts with G followed by digits
-    const header = lines[i].match(/^(\s+)- name: (G\d+\b.*)$/);
-    if (!header) {
+  for (const step of steps) {
+    const gateList = (step.local_gate || '').split(',').map(function (g) {
+      return g.trim();
+    }).filter(Boolean);
+    if (gateList.indexOf('gates') === -1) {
       continue;
     }
-
-    // The run block must be the next non-blank line, otherwise the step is
-    // something other than an inline script and cannot be replayed
-    const runLine = lines[i + 1];
-    if (!runLine || !/^\s+run: \|/.test(runLine)) {
-      continue;
-    }
-
-    // Collect the block: every line indented deeper than the run key itself
-    const runIndent = runLine.match(/^(\s+)/)[1].length;
-    const body = [];
-
-    for (let j = i + 2; j < lines.length; j++) {
-      const line = lines[j];
-      if (!line.trim()) {
-        body.push('');
-        continue;
-      }
-      const indent = line.match(/^(\s*)/)[1].length;
-      if (indent <= runIndent) {
-        break;
-      }
-      body.push(line);
-    }
-
-    // Strip the common leading indentation so the script runs as written
-    const dedent = Math.min.apply(null, body
-      .filter(function (l) {
-        return Boolean(l.trim());
-      })
-      .map(function (l) {
-        return l.match(/^(\s*)/)[1].length;
-      })
-    );
-
     gates.push({
-      name: header[2].trim(),
-      script: body.map(function (l) {
-        return l.slice(dedent);
-      }).join('\n')
+      name: step.name,
+      script: step.run || '',
+      workdir: step.working_directory || ''
     });
-
   }
 
-  // Return the gates in the order the workflow declares them
   return gates;
 
 }
@@ -134,14 +100,22 @@ function sh (cmd, cwd) {
 
 // ------------------------------- Run ---------------------------------- //
 
+// Parity check: every CI step must have a local mapping or a signed
+// unreplicable row. Fail before running any gate if a step is unmapped.
+if (!GATES_ONLY) {
+  execSync('node scripts/ci-census.js --check-map', {
+    cwd: REPO_ROOT, stdio: 'inherit'
+  });
+}
+
 const gates = getGates();
 
 if (gates.length < 1) {
-  process.stdout.write('\x1b[31mFAIL\x1b[0m no gates extracted from ci.yml; the step format changed\n');
+  process.stdout.write('\x1b[31mFAIL\x1b[0m no gates extracted from census; the step map has no gates row\n');
   process.exit(1);
 }
 
-process.stdout.write('extracted ' + gates.length + ' enforcement gates from ci.yml\n');
+process.stdout.write('extracted ' + gates.length + ' enforcement gates from census\n');
 
 // Preflight: reject non-portable ERE constructs in -E patterns (rule 34).
 // POSIX ERE does not define \b, \d, \s, \w, or (?...). A gate that uses them
@@ -185,10 +159,11 @@ if (untracked) {
 
 const failed = [];
 let passed = 0;
+const executed = [];
 
 for (const gate of gates) {
   const ok = runCheck(gate.name, function () {
-    sh(gate.script);
+    sh(gate.script, gate.workdir ? path.join(REPO_ROOT, gate.workdir) : REPO_ROOT);
   });
   if (ok) {
     passed++;
@@ -196,6 +171,7 @@ for (const gate of gates) {
     failed.push(gate.name);
   }
 }
+executed.push('gates');
 
 if (!GATES_ONLY) {
 
@@ -207,6 +183,7 @@ if (!GATES_ONLY) {
   } else {
     failed.push('clean install');
   }
+  executed.push('clean install');
 
   if (runCheck('eslint', function () {
     sh('npx eslint .');
@@ -215,6 +192,7 @@ if (!GATES_ONLY) {
   } else {
     failed.push('eslint');
   }
+  executed.push('eslint');
 
   if (runCheck('unit tests (_test)', function () {
     sh('npm test', path.join(REPO_ROOT, '_test'));
@@ -223,8 +201,17 @@ if (!GATES_ONLY) {
   } else {
     failed.push('unit tests (_test)');
   }
+  executed.push('unit tests (_test)');
 
   if (FULL) {
+    if (runCheck('playwright browser install', function () {
+      sh('npx playwright install --with-deps chromium', path.join(REPO_ROOT, '_test'));
+    })) {
+      passed++;
+    } else {
+      failed.push('playwright browser install');
+    }
+
     if (runCheck('L3 visual + interaction', function () {
       sh('npm run test:l3', path.join(REPO_ROOT, '_test'));
     })) {
@@ -232,6 +219,7 @@ if (!GATES_ONLY) {
     } else {
       failed.push('L3 visual + interaction');
     }
+    executed.push('L3 visual + interaction');
   }
 
 }
@@ -248,6 +236,23 @@ if (failed.length >= 1) {
     process.stdout.write('  - ' + name + '\n');
   }
   process.exit(1);
+}
+
+// Parity assertion: every replayed gate in the step map must have been
+// executed in this run. In gates-only or fast mode, the full gate set is
+// not executed, so the assertion is skipped.
+if (!GATES_ONLY && !FAST) {
+  execSync('node scripts/ci-census.js --assert-executed ' + executed.join(','), {
+    cwd: REPO_ROOT, stdio: 'inherit'
+  });
+  // Write the content hash stamp so the pre-push hook can verify it.
+  const hash = execSync('bash scripts/content-hash.sh', {
+    cwd: REPO_ROOT, encoding: 'utf8'
+  }).trim();
+  writeFileSync(path.join(REPO_ROOT, '.verify-stamp'), hash + '\n');
+  process.stdout.write('verify stamp written\n');
+} else if (FAST) {
+  process.stdout.write('ci parity: fast mode - executed-set assertion skipped; run npm run verify before pushing\n');
 }
 
 process.stdout.write('\x1b[32mall gates passed\x1b[0m\n');

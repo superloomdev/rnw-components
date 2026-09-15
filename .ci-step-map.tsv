@@ -1,0 +1,11 @@
+match_field	pattern	local_gate	note
+name	G[0-9]+.*	gates	
+name	Install dependencies	clean install	
+name	Install test dependencies	clean install	
+name	Run ESLint	eslint	
+name	Run tests	unit tests (_test)	
+name	Run L1 audit tests	unit tests (_test)	audit.test.js runs inside npm test
+name	L4-.*	unit tests (_test)	CI reports one step per L4 rule via --test-name-pattern; the local run executes contract.test.js in full and reports one suite. Assertions are identical; only reporting granularity differs.
+name	Install Playwright browsers	L3 visual + interaction	[WIRE] wired in C.4
+name	Build visual bundle	L3 visual + interaction	[WIRE] wired in C.4
+name	Run L3 Playwright tests	L3 visual + interaction	[WIRE] wired in C.4
